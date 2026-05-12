@@ -456,3 +456,91 @@ A ideia não é substituir o README.
 O `README.md` apresenta o projeto para quem chega.
 
 O `CONTEXT.md` registra o raciocínio e o histórico interno do desenvolvimento.
+
+---
+
+## 19. Estrutura de componentes
+
+A estrutura de componentes foi criada com três grupos organizados dentro de `src/components/`.
+
+```txt
+src/components/
+├── layout/     → componentes estruturais como Header e Footer
+├── sections/   → seções principais da landing page (Hero, Sobre, Áreas de atuação, etc.)
+└── ui/         → componentes reutilizáveis menores (botões, ícones, cards, etc.)
+```
+
+### Grupos definidos
+
+- **layout**: componentes que formam a estrutura global da página, como `Header` e `Footer`, presentes em todas as rotas.
+- **sections**: cada seção da landing page terá seu próprio componente aqui (ex: `HeroSection`, `AboutSection`, `PracticeAreasSection`).
+- **ui**: componentes atômicos e reutilizáveis que serão usados dentro das sections e do layout (ex: `Button`, `SectionTitle`, `Card`).
+
+### Importação
+
+Os componentes são importados com o alias `@/`, que aponta para `./src/`:
+
+```tsx
+import Header from '@/components/layout/Header'
+import HeroSection from '@/components/sections/HeroSection'
+import Button from '@/components/ui/Button'
+```
+
+---
+
+## 20. Migração para src/
+
+Foi decidido migrar o código da aplicação para a pasta `src/` para manter uma separação mais profissional entre o código da aplicação e os arquivos de configuração do projeto.
+
+### Motivação
+
+Com o crescimento do projeto, misturar `app/` e `components/` diretamente na raiz junto com `package.json`, `tsconfig.json`, `next.config.ts` e outros arquivos de configuração tornaria a estrutura confusa e difícil de navegar. A separação por `src/` é uma convenção amplamente adotada em projetos Next.js profissionais e facilita a manutenção.
+
+### O que foi movido
+
+| De | Para |
+|---|---|
+| `app/` | `src/app/` |
+| `components/` | `src/components/` |
+
+### O que permanece na raiz
+
+- `public/`
+- `package.json` / `package-lock.json`
+- `next.config.ts`
+- `tsconfig.json`
+- `eslint.config.mjs`
+- `postcss.config.mjs`
+- `README.md`
+- `CONTEXT.md`
+- `.gitignore`
+
+### Alias atualizado
+
+O alias `@/*` no `tsconfig.json` foi atualizado de `"./*"` para `"./src/*"`, garantindo que todos os imports com `@/` continuem funcionando corretamente.
+
+### Estrutura final após a migração
+
+```txt
+site-monique-ranauro/
+├── public/
+├── src/
+│   ├── app/
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   └── components/
+│       ├── layout/
+│       ├── sections/
+│       └── ui/
+├── .gitignore
+├── CONTEXT.md
+├── eslint.config.mjs
+├── next.config.ts
+├── next-env.d.ts
+├── package.json
+├── postcss.config.mjs
+├── README.md
+└── tsconfig.json
+```

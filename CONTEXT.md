@@ -596,3 +596,44 @@ description: "Atuação estratégica, técnica e sigilosa em advocacia criminal.
 
 - `src/app/layout.tsx` — fontes, metadata e lang
 - `src/app/globals.css` — tokens visuais, tipografia e estilos base
+
+---
+
+## 22. Header inicial
+
+### Componente criado
+
+`src/components/layout/Header.tsx` — componente Server Component estático, sem necessidade de `"use client"` por não ter estado interativo nesta etapa.
+
+### Estrutura do Header
+
+- **Marca:** "Monique Ranauro" em Playfair Display (`font-heading`), com subtexto "ADVOCACIA CRIMINAL" em dourado espaçado (`text-accent`)
+- **Navegação desktop:** links âncora para as seções da página, visíveis apenas em `md:` e acima
+- **Botão CTA:** "Falar no WhatsApp" com borda dourada, estilo outline → filled no hover
+- **Visual:** fundo escuro com 90% de opacidade + `backdrop-blur-sm`, borda inferior sutil (`border-border`), `sticky top-0 z-50`
+
+### Links de navegação previstos
+
+| Label | Âncora |
+|---|---|
+| Início | `#inicio` |
+| Sobre | `#sobre` |
+| Atuação | `#atuacao` |
+| Diferenciais | `#diferenciais` |
+| Contato | `#contato` |
+
+### Botão WhatsApp
+
+O botão aponta atualmente para `#contato` como placeholder. O link definitivo deve ser atualizado para `https://wa.me/55XXXXXXXXXXX` quando o número de WhatsApp da advogada for confirmado.
+
+### Decisão — menu mobile para etapa futura
+
+O menu hamburguer para mobile foi intencionalmente deixado para uma etapa posterior. Na versão atual, a navegação desktop é ocultada em telas pequenas (`hidden md:flex`), e o botão de WhatsApp permanece visível em todos os tamanhos de tela. A implementação do menu mobile exigirá estado interativo (`"use client"`) e será tratada como tarefa dedicada.
+
+### Arquivos criados
+
+- `src/components/layout/Header.tsx` — componente Header
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — substituído template padrão do Next.js; Header importado via `@/`; área de placeholder para validar layout

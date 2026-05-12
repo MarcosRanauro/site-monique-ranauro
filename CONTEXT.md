@@ -710,3 +710,47 @@ O fundo da seção usa `#0f0f0f` (ligeiramente mais claro que `#0b0b0b` do Hero)
 ### Arquivos alterados
 
 - `src/app/page.tsx` — About importado via `@/` e renderizado logo abaixo do Hero
+
+---
+
+## 25. Seção Áreas de Atuação
+
+### Componente criado
+
+`src/components/sections/PracticeAreas.tsx` — Server Component estático. Cabeçalho centralizado com eyebrow, título e subtítulo, seguido de grid de cards responsivo. Identificado com `id="atuacao"` para navegação âncora.
+
+### Áreas incluídas
+
+| Nº | Área |
+|---|---|
+| 01 | Prisão em flagrante |
+| 02 | Audiência de custódia |
+| 03 | Inquérito policial |
+| 04 | Processo criminal |
+| 05 | Tribunal do Júri |
+| 06 | Crimes contra a honra |
+| 07 | Medidas urgentes |
+
+### Decisão — comunicação ética e sem promessa de resultado
+
+Todas as descrições foram redigidas em linguagem técnica e informativa. Os textos descrevem o tipo de atuação e o escopo de trabalho sem prometer resultados, sem usar superlativos e sem comparações com outros profissionais. O foco está em transmitir competência e seriedade.
+
+### Decisão — sem ícones externos
+
+Os cards usam números sequenciais (`01`–`07`) em dourado como marcadores visuais, substituindo ícones de bibliotecas externas. Isso mantém o visual coeso, elimina dependências e reforça a estética tipográfica do projeto.
+
+### Decisão — hover com linha crescente
+
+Cada card tem um detalhe de interação: uma linha dourada (`bg-accent/50`) que cresce de `w-0` para `w-8` no hover via `transition-all`. Essa micro-animação é discreta e profissional, sem exageros.
+
+### Ajuste — centralização do último card no desktop
+
+Com 7 itens em um grid de 3 colunas, o último card ficaria sozinho no canto esquerdo da terceira linha. Para melhorar o equilíbrio visual, o índice do `map` é usado para detectar o último item e aplicar `lg:col-start-2`, posicionando-o na coluna central do grid no breakpoint `lg`. Em mobile e tablet o comportamento não é afetado.
+
+### Arquivos criados
+
+- `src/components/sections/PracticeAreas.tsx` — componente da seção Áreas de Atuação
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — PracticeAreas importado via `@/` e renderizado abaixo de About

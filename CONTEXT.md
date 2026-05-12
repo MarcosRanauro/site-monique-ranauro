@@ -672,3 +672,41 @@ A composição visual evita deliberadamente imagens ou ícones associados ao vis
 ### Arquivos alterados
 
 - `src/app/page.tsx` — placeholder removido; Hero importado via `@/` e renderizado dentro do `<main>`
+
+---
+
+## 24. Seção Sobre
+
+### Componente criado
+
+`src/components/sections/About.tsx` — Server Component estático. Layout em duas colunas no desktop e uma coluna no mobile. Identificado com `id="sobre"` para navegação âncora.
+
+### Conteúdo definido
+
+| Elemento | Conteúdo |
+|---|---|
+| Eyebrow | "Sobre a profissional" (badge com borda dourada) |
+| Título | "Atuação criminal com técnica, sigilo e estratégia." |
+| Parágrafo 1 | Apresentação profissional: sigilo, análise e comunicação |
+| Parágrafo 2 | Complemento: seriedade, atenção e proteção de direitos |
+| Itens de apoio | Análise individualizada · Comunicação clara · Atuação ética |
+
+### Decisão — texto institucional e ético
+
+O conteúdo foi escrito sem promessas de resultado, sem linguagem apelativa e sem comparações com outros profissionais. A comunicação segue os limites da publicidade jurídica ética: apresenta competências e postura profissional sem garantias de sucesso.
+
+### Decisão — sem imagem real nesta etapa
+
+O lado esquerdo usa um card institucional com CSS puro: monograma "M" em dourado, nome da advogada, título "Advogada Criminalista", separador em dourado e uma frase institucional discreta. A fotografia profissional será inserida em etapa posterior, substituindo o card decorativo.
+
+### Decisão — fundo levemente diferente do Hero
+
+O fundo da seção usa `#0f0f0f` (ligeiramente mais claro que `#0b0b0b` do Hero) combinado com `border-t border-border` no topo. Essa diferença sutil cria separação visual entre as seções sem quebrar a coesão do design escuro.
+
+### Arquivos criados
+
+- `src/components/sections/About.tsx` — componente da seção Sobre
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — About importado via `@/` e renderizado logo abaixo do Hero

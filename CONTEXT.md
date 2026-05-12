@@ -637,3 +637,38 @@ O menu hamburguer para mobile foi intencionalmente deixado para uma etapa poster
 ### Arquivos alterados
 
 - `src/app/page.tsx` — substituído template padrão do Next.js; Header importado via `@/`; área de placeholder para validar layout
+
+---
+
+## 23. Hero principal
+
+### Componente criado
+
+`src/components/sections/Hero.tsx` — Server Component estático. Layout em duas colunas no desktop e uma coluna no mobile. Identificado com `id="inicio"` para navegação âncora.
+
+### Conteúdo definido
+
+| Elemento | Conteúdo |
+|---|---|
+| Eyebrow | "Advocacia Criminal" (badge com borda em dourado) |
+| Título | "Defesa criminal estratégica, técnica e sigilosa." |
+| Subtítulo | Texto de apoio sobre atuação profissional |
+| Botão primário | "Falar com a advogada" → `#contato` |
+| Botão secundário | "Conhecer áreas de atuação" → `#atuacao` |
+| Indicadores | Atendimento sigiloso · Estratégia individualizada · Atuação técnica |
+
+### Decisão — nenhuma imagem real nesta etapa
+
+O lado direito do Hero usa exclusivamente CSS para criar um elemento visual sofisticado: um cartão com gradiente sutil, tipografia elegante ("Sigilo. Estratégia. Precisão."), linhas e acentos dourados, cantos decorativos e um cartão offset atrás para criar profundidade. A fotografia profissional da advogada será inserida em etapa posterior, quando disponível.
+
+### Decisão — sem clichês jurídicos
+
+A composição visual evita deliberadamente imagens ou ícones associados ao visual jurídico clássico (martelo, balança, colunas). O design remete a sofisticação e precisão, não a simbolismo jurídico genérico.
+
+### Arquivos criados
+
+- `src/components/sections/Hero.tsx` — componente Hero principal
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — placeholder removido; Hero importado via `@/` e renderizado dentro do `<main>`

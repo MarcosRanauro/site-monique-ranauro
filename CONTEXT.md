@@ -544,3 +544,55 @@ site-monique-ranauro/
 ├── README.md
 └── tsconfig.json
 ```
+
+---
+
+## 21. Configuração visual base
+
+### Fontes escolhidas
+
+| Variável CSS | Fonte | Uso |
+|---|---|---|
+| `--font-heading` | Playfair Display | Títulos e destaques |
+| `--font-sans` | Inter | Textos, parágrafos e interface geral |
+
+Ambas as fontes são carregadas com `next/font/google`, que as auto-hospeda sem requisições externas ao Google, melhorando privacidade e performance. As variáveis CSS são injetadas no elemento `html` via `className`.
+
+### Paleta inicial
+
+| Variável | Valor | Uso |
+|---|---|---|
+| `--background` | `#0b0b0b` | Fundo escuro base |
+| `--foreground` | `#f5f1ea` | Texto principal (off-white quente) |
+| `--muted` | `#a8a29e` | Texto secundário e detalhes sutis |
+| `--border` | `#2a2623` | Bordas e divisórias discretas |
+| `--accent` | `#b08d57` | Dourado/bronze — cor de destaque principal |
+| `--accent-light` | `#d6b77a` | Variação clara do dourado para hover/ênfase |
+
+### Motivo das escolhas visuais
+
+- **Fundo escuro (#0b0b0b):** transmite sofisticação, seriedade e premium — evita o aspecto genérico de sites jurídicos claros.
+- **Off-white quente (#f5f1ea):** contraste elegante sem o peso de um branco puro; remete a papel de qualidade.
+- **Dourado discreto (#b08d57):** detalhe de luxo sem exagero; reforça autoridade e distinção.
+- **Playfair Display:** tipografia serifada com personalidade forte, ideal para títulos de advocacia de alto padrão.
+- **Inter:** fonte humanista e altamente legível em qualquer tamanho, padrão de qualidade em interfaces modernas.
+
+### Metadata inicial
+
+```ts
+title: "Monique Ranauro | Advocacia Criminal"
+description: "Atuação estratégica, técnica e sigilosa em advocacia criminal."
+```
+
+### Outras configurações aplicadas
+
+- `lang="pt-BR"` no elemento `html`
+- `scroll-behavior: smooth` no `html`
+- `-webkit-font-smoothing: antialiased` e `text-rendering: optimizeLegibility` para renderização refinada
+- `::selection` com cor dourada para elegância na seleção de texto
+- Tokens de cor registrados no `@theme inline` do Tailwind v4 para uso via classes utilitárias
+
+### Arquivos alterados
+
+- `src/app/layout.tsx` — fontes, metadata e lang
+- `src/app/globals.css` — tokens visuais, tipografia e estilos base

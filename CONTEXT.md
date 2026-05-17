@@ -754,3 +754,53 @@ Com 7 itens em um grid de 3 colunas, o último card ficaria sozinho no canto esq
 ### Arquivos alterados
 
 - `src/app/page.tsx` — PracticeAreas importado via `@/` e renderizado abaixo de About
+
+---
+
+## 26. Seção Plantão 24h
+
+### Componente criado
+
+`src/components/sections/OnCall.tsx` — Server Component estático. Layout em duas colunas no desktop e uma coluna no mobile. Identificado com `id="plantao"` para navegação âncora.
+
+### Conteúdo definido
+
+| Elemento | Conteúdo |
+|---|---|
+| Eyebrow | "Plantão Criminal" (badge com borda dourada) |
+| Título | "Plantão 24 horas para urgências criminais." |
+| Parágrafo 1 | Contexto de urgência: flagrante, delegacia, mandados — Baixada Fluminense e Grande Rio |
+| Parágrafo 2 | Escopo de atuação: acompanhamento, custódia, legalidade da prisão, medidas cabíveis |
+| Bullets | 4 itens de serviço coberto no plantão |
+| CTA | "Acionar plantão 24h no WhatsApp" → `#contato` (placeholder) |
+
+### Bullets definidos
+
+- Atendimento imediato em casos de prisão em flagrante
+- Acompanhamento em delegacias da Baixada Fluminense e Grande Rio
+- Preparação para audiência de custódia e pedidos de liberdade
+- Orientação técnica a familiares desde os primeiros contatos com a polícia
+
+### Decisão — posicionamento entre Hero e About
+
+A seção foi posicionada imediatamente após o Hero por ser um diferencial de alto impacto e urgência. Um visitante que chega ao site em um momento de crise (familiar preso, por exemplo) deve encontrar essa informação antes de qualquer outra. A ordem Hero → Plantão → Sobre → Áreas reforça a prioridade: apresenta o serviço mais urgente cedo na página, sem escondê-lo no meio do conteúdo.
+
+### Decisão — fundo diferenciado (`#0d0d0d`)
+
+O fundo usa `#0d0d0d`, um valor intermediário entre o fundo do Hero (`#0b0b0b`) e o fundo do About (`#0f0f0f`). Essa diferença sutil, combinada com bordas superior e inferior em `border-border`, cria uma separação visual clara entre as seções sem romper a coesão do design escuro.
+
+### Decisão — título em `text-accent`
+
+O título da seção usa `text-accent` (dourado) em vez do `text-foreground` usado nos demais títulos. Essa escolha deliberada confere destaque visual imediato à seção, comunicando urgência e importância sem recorrer a elementos visuais sensacionalistas.
+
+### Decisão — botão CTA com estilo distinto e indicador de pulsação
+
+O CTA usa `border-2 border-accent text-accent` com hover que preenche o fundo (`hover:bg-accent hover:text-background`). Esse estilo é diferente do botão primário do Hero (`bg-accent` sólido) e do botão secundário (`border-foreground/20`), sinalizando urgência e disponibilidade imediata. Um indicador circular com `animate-ping` (built-in do Tailwind) funciona como um sinal de "ativo/disponível", reforçando a ideia de plantão sem exagero visual.
+
+### Arquivos criados
+
+- `src/components/sections/OnCall.tsx` — componente da seção Plantão 24h
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — OnCall importado via `@/` e renderizado entre Hero e About

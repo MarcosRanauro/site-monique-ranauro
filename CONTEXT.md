@@ -897,3 +897,53 @@ O fundo usa `#0f0f0f` (mesmo valor do About), criando alternância sutil com o D
 ### Arquivos alterados
 
 - `src/app/page.tsx` — FAQ importado via `@/` e renderizado após Differentials
+
+---
+
+## 29. Seção Contato
+
+### Componente criado
+
+`src/components/sections/Contact.tsx` — Client Component (`"use client"`). Layout em duas colunas no desktop: informações à esquerda, formulário à direita. Identificado com `id="contato"` para navegação âncora.
+
+### Campos do formulário
+
+| Campo | Tipo | Obrigatório |
+|---|---|---|
+| Nome completo | `input[type=text]` | Sim |
+| Telefone | `input[type=tel]` | Sim |
+| Mensagem | `textarea` | Sim |
+
+### Estados do formulário
+
+| Estado | Comportamento |
+|---|---|
+| `idle` | Formulário disponível para preenchimento |
+| `loading` | Botão desabilitado com texto "Enviando..." |
+| `success` | Formulário substituído por card de confirmação |
+
+### Decisão — simulação de envio sem backend real
+
+O formulário não tem `action` real nem integração com API nesta etapa. O envio é simulado com `setTimeout` de 1,5 segundo, que transita o estado para `success`. Quando o número de WhatsApp e o backend forem definidos, o `handleSubmit` será atualizado para fazer a requisição real sem alterar a estrutura do componente.
+
+### Decisão — aviso ético incluído conforme OAB
+
+O texto abaixo do botão de envio esclarece que o formulário não implica contratação automática nem cria relação advogado-cliente. Esse aviso é obrigatório para respeitar as normas de publicidade da OAB e foi posicionado imediatamente abaixo do botão para garantir visibilidade antes do envio.
+
+### Decisão — fundo `#0b0b0b` (fechamento do ciclo visual)
+
+A seção retorna ao fundo base do Hero (`#0b0b0b`), fechando o ciclo visual da landing page: o site começa e termina no mesmo tom escuro. Esse fechamento reforça coesão e evita que a página termine em um fundo de valor diferente.
+
+### Dados de contato
+
+- **Localização:** Nova Iguaçu — Baixada Fluminense e Grande Rio
+- **WhatsApp:** placeholder `#` — será atualizado com o número real da advogada
+- **Disponibilidade:** Plantão 24h para urgências criminais
+
+### Arquivos criados
+
+- `src/components/sections/Contact.tsx` — componente da seção Contato (Client Component)
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — Contact importado via `@/` e renderizado após FAQ

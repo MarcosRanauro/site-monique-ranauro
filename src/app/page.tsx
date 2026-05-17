@@ -4,6 +4,7 @@ import OnCall from "@/components/sections/OnCall";
 import About from "@/components/sections/About";
 import PracticeAreas from "@/components/sections/PracticeAreas";
 import Differentials from "@/components/sections/Differentials";
+import FAQ from "@/components/sections/FAQ";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
         <About />
         <PracticeAreas />
         <Differentials />
+        <FAQ />
       </main>
     </>
   );

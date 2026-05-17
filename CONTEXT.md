@@ -854,3 +854,46 @@ A seção usa o fundo base (`#0b0b0b`) sem borda superior, criando uma transiç�
 ### Arquivos alterados
 
 - `src/app/page.tsx` — Differentials importado via `@/` e renderizado após PracticeAreas
+
+---
+
+## 28. Seção FAQ
+
+### Componente criado
+
+`src/components/sections/FAQ.tsx` — Client Component (`"use client"`). Acordeão interativo com 6 perguntas e respostas. Identificado com `id="faq"` para navegação âncora.
+
+### Conteúdo definido
+
+| # | Pergunta |
+|---|---|
+| 1 | Fui intimado para depor na delegacia. O que devo fazer? |
+| 2 | Um familiar foi preso em flagrante. Quais são os próximos passos? |
+| 3 | O atendimento é sigiloso? |
+| 4 | A advogada atende casos urgentes fora do horário comercial? |
+| 5 | Como funciona o primeiro atendimento? |
+| 6 | Quais regiões são atendidas? |
+
+### Decisão — `"use client"` para o acordeão
+
+O componente requer estado interativo para controlar qual item está aberto (`useState`). Por isso usa `"use client"`, diferente de todos os outros componentes de seção que são Server Components estáticos. O escopo é mínimo: apenas o componente FAQ é client-side.
+
+### Decisão — apenas um item aberto por vez
+
+O estado é um único `number | null` (`openIndex`). Clicar em um item fechado define `openIndex` para aquele índice; clicar no item já aberto define `openIndex` para `null`. Isso garante que apenas uma resposta fique visível por vez, mantendo o acordeão limpo e legível.
+
+### Decisão — transição com `grid-rows`
+
+A expansão/colapso de cada resposta usa a técnica `grid-rows-[0fr]` → `grid-rows-[1fr]` com `overflow-hidden` no elemento filho. Essa abordagem é puramente CSS, sem cálculo de altura em JavaScript, e produz uma transição suave e acessível com `transition-all duration-300`.
+
+### Decisão — fundo `#0f0f0f` com borda superior
+
+O fundo usa `#0f0f0f` (mesmo valor do About), criando alternância sutil com o Differentials (`bg-background`). A borda superior em `border-border` reforça a separação visual entre as seções.
+
+### Arquivos criados
+
+- `src/components/sections/FAQ.tsx` — componente da seção FAQ (Client Component)
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — FAQ importado via `@/` e renderizado após Differentials

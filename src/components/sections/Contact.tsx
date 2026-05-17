@@ -7,6 +7,7 @@ type FormStatus = "idle" | "loading" | "success";
 export default function Contact() {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", message: "" });
 
   const handleChange = (
@@ -15,8 +16,28 @@ export default function Contact() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const maskPhone = (raw: string): string => {
+    const digits = raw.replace(/\D/g, "").slice(0, 11);
+    if (digits.length === 0) return "";
+    if (digits.length <= 2) return `(${digits}`;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, phone: maskPhone(e.target.value) }));
+    if (phoneError) setPhoneError(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (phoneDigits.length < 11) {
+      setPhoneError("Informe um celular válido com DDD. Ex: (21) 99999-9999");
+      return;
+    }
+
     setStatus("loading");
     setError(null);
 
@@ -137,10 +158,14 @@ export default function Contact() {
                   type="tel"
                   required
                   value={form.phone}
-                  onChange={handleChange}
-                  placeholder="(XX) XXXXX-XXXX"
+                  onChange={handlePhoneChange}
+                  placeholder="(XX) 99999-9999"
+                  maxLength={15}
                   className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent"
                 />
+                {phoneError && (
+                  <p className="text-xs text-red-400">{phoneError}</p>
+                )}
               </div>
 
               <div className="flex flex-col gap-2">

@@ -911,8 +911,18 @@ O fundo usa `#0f0f0f` (mesmo valor do About), criando alternância sutil com o D
 | Campo | Tipo | Obrigatório |
 |---|---|---|
 | Nome completo | `input[type=text]` | Sim |
-| Telefone | `input[type=tel]` | Sim |
+| Telefone | `input[type=tel]` | Sim — máscara `(XX) 9XXXX-XXXX`, 11 dígitos obrigatórios |
 | Mensagem | `textarea` | Sim |
+
+### Máscara e validação do campo telefone
+
+Adicionados na branch `feature/contact-phone-mask`, sem bibliotecas externas.
+
+- **Formato aceito:** `(XX) 9XXXX-XXXX` (celular brasileiro com DDD — 11 dígitos numéricos)
+- **Máscara automática:** a função `maskPhone` extrai apenas dígitos da entrada e aplica a formatação em tempo real conforme o usuário digita, bloqueando letras e caracteres especiais
+- **Validação no envio:** antes do `fetch`, `handleSubmit` verifica se os dígitos extraídos do campo somam 11 caracteres; caso contrário, exibe erro inline abaixo do campo (`phoneError`) e interrompe o envio sem apagar o valor digitado
+- **Mensagem de erro:** `"Informe um celular válido com DDD. Ex: (21) 99999-9999"`, em `text-xs text-red-400`, padrão visual idêntico ao erro geral do formulário
+- **Limpeza do erro:** `phoneError` é limpo assim que o usuário começa a corrigir o campo (`handlePhoneChange` chama `setPhoneError(null)` ao digitar)
 
 ### Estados do formulário
 

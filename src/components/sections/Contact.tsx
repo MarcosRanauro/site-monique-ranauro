@@ -6,6 +6,7 @@ type FormStatus = "idle" | "loading" | "success";
 
 export default function Contact() {
   const [status, setStatus] = useState<FormStatus>("idle");
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", message: "" });
 
   const handleChange = (
@@ -14,10 +15,29 @@ export default function Contact() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("loading");
-    setTimeout(() => setStatus("success"), 1500);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        setStatus("success");
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "Erro ao enviar mensagem. Tente novamente.");
+        setStatus("idle");
+      }
+    } catch {
+      setError("Erro de conexão. Verifique sua internet e tente novamente.");
+      setStatus("idle");
+    }
   };
 
   return (
@@ -141,6 +161,10 @@ export default function Contact() {
                   className="resize-none border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent"
                 />
               </div>
+
+              {error && (
+                <p className="text-xs text-red-400">{error}</p>
+              )}
 
               <button
                 type="submit"

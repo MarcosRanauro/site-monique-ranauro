@@ -947,3 +947,59 @@ A seção retorna ao fundo base do Hero (`#0b0b0b`), fechando o ciclo visual da 
 ### Arquivos alterados
 
 - `src/app/page.tsx` — Contact importado via `@/` e renderizado após FAQ
+
+---
+
+## 30. Integração Resend — formulário de contato
+
+### O que foi feito
+
+Substituição da simulação (`setTimeout`) por envio real de e-mail via **Resend**, sem alterar nada no visual do componente.
+
+### Route Handler criado
+
+`src/app/api/contact/route.ts` — Route Handler Next.js (método POST). Responsável por:
+
+1. Ler os campos `name`, `phone` e `message` do body JSON
+2. Validar que nenhum campo está vazio (retorna `400` se faltar)
+3. Chamar `resend.emails.send(...)` com os dados formatados
+4. Retornar `200` em caso de sucesso ou `500` em caso de erro no envio
+
+### Configuração do e-mail
+
+| Campo | Valor |
+|---|---|
+| `from` | `Site Monique Ranauro <onboarding@resend.dev>` |
+| `to` | `moniqueranauro@hotmail.com` |
+| `subject` | `Nova mensagem pelo site — [nome do remetente]` |
+| `text` | Nome, telefone e mensagem em texto simples |
+
+### Decisão — `onboarding@resend.dev` como remetente
+
+O domínio `onboarding@resend.dev` é o domínio de teste oficial do Resend, disponível sem configuração adicional. Quando o domínio real da advogada for verificado no painel do Resend, basta atualizar apenas o campo `from` em `route.ts` — nenhum outro arquivo precisa ser alterado.
+
+### Variável de ambiente necessária
+
+```
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
+```
+
+Deve ser configurada no `.env.local` para desenvolvimento local e nas variáveis de ambiente da Vercel para produção. A chave é obtida no painel do Resend em resend.com/api-keys.
+
+### Atualização no Contact.tsx
+
+- `handleSubmit` tornou-se `async`
+- `setTimeout` removido
+- `fetch("/api/contact", { method: "POST", ... })` chamado no submit
+- Adicionado estado `error: string | null` para exibir mensagem de erro inline sem apagar os dados do formulário
+- Em caso de sucesso (`res.ok`): transita para estado `success` (card de confirmação)
+- Em caso de erro (`400` / `500` / falha de rede): exibe mensagem de erro em `text-red-400` acima do botão e retorna ao estado `idle`
+
+### Arquivos criados
+
+- `src/app/api/contact/route.ts` — Route Handler POST para envio de e-mail via Resend
+
+### Arquivos alterados
+
+- `src/components/sections/Contact.tsx` — integração real com a API; remoção do setTimeout; tratamento de erro inline
+- `package.json` / `package-lock.json` — dependência `resend` adicionada

@@ -804,3 +804,53 @@ O CTA usa `border-2 border-accent text-accent` com hover que preenche o fundo (`
 ### Arquivos alterados
 
 - `src/app/page.tsx` — OnCall importado via `@/` e renderizado entre Hero e About
+
+---
+
+## 27. Seção Diferenciais
+
+### Componente criado
+
+`src/components/sections/Differentials.tsx` — Server Component estático. Cabeçalho centralizado com eyebrow, título e subtítulo, seguido de grid de cards responsivo. Identificado com `id="diferenciais"` para navegação âncora.
+
+### Conteúdo definido
+
+| Elemento | Conteúdo |
+|---|---|
+| Eyebrow | "Por que contar com atuação técnica" |
+| Título | "Defesa criminal com método, sigilo e presença." |
+| Subtítulo | Análise individualizada, rigor técnico, comunicação clara e sigilo |
+| Cards | 4 diferenciais com símbolo, título e texto |
+
+### Diferenciais incluídos
+
+| Símbolo | Título | Resumo |
+|---|---|---|
+| ◈ | Sigilo absoluto | Todas as informações tratadas com rigoroso sigilo profissional |
+| ◇ | Estratégia individualizada | Análise independente de cada caso; sem defesa padrão |
+| ◈ | Comunicação clara | Cliente informado em cada etapa, com linguagem acessível |
+| ◇ | Plantão 24h | Disponibilidade para urgências criminais a qualquer hora |
+
+### Decisão — posicionamento após PracticeAreas
+
+Diferenciais foi posicionado após Áreas de Atuação por complementar a lógica da página: primeiro o visitante conhece o que a advogada faz (PracticeAreas), depois entende por que escolhê-la (Differentials). Essa sequência reforça a argumentação antes de chegar à seção de contato.
+
+### Decisão — grid 4 colunas no desktop
+
+Com apenas 4 itens simétricos, o grid de 4 colunas aproveita o espaço horizontal no desktop sem criar excesso de altura. Em tablet usa 2 colunas (sm:grid-cols-2) e em mobile 1 coluna, mantendo boa leitura em qualquer dispositivo.
+
+### Decisão — ícones com caracteres Unicode
+
+Em vez de bibliotecas de ícones externas ou SVGs customizados, os cards usam caracteres Unicode geométricos (`◈` e `◇`) alternados. Esses símbolos são discretos, coerentes com a estética sofisticada do projeto e eliminam qualquer dependência externa.
+
+### Decisão — fundo `bg-background` sem borda superior
+
+A seção usa o fundo base (`#0b0b0b`) sem borda superior, criando uma transição suave vinda de PracticeAreas (que também usa `bg-background`). A separação visual é dada pelo espaçamento generoso (`py-28`) e pelo início do cabeçalho centralizado.
+
+### Arquivos criados
+
+- `src/components/sections/Differentials.tsx` — componente da seção Diferenciais
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — Differentials importado via `@/` e renderizado após PracticeAreas

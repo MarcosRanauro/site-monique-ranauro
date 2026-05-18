@@ -1,16 +1,33 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
 const navLinks = [
   { label: "Início", href: "#inicio" },
   { label: "Sobre", href: "#sobre" },
   { label: "Atuação", href: "#atuacao" },
   { label: "Diferenciais", href: "#diferenciais" },
+  { label: "FAQ", href: "#faq" },
   { label: "Contato", href: "#contato" },
 ];
 
 export default function Header() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const close = () => setIsOpen(false);
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
 
+        {/* Marca */}
         <div className="flex flex-col leading-tight">
           <span className="font-heading text-base font-semibold tracking-wide text-foreground">
             Monique Ranauro
@@ -20,6 +37,7 @@ export default function Header() {
           </span>
         </div>
 
+        {/* Navegação desktop */}
         <nav className="hidden items-center gap-8 md:flex">
           {navLinks.map(({ label, href }) => (
             <a
@@ -32,14 +50,51 @@ export default function Header() {
           ))}
         </nav>
 
+        {/* CTA desktop */}
         <a
           href="#contato"
-          className="rounded-sm border border-accent px-4 py-2 text-sm text-accent transition-colors duration-200 hover:bg-accent hover:text-background"
+          className="hidden rounded-sm border border-accent px-4 py-2 text-sm text-accent transition-colors duration-200 hover:bg-accent hover:text-background md:inline-flex"
         >
           Falar no WhatsApp
         </a>
 
+        {/* Botão hambúrguer — apenas mobile */}
+        <button
+          onClick={() => setIsOpen((prev) => !prev)}
+          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+          className="flex h-11 w-11 items-center justify-center text-lg text-foreground transition-colors duration-200 hover:text-accent md:hidden"
+        >
+          {isOpen ? "✕" : "☰"}
+        </button>
+
       </div>
+
+      {/* Painel do menu mobile */}
+      {isOpen && (
+        <div className="border-b border-border bg-background md:hidden">
+          <nav className="mx-auto flex max-w-6xl flex-col px-6">
+            {navLinks.map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                onClick={close}
+                className="flex min-h-[44px] items-center border-b border-border text-sm text-foreground transition-colors duration-200 hover:text-accent"
+              >
+                {label}
+              </a>
+            ))}
+            <div className="py-6">
+              <a
+                href="#contato"
+                onClick={close}
+                className="inline-flex w-full items-center justify-center border border-accent px-4 py-3 text-sm text-accent transition-colors duration-200 hover:bg-accent hover:text-background"
+              >
+                Falar no WhatsApp
+              </a>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

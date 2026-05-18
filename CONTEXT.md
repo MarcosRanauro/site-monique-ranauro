@@ -1053,3 +1053,49 @@ O Footer é renderizado fora do `<main>`, como elemento irmão no fragmento Reac
 ### Arquivos alterados
 
 - `src/app/page.tsx` — Footer importado via `@/` e renderizado após `</main>`
+
+---
+
+## 32. Menu mobile e botão WhatsApp flutuante
+
+### Conversão do Header para `"use client"`
+
+O `Header.tsx` foi convertido de Server Component para Client Component para suportar o estado `isOpen` (menu hambúrguer). Adicionados `useState` e `useEffect` do React.
+
+O link FAQ (`#faq`) também foi incluído na lista de links de navegação nesta etapa — estava ausente no Header desde a criação da seção.
+
+### Menu hambúrguer
+
+- Botão com caracteres Unicode: `☰` (aberto) e `✕` (fechado), visível apenas em mobile (`md:hidden`)
+- Alterna `isOpen` via `useState<boolean>`
+- Painel mobile renderizado condicionalmente abaixo da barra do Header, com `bg-background` e `border-b border-border`
+- Cada link tem `min-h-[44px]` para área de toque confortável e `border-b border-border` entre itens
+- Função `close()` chamada em cada link âncora — fecha o menu ao navegar
+- Botão "Falar no WhatsApp" presente no painel mobile com estilo outline em dourado
+
+### Decisão — bloqueio de scroll com menu aberto
+
+`useEffect` monitora `isOpen` e aplica `document.body.style.overflow = "hidden"` quando o menu está aberto. O cleanup da função reseta para `""`, garantindo que o scroll seja restaurado ao fechar ou ao desmontar o componente.
+
+### Componente WhatsAppButton
+
+`src/components/ui/WhatsAppButton.tsx` — Server Component estático (sem `"use client"`). Botão fixo (`position: fixed`) no canto inferior direito, com `z-50`.
+
+| Propriedade | Valor |
+|---|---|
+| Posição | `fixed bottom-6 right-6 z-50` |
+| Ícone | Letra "W" em Playfair Display (`font-heading`) |
+| Fundo | `bg-background` com `border border-accent` |
+| Hover | `bg-accent text-background` |
+| Mobile | Apenas ícone "W" |
+| Desktop | Ícone "W" + texto "WhatsApp" |
+| `href` | `#` — placeholder até número real ser confirmado |
+
+### Arquivos criados
+
+- `src/components/ui/WhatsAppButton.tsx` — botão flutuante de WhatsApp
+
+### Arquivos alterados
+
+- `src/components/layout/Header.tsx` — convertido para `"use client"`, menu hambúrguer adicionado, link FAQ incluído
+- `src/app/page.tsx` — `WhatsAppButton` importado via `@/` e renderizado após `<Footer />`

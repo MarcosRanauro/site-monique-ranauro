@@ -16,6 +16,22 @@
 - [x] Máscara e validação do campo telefone
 - [x] Footer institucional
 
+  ## ✅ Fase 1 — Concluída
+
+- [x] Setup do projeto (Next.js + TypeScript + Tailwind)
+- [x] Configuração visual base (tokens, fontes, globals.css)
+- [x] Header (desktop)
+- [x] Hero principal
+- [x] Seção Sobre (About)
+- [x] Seção Áreas de Atuação (PracticeAreas) — 7 cards
+- [x] Seção Plantão 24h (OnCall)
+- [x] Seção Diferenciais
+- [x] Seção FAQ — acordeão interativo
+- [x] Seção Contato — formulário com validação
+- [x] Integração Resend — envio real de e-mail
+- [x] Máscara e validação do campo telefone
+- [x] Footer institucional
+
 ---
 
 ## 🔲 Fase 2 — Menu mobile + navegação

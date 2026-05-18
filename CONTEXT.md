@@ -1013,3 +1013,43 @@ Deve ser configurada no `.env.local` para desenvolvimento local e nas variáveis
 
 - `src/components/sections/Contact.tsx` — integração real com a API; remoção do setTimeout; tratamento de erro inline
 - `package.json` / `package-lock.json` — dependência `resend` adicionada
+
+---
+
+## 31. Footer institucional
+
+### Componente criado
+
+`src/components/layout/Footer.tsx` — Server Component estático (sem `"use client"`). Estrutura em três colunas no desktop e uma coluna no mobile, com barra final separada.
+
+### Estrutura de colunas
+
+| Coluna | Conteúdo |
+|---|---|
+| 1 — Marca | Nome "Monique Ranauro" em Playfair Display, subtítulo "ADVOCACIA CRIMINAL" em dourado, texto institucional |
+| 2 — Navegação | Título "Navegação" + 6 links âncora (Início, Sobre, Atuação, Diferenciais, FAQ, Contato) |
+| 3 — Contato | Título "Contato" + link WhatsApp (placeholder `#`), localização, disponibilidade |
+
+### Barra final
+
+Separada por `border-t border-border`, com dois textos em `text-xs text-muted`:
+- **Esquerda:** aviso de direitos autorais
+- **Direita:** aviso informativo ("caráter exclusivamente informativo / não constitui consultoria jurídica")
+
+O aviso da direita reforça a conformidade ética exigida pela OAB para sites de advocacia.
+
+### Decisão — fundo `#080808`
+
+O fundo é ligeiramente mais escuro que o base da página (`#0b0b0b`), marcando visualmente o encerramento da landing page. Essa diferença sutil separa o rodapé do restante do conteúdo sem quebrar a coesão do design escuro.
+
+### Decisão — posicionamento como irmão do `<main>`
+
+O Footer é renderizado fora do `<main>`, como elemento irmão no fragmento React (`<> <Header /> <main>...</main> <Footer /> </>`). Isso respeita a semântica HTML correta e evita que o rodapé seja contado como conteúdo principal da página.
+
+### Arquivos criados
+
+- `src/components/layout/Footer.tsx` — componente Footer institucional
+
+### Arquivos alterados
+
+- `src/app/page.tsx` — Footer importado via `@/` e renderizado após `</main>`

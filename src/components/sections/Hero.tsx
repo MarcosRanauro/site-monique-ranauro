@@ -16,7 +16,7 @@ export default function Hero() {
       id="inicio"
       className="flex min-h-[calc(100vh-4rem)] items-center bg-background"
     >
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 py-24 md:grid-cols-2 md:items-center">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 px-6 py-16 md:gap-16 md:grid-cols-2 md:items-center md:py-24">
 
         {/* Coluna esquerda — conteúdo textual */}
         <div className="flex flex-col gap-8">

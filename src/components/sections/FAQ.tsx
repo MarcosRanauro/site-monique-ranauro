@@ -43,11 +43,11 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="border-t border-border bg-[#0f0f0f] py-28">
+    <section id="faq" className="border-t border-border bg-[#0f0f0f] py-16 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
 
         {/* Cabeçalho centralizado */}
-        <div className="mx-auto mb-16 max-w-2xl text-center">
+        <div className="mx-auto mb-10 max-w-2xl text-center md:mb-16">
           <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
             Dúvidas frequentes
           </span>
@@ -69,7 +69,9 @@ export default function FAQ() {
                 className={index > 0 ? "border-t border-border" : ""}
               >
                 <button
+                  type="button"
                   onClick={() => toggle(index)}
+                  aria-expanded={isOpen}
                   className="flex w-full items-center justify-between gap-6 py-6 text-left"
                 >
                   <span className="text-base font-medium text-foreground">

@@ -6,7 +6,7 @@ const supportItems = [
 
 export default function About() {
   return (
-    <section id="sobre" className="border-t border-border bg-[#0f0f0f] py-28">
+    <section id="sobre" className="border-t border-border bg-[#0f0f0f] py-16 md:py-28">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 md:grid-cols-2 md:items-center">
 
         {/* Coluna esquerda — card institucional decorativo */}

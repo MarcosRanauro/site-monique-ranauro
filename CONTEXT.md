@@ -1099,3 +1099,79 @@ O link FAQ (`#faq`) também foi incluído na lista de links de navegação nesta
 
 - `src/components/layout/Header.tsx` — convertido para `"use client"`, menu hambúrguer adicionado, link FAQ incluído
 - `src/app/page.tsx` — `WhatsAppButton` importado via `@/` e renderizado após `<Footer />`
+
+---
+
+## 33. Auditoria de responsividade e acessibilidade
+
+### Breakpoints auditados
+
+375px (iPhone SE) · 390px (iPhone 14) · 430px (iPhone 15 Plus) · 768px (tablet) · 1280px (desktop)
+
+### Problemas encontrados e corrigidos
+
+**Espaçamento vertical excessivo em mobile (todas as seções)**
+
+`py-28` (112px) sem variante mobile era excessivo em telas de 375–430px, comprimindo o conteúdo e reduzindo o espaço disponível para texto.
+
+| Componente | Antes | Depois |
+|---|---|---|
+| `Hero.tsx` | `py-24` | `py-16 md:py-24` |
+| `OnCall.tsx` | `py-28` | `py-16 md:py-28` |
+| `About.tsx` | `py-28` | `py-16 md:py-28` |
+| `PracticeAreas.tsx` | `py-28` | `py-16 md:py-28` |
+| `Differentials.tsx` | `py-28` | `py-16 md:py-28` |
+| `FAQ.tsx` | `py-28` | `py-16 md:py-28` |
+| `Contact.tsx` | `py-28` | `py-16 md:py-28` |
+
+**Gap excessivo entre cabeçalho de seção e conteúdo em mobile**
+
+`mb-16` (64px) sem variante mobile nas seções com cabeçalho centralizado.
+
+| Componente | Antes | Depois |
+|---|---|---|
+| `PracticeAreas.tsx` | `mb-16` | `mb-10 md:mb-16` |
+| `Differentials.tsx` | `mb-16` | `mb-10 md:mb-16` |
+| `FAQ.tsx` | `mb-16` | `mb-10 md:mb-16` |
+
+**Gap entre colunas do Hero em mobile**
+
+`gap-16` sem variante mobile — 64px de espaço entre colunas em layout de 1 coluna era desnecessário.
+
+| Componente | Antes | Depois |
+|---|---|---|
+| `Hero.tsx` | `gap-16` | `gap-12 md:gap-16` |
+
+**Acessibilidade — botões do acordeão FAQ**
+
+Botões do acordeão sem `aria-expanded` (leitores de tela não comunicavam estado aberto/fechado) e sem `type="button"` explícito.
+
+| Atributo | Antes | Depois |
+|---|---|---|
+| `aria-expanded` | ausente | `aria-expanded={isOpen}` |
+| `type` | ausente | `type="button"` |
+
+### Verificações sem alteração necessária
+
+| Item | Status |
+|---|---|
+| `lang="pt-BR"` no `<html>` | ✅ Confirmado em `layout.tsx` |
+| Ordem de headings h1→h2→h3 | ✅ Correta em todas as seções |
+| Áreas de toque ≥ 44px em todos os botões | ✅ Confirmado |
+| `aria-label` no hambúrguer e WhatsAppButton | ✅ Presentes |
+| Hover states em cards, links e botões | ✅ Funcionando |
+| Transição do acordeão FAQ | ✅ Funcionando |
+| Coluna decorativa do Hero/About oculta em mobile | ✅ `hidden md:flex` |
+| Grid de PracticeAreas e Differentials em tablet | ✅ 2 colunas em sm/md |
+| Footer já com `py-16` sem necessidade de ajuste | ✅ |
+| Header: menu mobile com min-h-[44px] por item | ✅ |
+
+### Arquivos alterados
+
+- `src/components/sections/Hero.tsx`
+- `src/components/sections/OnCall.tsx`
+- `src/components/sections/About.tsx`
+- `src/components/sections/PracticeAreas.tsx`
+- `src/components/sections/Differentials.tsx`
+- `src/components/sections/FAQ.tsx`
+- `src/components/sections/Contact.tsx`

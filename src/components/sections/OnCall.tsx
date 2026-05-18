@@ -9,7 +9,7 @@ export default function OnCall() {
   return (
     <section
       id="plantao"
-      className="border-b border-t border-border bg-[#0d0d0d] py-28"
+      className="border-b border-t border-border bg-[#0d0d0d] py-16 md:py-28"
     >
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 md:grid-cols-2 md:items-start">
 

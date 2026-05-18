@@ -45,11 +45,11 @@ const areas = [
 
 export default function PracticeAreas() {
   return (
-    <section id="atuacao" className="border-t border-border bg-background py-28">
+    <section id="atuacao" className="border-t border-border bg-background py-16 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
 
         {/* Cabeçalho da seção */}
-        <div className="mx-auto mb-16 max-w-2xl text-center">
+        <div className="mx-auto mb-10 max-w-2xl text-center md:mb-16">
           <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
             Áreas de atuação
           </span>

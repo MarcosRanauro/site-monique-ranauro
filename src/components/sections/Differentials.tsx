@@ -27,11 +27,11 @@ const differentials = [
 
 export default function Differentials() {
   return (
-    <section id="diferenciais" className="bg-background py-28">
+    <section id="diferenciais" className="bg-background py-16 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
 
         {/* Cabeçalho centralizado */}
-        <div className="mx-auto mb-16 max-w-2xl text-center">
+        <div className="mx-auto mb-10 max-w-2xl text-center md:mb-16">
           <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
             Por que contar com atuação técnica
           </span>

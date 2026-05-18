@@ -62,7 +62,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contato" className="border-t border-border bg-[#0b0b0b] py-28">
+    <section id="contato" className="border-t border-border bg-[#0b0b0b] py-16 md:py-28">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 md:grid-cols-2 md:items-start">
 
         {/* Coluna esquerda — informações de contato */}

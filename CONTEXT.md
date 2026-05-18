@@ -1175,3 +1175,95 @@ Botões do acordeão sem `aria-expanded` (leitores de tela não comunicavam esta
 - `src/components/sections/Differentials.tsx`
 - `src/components/sections/FAQ.tsx`
 - `src/components/sections/Contact.tsx`
+
+---
+
+## 34. SEO completo e otimizações de performance
+
+### Metadata configurada em `src/app/layout.tsx`
+
+| Campo | Valor |
+|---|---|
+| `title.default` | "Monique Ranauro \| Advogada Criminalista em Nova Iguaçu" |
+| `title.template` | "%s \| Monique Ranauro Advocacia Criminal" |
+| `description` | Advocacia criminal, Nova Iguaçu, Baixada Fluminense, plantão 24h |
+| `authors` | Monique Ranauro |
+| `creator` | Monique Ranauro |
+| `alternates.canonical` | `https://moniqueranauro.adv.br` (placeholder) |
+| `robots` | index: true, follow: true |
+| `viewport` | Export separado (`Viewport`) — `width: device-width, initialScale: 1` |
+
+> **Nota:** No Next.js 16, `viewport` é um export separado do `metadata` (`export const viewport: Viewport`). Colocá-lo dentro do objeto `metadata` está depreciado nessa versão.
+
+### Open Graph e Twitter Card
+
+| Campo | Valor |
+|---|---|
+| OG type | `website` |
+| OG locale | `pt_BR` |
+| OG url / canonical | `https://moniqueranauro.adv.br` |
+| OG siteName | "Monique Ranauro Advocacia Criminal" |
+| OG image | `/og-image.svg` — 1200×630 |
+| OG image alt | "Monique Ranauro — Advogada Criminalista" |
+| Twitter card | `summary_large_image` |
+| Twitter image | `/og-image.svg` |
+
+### Palavras-chave e justificativa SEO local
+
+As keywords foram escolhidas com foco em **SEO local geográfico**, combinando o nome da profissional com os territórios de atuação:
+
+- "advogada criminalista Nova Iguaçu" — busca direta por localização
+- "advocacia criminal Baixada Fluminense" — abrangência regional
+- "defesa criminal Grande Rio" — expansão para a região metropolitana
+- "prisão em flagrante Baixada Fluminense" — busca de urgência por serviço específico
+- "habeas corpus Nova Iguaçu" — busca técnica jurídica local
+- "Monique Ranauro advogada" — busca nominativa pela profissional
+
+### Sitemap — `src/app/sitemap.ts`
+
+Gerado via convenção de arquivo do Next.js (`MetadataRoute.Sitemap`). Uma entrada para a URL raiz com:
+- `changeFrequency: "monthly"`
+- `priority: 1`
+- Acessível em `/sitemap.xml` automaticamente
+
+### Robots — `src/app/robots.ts`
+
+Gerado via convenção de arquivo do Next.js (`MetadataRoute.Robots`). Permite todos os crawlers na raiz e aponta para o sitemap. Acessível em `/robots.txt` automaticamente.
+
+### Imagem Open Graph — `public/og-image.svg`
+
+Placeholder SVG 1200×630 com:
+- Fundo `#0b0b0b`
+- Nome em serif grande (`Georgia`)
+- Subtítulo "ADVOGADA CRIMINALISTA" em dourado (`#b08d57`) com tracking largo
+- Localização: "Nova Iguaçu · Baixada Fluminense · Grande Rio"
+- Linha vertical e separadores em dourado
+- Texto de rodapé institucional
+
+Será substituída por imagem PNG/JPG real quando o domínio for configurado e imagem profissional estiver disponível.
+
+### Performance — verificações realizadas
+
+| Item | Status |
+|---|---|
+| Tags `<img>` nuas no código | ✅ Nenhuma encontrada |
+| Fontes via `next/font/google` | ✅ Configurado desde o início (Playfair Display + Inter) |
+| `viewport` explícito no `layout.tsx` | ✅ Adicionado como export separado |
+
+### Atualização necessária quando domínio for confirmado
+
+Os seguintes campos usam `https://moniqueranauro.adv.br` como placeholder:
+- `alternates.canonical` em `layout.tsx`
+- `openGraph.url` em `layout.tsx`
+- `sitemap` em `robots.ts`
+- `url` em `sitemap.ts`
+
+### Arquivos criados
+
+- `src/app/sitemap.ts` — sitemap automático
+- `src/app/robots.ts` — robots.txt automático
+- `public/og-image.svg` — imagem Open Graph placeholder
+
+### Arquivos alterados
+
+- `src/app/layout.tsx` — metadata completa, Open Graph, Twitter Card, viewport, canonical

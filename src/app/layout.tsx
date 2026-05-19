@@ -25,6 +25,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: SITE_TITLE,
     template: "%s | Monique Ranauro Advocacia Criminal",

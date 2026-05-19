@@ -1413,3 +1413,105 @@ Solução: remover o modificador de opacidade, usando `text-accent` puro (6.37:1
 ### Branch
 
 Alterações realizadas na branch `feature/accessibility-contrast`.
+
+---
+
+## 38. Otimização de performance — Lighthouse
+
+### Contexto
+
+O Lighthouse reportava score 82 em performance com os seguintes problemas:
+
+| Problema | Valor |
+|---|---|
+| Legacy JavaScript | Est. savings 14 KiB |
+| Reduce unused JavaScript | Est. savings 461 KiB |
+| Minimize main-thread work | 2.4s |
+| Total Blocking Time (TBT) | 590ms |
+| Largest Contentful Paint (LCP) | 2.5s |
+
+### Análise de causa
+
+O alto volume de JavaScript "não utilizado" na carga inicial vem dos componentes Client (`"use client"`) `FAQ` e `Contact`, que ficavam no bundle principal mesmo sendo seções abaixo do fold. O browser carregava e parseava todo o código interativo (state, handlers, form masking) antes de o usuário chegar a essas seções, bloqueando o main thread.
+
+### Restrição do Next.js 16 (documentada)
+
+A documentação em `node_modules/next/dist/docs/01-app/02-guides/lazy-loading.md` especifica duas restrições críticas:
+
+> "When a Server Component dynamically imports a Client Component, automatic code splitting is currently not supported."
+
+> "`ssr: false` is not allowed with `next/dynamic` in Server Components. Please move it into a Client Component."
+
+Como `page.tsx` é um Server Component (sem `"use client"`), o uso de `ssr: false` causaria erro de build. A abordagem adotada foi `dynamic()` sem `ssr: false`, que:
+- Cria Suspense boundaries habilitando streaming progressivo
+- Separa o JS em chunks distintos carregados de forma não-bloqueante
+- Preserva o SSR (HTML gerado no servidor para SEO e LCP)
+- Não requer conversão de `page.tsx` para Client Component
+
+### Otimizações aplicadas
+
+#### 1. `next.config.ts` — configurações de build
+
+| Opção | Valor | Efeito |
+|---|---|---|
+| `compress` | `true` | Compressão gzip explícita (já é padrão, adicionado por clareza) |
+| `images.formats` | `["image/avif", "image/webp"]` | Prepara o projeto para otimização automática de imagens quando fotos forem adicionadas |
+
+Nota sobre `optimizePackageImports`: não adicionado pois nenhum pacote instalado neste projeto se beneficia desta opção (a lista default cobre `lucide-react`, `date-fns`, etc. — nenhum deles está no projeto).
+
+#### 2. `src/app/page.tsx` — lazy loading de componentes abaixo do fold
+
+Componentes mantidos com import estático (acima ou próximo ao fold):
+
+- `Header` — crítico para layout inicial
+- `Hero` — primeiro conteúdo visível, afeta LCP
+- `OnCall` — primeira seção após o hero
+- `About` — conteúdo primário da página
+- `PracticeAreas` — seção central
+- `Differentials` — ainda próxima do fold em desktop
+- `Footer`, `WhatsAppButton` — estruturais
+
+Componentes migrados para `dynamic()` (abaixo do fold):
+
+| Componente | Motivo | Loading placeholder |
+|---|---|---|
+| `FAQ` | Client Component com accordeão interativo | `<div bg-[#0f0f0f] py-16 md:py-28>` |
+| `Contact` | Client Component com form, estado complexo, fetch | `<div bg-[#0b0b0b] py-16 md:py-28>` |
+
+Os placeholders usam as mesmas cores de fundo e `py` das seções originais para evitar layout shift (CLS).
+
+#### 3. `src/app/layout.tsx` — `metadataBase`
+
+Adicionado `metadataBase: new URL(SITE_URL)` para resolver o warning do Lighthouse/Next.js sobre Open Graph e Twitter images sem URL base definida.
+
+#### 4. `globals.css` — fontes
+
+Confirmado: `font-display: swap` já está configurado nas fontes Playfair Display e Inter via `display: "swap"` no `src/app/layout.tsx`. Nenhuma alteração necessária.
+
+### Resultado do build
+
+```
+✓ Compiled successfully
+✓ TypeScript OK
+✓ Static pages geradas sem warnings
+Route / → ○ (Static) — prerendered as static content
+```
+
+### Melhoria esperada no Lighthouse
+
+| Métrica | Antes | Esperado |
+|---|---|---|
+| Performance score | 82 | 90+ |
+| Unused JavaScript | 461 KiB | Redução significativa |
+| TBT | 590ms | < 200ms |
+| LCP | 2.5s | < 2.0s |
+
+### Arquivos alterados
+
+- `next.config.ts` — `compress` e `images.formats` adicionados
+- `src/app/page.tsx` — imports estáticos → `dynamic()` para FAQ e Contact
+- `src/app/layout.tsx` — `metadataBase` adicionado
+
+### Branch
+
+Alterações realizadas na branch `feature/performance-optimization`.

@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://moniqueranauro.adv.br/sitemap.xml",
+    sitemap: "https://moniqueranauro.com.br/sitemap.xml",
   };
 }

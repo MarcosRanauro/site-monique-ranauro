@@ -1515,3 +1515,37 @@ Route / → ○ (Static) — prerendered as static content
 ### Branch
 
 Alterações realizadas na branch `feature/performance-optimization`.
+
+---
+
+### Correção pós-implementação — NO_LCP (branch `feature/fix-lcp`)
+
+#### Problema identificado
+
+Após a implementação dos `dynamic()` imports, o Lighthouse passou a retornar `NO_LCP` — nenhum elemento era identificado como Largest Contentful Paint, invalidando a medição inteira.
+
+#### Causa raiz
+
+Embora o Hero seja um import estático com `h1` sempre presente no HTML, o `dynamic()` em um Server Component criava **Suspense boundaries** ao redor de FAQ e Contact. Durante a **hidratação no cliente**, essas boundaries exibiam os placeholders (divs vazias) enquanto os módulos JS dos Client Components carregavam. O Lighthouse avaliava o DOM nesse estado transitório — com seções visíveis substituídas por divs — e não conseguia encontrar um candidato válido ao LCP.
+
+O problema era agravado pelo fato já documentado na seção 38:
+
+> *"When a Server Component dynamically imports a Client Component, automatic code splitting is currently **not** supported."*
+
+Ou seja: os `dynamic()` não entregavam o benefício de code-splitting (que era o objetivo), mas **introduziam o efeito colateral** das Suspense boundaries durante hidratação.
+
+#### Correção aplicada
+
+`src/app/page.tsx` revertido para imports estáticos em todos os componentes. As demais otimizações da seção 38 foram mantidas:
+
+- `next.config.ts` — `compress: true` + `images.formats` — mantidos
+- `src/app/layout.tsx` — `metadataBase` — mantido
+
+#### Decisão sobre dynamic imports
+
+**Dynamic imports de Client Components a partir de Server Components não são a abordagem correta para code-splitting no App Router do Next.js 16.**
+
+A estratégia correta para reduzir o JavaScript inicial neste projeto quando necessário no futuro é:
+- Criar wrapper Client Components explícitos que usem `dynamic()` com `ssr: false` internamente
+- Ou usar React `Suspense` manualmente em um Client Component pai
+- Ou aguardar imagens reais (que terão maior impacto no LCP e onde `priority` do `next/image` será a otimização mais eficaz)

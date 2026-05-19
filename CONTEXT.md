@@ -1549,3 +1549,30 @@ A estratégia correta para reduzir o JavaScript inicial neste projeto quando nec
 - Criar wrapper Client Components explícitos que usem `dynamic()` com `ssr: false` internamente
 - Ou usar React `Suspense` manualmente em um Client Component pai
 - Ou aguardar imagens reais (que terão maior impacto no LCP e onde `priority` do `next/image` será a otimização mais eficaz)
+
+---
+
+## 39. Auditoria de conteúdo — ajustes de copy
+
+### Ajuste 1 — `About.tsx`: frase do card decorativo
+
+**Antes:** `"A defesa começa com escuta atenta e se constrói com estratégia precisa."`
+**Depois:** `"A defesa começa com escuta atenta e se constrói com análise cuidadosa de cada caso."`
+
+Motivo: a expressão "estratégia precisa" tinha tom levemente autopromocionail. A versão nova mantém o mesmo sentido com linguagem mais sóbria, alinhada às normas de publicidade da OAB.
+
+### Ajuste 2 — `Footer.tsx`: ano de copyright
+
+**Antes:** `© 2025 Monique Ranauro Advocacia Criminal...`
+**Depois:** `© {new Date().getFullYear()} Monique Ranauro Advocacia Criminal...`
+
+Motivo: ano fixo fica desatualizado em janeiro de cada ano sem necessidade de intervenção manual. O `new Date().getFullYear()` é avaliado no servidor em cada build — em produção na Vercel, cada deploy atualiza o valor automaticamente.
+
+### Arquivos alterados
+
+- `src/components/sections/About.tsx` — frase do card institucional ajustada
+- `src/components/layout/Footer.tsx` — ano de copyright tornado dinâmico
+
+### Branch
+
+Alterações realizadas na branch `fix/content-review`.

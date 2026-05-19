@@ -73,7 +73,7 @@ export default function Footer() {
       <div className="border-t border-border">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-6 py-6 md:flex-row md:items-center md:justify-between">
           <p className="text-xs text-muted">
-            © 2025 Monique Ranauro Advocacia Criminal. Todos os direitos
+            © {new Date().getFullYear()} Monique Ranauro Advocacia Criminal. Todos os direitos
             reservados.
           </p>
           <p className="text-xs text-muted md:text-right">

@@ -38,7 +38,7 @@ export default function About() {
                 <div className="h-px w-10 bg-accent/40" />
 
                 <p className="max-w-[220px] text-center text-xs leading-relaxed text-muted/80">
-                  &ldquo;A defesa começa com escuta atenta e se constrói com estratégia precisa.&rdquo;
+                  &ldquo;A defesa começa com escuta atenta e se constrói com análise cuidadosa de cada caso.&rdquo;
                 </p>
 
               </div>

@@ -52,7 +52,9 @@ export default function Header() {
 
         {/* CTA desktop */}
         <a
-          href="#contato"
+          href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+          target="_blank"
+          rel="noopener noreferrer"
           className="hidden rounded-sm border border-accent px-4 py-2 text-sm text-accent transition-colors duration-200 hover:bg-accent hover:text-background md:inline-flex"
         >
           Falar no WhatsApp
@@ -85,7 +87,9 @@ export default function Header() {
             ))}
             <div className="py-6">
               <a
-                href="#contato"
+                href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={close}
                 className="inline-flex w-full items-center justify-center border border-accent px-4 py-3 text-sm text-accent transition-colors duration-200 hover:bg-accent hover:text-background"
               >

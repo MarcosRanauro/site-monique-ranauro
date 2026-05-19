@@ -1310,3 +1310,48 @@ O e-mail de destino das mensagens do formulário de contato foi atualizado:
 - `src/app/sitemap.ts` — URL raiz atualizada para `https://moniqueranauro.com.br`
 - `src/app/robots.ts` — URL do sitemap atualizada para `https://moniqueranauro.com.br/sitemap.xml`
 - `src/app/api/contact/route.ts` — `from` e `to` atualizados para domínio e e-mail definitivos
+
+---
+
+## 36. Configuração do WhatsApp — número real
+
+### Número configurado
+
+```
+21959247775
+```
+
+### Link utilizado
+
+```
+https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro.
+```
+
+A mensagem pré-preenchida decodificada é:
+
+```
+Olá, gostaria de falar com a Dra. Monique Ranauro.
+```
+
+### Atributos aplicados em todos os links
+
+Todos os links de WhatsApp foram atualizados com:
+
+```tsx
+target="_blank"
+rel="noopener noreferrer"
+```
+
+### Arquivos atualizados
+
+| Arquivo | Link anterior | Ocorrências |
+|---|---|---|
+| `src/components/layout/Header.tsx` | `#contato` (desktop e mobile) | 2 |
+| `src/components/layout/Footer.tsx` | `#` | 1 |
+| `src/components/sections/OnCall.tsx` | `#contato` | 1 |
+| `src/components/sections/Contact.tsx` | `#` | 1 |
+| `src/components/ui/WhatsAppButton.tsx` | `#` | 1 |
+
+### Branch
+
+Alterações realizadas na branch `feature/whatsapp-links`.

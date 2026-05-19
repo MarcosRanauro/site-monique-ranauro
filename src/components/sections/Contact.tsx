@@ -98,7 +98,9 @@ export default function Contact() {
           </div>
 
           <a
-            href="#"
+            href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex w-fit items-center gap-3 border-2 border-accent px-6 py-3 text-sm font-medium text-accent transition-colors duration-200 hover:bg-accent hover:text-background"
           >
             <span className="relative flex h-2 w-2 shrink-0">

@@ -55,7 +55,9 @@ export default function Footer() {
           </p>
           <div className="flex flex-col gap-3">
             <a
-              href="#"
+              href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-fit text-sm text-muted transition-colors duration-200 hover:text-accent"
             >
               Falar no WhatsApp

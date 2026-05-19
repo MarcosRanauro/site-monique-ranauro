@@ -14,7 +14,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const SITE_URL = "https://moniqueranauro.adv.br";
+const SITE_URL = "https://moniqueranauro.com.br";
 const SITE_TITLE = "Monique Ranauro | Advogada Criminalista em Nova Iguaçu";
 const SITE_DESCRIPTION =
   "Advocacia criminal estratégica em Nova Iguaçu e Baixada Fluminense. Atuação técnica, sigilosa e individualizada em Direito Penal. Plantão 24h para urgências criminais.";

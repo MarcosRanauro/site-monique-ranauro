@@ -1252,11 +1252,7 @@ Será substituída por imagem PNG/JPG real quando o domínio for configurado e i
 
 ### Atualização necessária quando domínio for confirmado
 
-Os seguintes campos usam `https://moniqueranauro.adv.br` como placeholder:
-- `alternates.canonical` em `layout.tsx`
-- `openGraph.url` em `layout.tsx`
-- `sitemap` em `robots.ts`
-- `url` em `sitemap.ts`
+~~Os seguintes campos usam `https://moniqueranauro.adv.br` como placeholder~~ — **domínio confirmado e atualizado.** Ver seção 35.
 
 ### Arquivos criados
 
@@ -1267,3 +1263,50 @@ Os seguintes campos usam `https://moniqueranauro.adv.br` como placeholder:
 ### Arquivos alterados
 
 - `src/app/layout.tsx` — metadata completa, Open Graph, Twitter Card, viewport, canonical
+
+---
+
+## 35. Configuração de produção — domínio confirmado
+
+### Domínio confirmado
+
+```
+moniqueranauro.com.br
+```
+
+O domínio `moniqueranauro.adv.br` era um placeholder. O domínio real confirmado é `moniqueranauro.com.br`.
+
+### URLs atualizadas
+
+Todos os arquivos que referenciavam o domínio placeholder foram atualizados para o domínio definitivo:
+
+| Arquivo | Campo | Valor anterior | Valor atual |
+|---|---|---|---|
+| `src/app/layout.tsx` | `SITE_URL` | `https://moniqueranauro.adv.br` | `https://moniqueranauro.com.br` |
+| `src/app/sitemap.ts` | `url` | `https://moniqueranauro.adv.br` | `https://moniqueranauro.com.br` |
+| `src/app/robots.ts` | `sitemap` | `https://moniqueranauro.adv.br/sitemap.xml` | `https://moniqueranauro.com.br/sitemap.xml` |
+
+### Resend configurado com domínio próprio
+
+O campo `from` do e-mail foi atualizado do domínio de teste do Resend para o domínio real da advogada:
+
+| Campo | Valor anterior | Valor atual |
+|---|---|---|
+| `from` | `Site Monique Ranauro <onboarding@resend.dev>` | `Site Monique Ranauro <site@moniqueranauro.com.br>` |
+
+> **Importante:** Para que o envio funcione com este `from`, o domínio `moniqueranauro.com.br` deve ser verificado no painel do Resend (resend.com/domains). Sem verificação, o Resend rejeitará o envio.
+
+### E-mail de destino final
+
+O e-mail de destino das mensagens do formulário de contato foi atualizado:
+
+| Campo | Valor anterior | Valor atual |
+|---|---|---|
+| `to` | `marcosranauro@hotmail.com` | `moniqueranauro@gmail.com` |
+
+### Arquivos alterados
+
+- `src/app/layout.tsx` — `SITE_URL` atualizado para `https://moniqueranauro.com.br`
+- `src/app/sitemap.ts` — URL raiz atualizada para `https://moniqueranauro.com.br`
+- `src/app/robots.ts` — URL do sitemap atualizada para `https://moniqueranauro.com.br/sitemap.xml`
+- `src/app/api/contact/route.ts` — `from` e `to` atualizados para domínio e e-mail definitivos

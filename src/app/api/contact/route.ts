@@ -20,8 +20,8 @@ export async function POST(request: Request) {
 
   try {
     await resend.emails.send({
-      from: "Site Monique Ranauro <onboarding@resend.dev>",
-      to: "marcosranauro@hotmail.com",
+      from: "Site Monique Ranauro <site@moniqueranauro.com.br>",
+      to: "moniqueranauro@gmail.com",
       subject: `Nova mensagem pelo site — ${name.trim()}`,
       text: `Nome: ${name.trim()}\nTelefone: ${phone.trim()}\nMensagem: ${message.trim()}`,
     });

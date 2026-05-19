@@ -71,7 +71,7 @@ export default function PracticeAreas() {
               key={number}
               className={`group flex flex-col gap-5 border border-border p-7 transition-colors duration-200 hover:border-accent/40 hover:bg-foreground/[0.03]${isLast ? " lg:col-start-2" : ""}`}
             >
-              <span className="font-heading text-sm font-semibold text-accent/80">
+              <span className="font-heading text-sm font-semibold text-accent">
                 {number}
               </span>
               <h3 className="font-heading text-lg font-semibold leading-snug text-foreground">

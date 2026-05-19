@@ -70,7 +70,7 @@ export default function Hero() {
 
               <div className="flex h-full flex-col justify-between p-8">
                 <div className="flex flex-col gap-5">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-accent/70">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-accent">
                     Defesa Criminal
                   </p>
                   <p className="font-heading text-3xl font-semibold leading-snug text-foreground/90">

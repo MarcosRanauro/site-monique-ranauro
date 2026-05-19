@@ -52,7 +52,7 @@ export default function Differentials() {
               key={title}
               className="group flex flex-col gap-6 border border-border p-7 transition-colors duration-200 hover:border-accent/40 hover:bg-foreground/[0.03]"
             >
-              <span className="text-xl text-accent/70 transition-colors duration-200 group-hover:text-accent">
+              <span className="text-xl text-accent transition-colors duration-200">
                 {symbol}
               </span>
               <h3 className="font-heading text-lg font-semibold leading-snug text-foreground">

@@ -1355,3 +1355,61 @@ rel="noopener noreferrer"
 ### Branch
 
 Alterações realizadas na branch `feature/whatsapp-links`.
+
+---
+
+## 37. Correção de contraste de acessibilidade (WCAG AA)
+
+### Contexto
+
+O Lighthouse reportava score 95 em acessibilidade com a falha:
+> "Background and foreground colors do not have a sufficient contrast ratio."
+
+O problema estava em usos do token `--accent` (#b08d57) com modificadores de opacidade Tailwind (`/70` e `/80`), que reduziam o contraste abaixo do mínimo WCAG AA de 4.5:1 para texto normal.
+
+Textos com `text-muted` (#a8a29e) e outros modificadores como `text-foreground/80` já passavam sem alteração.
+
+### Método de cálculo
+
+Luminância relativa via fórmula sRGB linearizada:
+- Componentes sRGB convertidos para linear com gamma 2.4
+- L = 0.2126R + 0.7152G + 0.0722B
+- Ratio = (L_claro + 0.05) / (L_escuro + 0.05)
+
+### Auditoria completa
+
+| Combinação | Ratio | Mínimo exigido | Resultado |
+|---|---|---|---|
+| `text-muted` #a8a29e / `#0b0b0b` | 7.81:1 | 4.5:1 | ✅ Passa |
+| `text-accent` #b08d57 / `#0b0b0b` | 6.37:1 | 4.5:1 | ✅ Passa |
+| `text-muted/80` efetivo / `#0b0b0b` | 5.32:1 | 4.5:1 | ✅ Passa |
+| `text-foreground/80` efetivo / `#0b0b0b` | 11.19:1 | 4.5:1 | ✅ Passa |
+| `text-foreground/90` efetivo / `#0b0b0b` | ~14:1 | 4.5:1 | ✅ Passa |
+| `text-accent/70` efetivo #7f6640 / `#0b0b0b` | **3.63:1** | 4.5:1 | ❌ Falha |
+| `text-accent/80` efetivo #8f7348 / `#0b0b0b` | **4.42:1** | 4.5:1 | ❌ Falha |
+
+### Elementos com falha encontrados
+
+| Arquivo | Elemento | Classe anterior | Ratio antes | Ratio depois |
+|---|---|---|---|---|
+| `Hero.tsx:73` | "Defesa Criminal" (10px, decorativo) | `text-accent/70` | 3.63:1 | 6.37:1 |
+| `Differentials.tsx:55` | Símbolos ◈/◇ (xl=20px) | `text-accent/70` | 3.63:1 | 6.37:1 |
+| `PracticeAreas.tsx:74` | Números 01–07 (sm, semibold) | `text-accent/80` | 4.42:1 | 6.37:1 |
+
+### Correções aplicadas
+
+Solução: remover o modificador de opacidade, usando `text-accent` puro (6.37:1 em todos os fundos escuros do site).
+
+- Nenhuma nova variável CSS foi necessária.
+- Nenhum layout, espaçamento ou estrutura foi alterado.
+- Em `Differentials.tsx`, o `group-hover:text-accent` redundante foi removido junto com a mudança (o estado padrão já é `text-accent`).
+
+### Arquivos alterados
+
+- `src/components/sections/Hero.tsx` — `text-accent/70` → `text-accent` (linha 73)
+- `src/components/sections/Differentials.tsx` — `text-accent/70 group-hover:text-accent` → `text-accent` (linha 55)
+- `src/components/sections/PracticeAreas.tsx` — `text-accent/80` → `text-accent` (linha 74)
+
+### Branch
+
+Alterações realizadas na branch `feature/accessibility-contrast`.

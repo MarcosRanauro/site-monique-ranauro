@@ -27,6 +27,11 @@
 - [x] Sitemap e robots.txt
 - [x] Imagem OG placeholder
 - [x] Deploy na Vercel
+- [x] Domínio moniqueranauro.com.br configurado
+- [x] Cloudflare configurado
+- [x] Resend com domínio próprio verificado
+- [x] E-mails profissionais (contato, monique, plantao) via Cloudflare Routing
+- [x] Formulário de contato funcionando em produção
 - [x] Checklist final em produção
 
 ---
@@ -36,22 +41,18 @@
 - [ ] Foto profissional da Monique (Hero e About)
 - [ ] Número de WhatsApp real (todos os CTAs)
 - [ ] Copy final revisado
-- [ ] Endereço e dados do escritório (Footer e Contato)
-- [ ] E-mail de destino do formulário (moniqueranauro@gmail.com)
+- [ ] Endereço do escritório (Footer e Contato)
 
 ---
 
-## 🔲 Fase 3b — Quando o domínio estiver pronto
+## 🔲 Quando o conteúdo chegar
 
-- [ ] Configurar domínio próprio na Vercel
-- [ ] HTTPS automático validado
-- [ ] Verificar domínio no Resend
-- [ ] Atualizar from/to no src/app/api/contact/route.ts
-- [ ] Atualizar SITE_URL em src/app/layout.tsx
-- [ ] Atualizar URL no src/app/sitemap.ts
-- [ ] Atualizar URL no src/app/robots.ts
-- [ ] Teste final em produção com domínio real
-- [ ] Atualizar README.md e CONTEXT.md com URL em produção
+- [ ] Substituir monograma CSS do Hero pela foto real
+- [ ] Substituir monograma CSS do About pela foto real
+- [ ] Atualizar todos os CTAs com número de WhatsApp real
+- [ ] Atualizar endereço no Footer e Contato
+- [ ] Lighthouse audit final (meta: ≥90 em todas as categorias)
+- [ ] Atualizar README.md e CONTEXT.md com status final
 
 ---
 
@@ -59,5 +60,4 @@
 
 - [ ] Foto profissional para Hero e About
 - [ ] Número de WhatsApp definitivo
-- [ ] Domínio próprio (ex: moniqueranauro.adv.br)
 - [ ] Confirmação do endereço do escritório

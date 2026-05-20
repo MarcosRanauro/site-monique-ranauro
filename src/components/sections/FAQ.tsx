@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SectionBadge from "@/components/ui/SectionBadge";
 
 const faqs = [
   {
@@ -43,14 +44,12 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="border-t border-border bg-[#0f0f0f] py-16 md:py-28">
+    <section id="faq" className="border-t border-border bg-background-secondary py-16 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
 
         {/* Cabeçalho centralizado */}
         <div className="mx-auto mb-10 max-w-2xl text-center md:mb-16">
-          <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-            Dúvidas frequentes
-          </span>
+          <SectionBadge>Dúvidas frequentes</SectionBadge>
           <h2 className="mt-6 font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             Perguntas frequentes.
           </h2>
@@ -70,8 +69,10 @@ export default function FAQ() {
               >
                 <button
                   type="button"
+                  id={`faq-trigger-${index}`}
                   onClick={() => toggle(index)}
                   aria-expanded={isOpen}
+                  aria-controls={`faq-panel-${index}`}
                   className="flex w-full items-center justify-between gap-6 py-6 text-left"
                 >
                   <span className="text-base font-medium text-foreground">
@@ -82,6 +83,9 @@ export default function FAQ() {
                   </span>
                 </button>
                 <div
+                  id={`faq-panel-${index}`}
+                  role="region"
+                  aria-labelledby={`faq-trigger-${index}`}
                   className={`grid transition-all duration-300 ease-in-out ${
                     isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                   }`}

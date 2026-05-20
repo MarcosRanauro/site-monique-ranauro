@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { WHATSAPP_URL } from "@/config/contact";
 
 const navLinks = [
   { label: "Início", href: "#inicio" },
@@ -21,7 +22,7 @@ export default function Header() {
     };
   }, [isOpen]);
 
-  const close = () => setIsOpen(false);
+  const close = useCallback(() => setIsOpen(false), []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-sm">
@@ -38,7 +39,7 @@ export default function Header() {
         </div>
 
         {/* Navegação desktop */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav aria-label="Navegação principal" className="hidden items-center gap-8 md:flex">
           {navLinks.map(({ label, href }) => (
             <a
               key={href}
@@ -52,7 +53,7 @@ export default function Header() {
 
         {/* CTA desktop */}
         <a
-          href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+          href={WHATSAPP_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="hidden rounded-sm border border-accent px-4 py-2 text-sm text-accent transition-colors duration-200 hover:bg-accent hover:text-background md:inline-flex"
@@ -64,6 +65,7 @@ export default function Header() {
         <button
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={isOpen}
           className="flex h-11 w-11 items-center justify-center text-lg text-foreground transition-colors duration-200 hover:text-accent md:hidden"
         >
           {isOpen ? "✕" : "☰"}
@@ -74,7 +76,7 @@ export default function Header() {
       {/* Painel do menu mobile */}
       {isOpen && (
         <div className="border-b border-border bg-background md:hidden">
-          <nav className="mx-auto flex max-w-6xl flex-col px-6">
+          <nav aria-label="Menu mobile" className="mx-auto flex max-w-6xl flex-col px-6">
             {navLinks.map(({ label, href }) => (
               <a
                 key={href}
@@ -87,7 +89,7 @@ export default function Header() {
             ))}
             <div className="py-6">
               <a
-                href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+                href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={close}

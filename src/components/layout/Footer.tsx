@@ -1,3 +1,5 @@
+import { WHATSAPP_URL } from "@/config/contact";
+
 const navLinks = [
   { label: "Início", href: "#inicio" },
   { label: "Sobre", href: "#sobre" },
@@ -9,7 +11,7 @@ const navLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border bg-[#080808]">
+    <footer className="border-t border-border bg-background-footer">
 
       {/* Corpo principal — três colunas */}
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 px-6 py-16 md:grid-cols-3">
@@ -35,7 +37,7 @@ export default function Footer() {
           <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted">
             Navegação
           </p>
-          <nav className="flex flex-col gap-3">
+          <nav aria-label="Navegação do rodapé" className="flex flex-col gap-3">
             {navLinks.map(({ label, href }) => (
               <a
                 key={href}
@@ -55,7 +57,7 @@ export default function Footer() {
           </p>
           <div className="flex flex-col gap-3">
             <a
-              href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="w-fit text-sm text-muted transition-colors duration-200 hover:text-accent"

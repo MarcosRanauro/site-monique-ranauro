@@ -4,7 +4,24 @@ import { NextResponse } from "next/server";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Formato inválido." },
+      { status: 400 }
+    );
+  }
+
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json(
+      { error: "Formato inválido." },
+      { status: 400 }
+    );
+  }
+
   const { name, phone, message } = body as {
     name?: string;
     phone?: string;
@@ -20,14 +37,18 @@ export async function POST(request: Request) {
 
   try {
     await resend.emails.send({
-      from: "Site Monique Ranauro <site@moniqueranauro.com.br>",
-      to: "moniqueranauro@gmail.com",
+      from:
+        process.env.CONTACT_EMAIL_FROM ??
+        "Site Monique Ranauro <site@moniqueranauro.com.br>",
+      to:
+        process.env.CONTACT_EMAIL_TO ?? "moniqueranauro@gmail.com",
       subject: `Nova mensagem pelo site — ${name.trim()}`,
       text: `Nome: ${name.trim()}\nTelefone: ${phone.trim()}\nMensagem: ${message.trim()}`,
     });
 
     return NextResponse.json({ ok: true }, { status: 200 });
-  } catch {
+  } catch (error) {
+    console.error("[contact] Resend error:", error);
     return NextResponse.json(
       { error: "Erro ao enviar mensagem. Tente novamente." },
       { status: 500 }

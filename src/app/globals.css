@@ -16,6 +16,9 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
+  --color-background-secondary: #0f0f0f;
+  --color-background-tertiary: #0d0d0d;
+  --color-background-footer: #080808;
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
 }

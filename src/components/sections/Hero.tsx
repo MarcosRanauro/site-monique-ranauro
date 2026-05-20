@@ -1,3 +1,5 @@
+import SectionBadge from "@/components/ui/SectionBadge";
+
 const trustIndicators = [
   "Atendimento sigiloso",
   "Estratégia individualizada",
@@ -21,9 +23,7 @@ export default function Hero() {
         {/* Coluna esquerda — conteúdo textual */}
         <div className="flex flex-col gap-8">
 
-          <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-            Advocacia Criminal
-          </span>
+          <SectionBadge>Advocacia Criminal</SectionBadge>
 
           <h1 className="font-heading text-4xl font-semibold leading-tight tracking-tight text-foreground md:text-5xl">
             Defesa criminal estratégica, técnica e sigilosa.
@@ -49,19 +49,19 @@ export default function Hero() {
             </a>
           </div>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
+          <ul className="flex flex-wrap gap-x-6 gap-y-3">
             {trustIndicators.map((item) => (
-              <div key={item} className="flex items-center gap-2">
+              <li key={item} className="flex items-center gap-2">
                 <span className="h-1 w-1 rounded-full bg-accent" />
                 <span className="text-xs text-muted">{item}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
         </div>
 
         {/* Coluna direita — visual decorativo em CSS */}
-        <div className="relative hidden md:flex md:items-center md:justify-center">
+        <div aria-hidden="true" className="relative hidden md:flex md:items-center md:justify-center">
           <div className="relative h-[440px] w-full max-w-[400px]">
 
             {/* Cartão principal */}

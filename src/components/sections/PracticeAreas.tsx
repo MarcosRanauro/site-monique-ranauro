@@ -1,3 +1,6 @@
+import SectionBadge from "@/components/ui/SectionBadge";
+import cn from "clsx";
+
 const areas = [
   {
     number: "01",
@@ -50,9 +53,7 @@ export default function PracticeAreas() {
 
         {/* Cabeçalho da seção */}
         <div className="mx-auto mb-10 max-w-2xl text-center md:mb-16">
-          <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-            Áreas de atuação
-          </span>
+          <SectionBadge>Áreas de atuação</SectionBadge>
           <h2 className="mt-6 font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             Defesa criminal em momentos que exigem precisão.
           </h2>
@@ -65,11 +66,12 @@ export default function PracticeAreas() {
         {/* Grid de cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {areas.map(({ number, title, description }, index) => {
+            // 7 items in 3-col grid — center the lone last card on lg
             const isLast = index === areas.length - 1;
             return (
             <div
               key={number}
-              className={`group flex flex-col gap-5 border border-border p-7 transition-colors duration-200 hover:border-accent/40 hover:bg-foreground/[0.03]${isLast ? " lg:col-start-2" : ""}`}
+              className={cn("group flex flex-col gap-5 border border-border p-7 transition-colors duration-200 hover:border-accent/40 hover:bg-foreground/[0.03]", { "lg:col-start-2": isLast })}
             >
               <span className="font-heading text-sm font-semibold text-accent">
                 {number}

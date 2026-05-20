@@ -1,3 +1,5 @@
+import SectionBadge from "@/components/ui/SectionBadge";
+
 const supportItems = [
   "Análise individualizada do caso",
   "Comunicação clara durante o processo",
@@ -6,11 +8,11 @@ const supportItems = [
 
 export default function About() {
   return (
-    <section id="sobre" className="border-t border-border bg-[#0f0f0f] py-16 md:py-28">
+    <section id="sobre" className="border-t border-border bg-background-secondary py-16 md:py-28">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 md:grid-cols-2 md:items-center">
 
         {/* Coluna esquerda — card institucional decorativo */}
-        <div className="hidden md:flex md:items-center md:justify-center">
+        <div aria-hidden="true" className="hidden md:flex md:items-center md:justify-center">
           <div className="relative h-[420px] w-full max-w-[380px]">
 
             {/* Cartão principal */}
@@ -59,9 +61,7 @@ export default function About() {
         {/* Coluna direita — conteúdo textual */}
         <div className="flex flex-col gap-8">
 
-          <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-            Sobre a profissional
-          </span>
+          <SectionBadge>Sobre a profissional</SectionBadge>
 
           <h2 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             Atuação criminal com técnica, sigilo e estratégia.
@@ -81,16 +81,16 @@ export default function About() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-3">
             {supportItems.map((item) => (
-              <div
+              <li
                 key={item}
                 className="flex items-center gap-4 border-l-2 border-accent/50 py-1 pl-4"
               >
                 <span className="text-sm text-foreground/80">{item}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
         </div>
 

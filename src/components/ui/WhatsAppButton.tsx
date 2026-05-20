@@ -1,7 +1,9 @@
+import { WHATSAPP_URL } from "@/config/contact";
+
 export default function WhatsAppButton() {
   return (
     <a
-      href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+      href={WHATSAPP_URL}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"

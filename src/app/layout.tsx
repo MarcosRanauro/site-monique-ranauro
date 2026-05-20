@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/config/site";
 
 const playfair = Playfair_Display({
   variable: "--font-heading",
@@ -14,7 +15,6 @@ const inter = Inter({
   display: "swap",
 });
 
-const SITE_URL = "https://moniqueranauro.com.br";
 const SITE_TITLE = "Monique Ranauro | Advogada Criminalista em Nova Iguaçu";
 const SITE_DESCRIPTION =
   "Advocacia criminal estratégica em Nova Iguaçu e Baixada Fluminense. Atuação técnica, sigilosa e individualizada em Direito Penal. Plantão 24h para urgências criminais.";
@@ -76,9 +76,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="pt-BR" className={`${playfair.variable} ${inter.variable}`}>
       <body>{children}</body>

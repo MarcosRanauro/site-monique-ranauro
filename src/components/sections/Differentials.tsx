@@ -1,3 +1,5 @@
+import SectionBadge from "@/components/ui/SectionBadge";
+
 const differentials = [
   {
     symbol: "◈",
@@ -32,9 +34,7 @@ export default function Differentials() {
 
         {/* Cabeçalho centralizado */}
         <div className="mx-auto mb-10 max-w-2xl text-center md:mb-16">
-          <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-            Por que contar com atuação técnica
-          </span>
+          <SectionBadge>Por que contar com atuação técnica</SectionBadge>
           <h2 className="mt-6 font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             Defesa criminal com método, sigilo e presença.
           </h2>
@@ -52,7 +52,7 @@ export default function Differentials() {
               key={title}
               className="group flex flex-col gap-6 border border-border p-7 transition-colors duration-200 hover:border-accent/40 hover:bg-foreground/[0.03]"
             >
-              <span className="text-xl text-accent transition-colors duration-200">
+              <span aria-hidden="true" className="text-xl text-accent transition-colors duration-200">
                 {symbol}
               </span>
               <h3 className="font-heading text-lg font-semibold leading-snug text-foreground">

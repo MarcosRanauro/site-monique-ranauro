@@ -1,8 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { WHATSAPP_URL } from "@/config/contact";
+import SectionBadge from "@/components/ui/SectionBadge";
 
 type FormStatus = "idle" | "loading" | "success";
+
+function maskPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 11);
+  if (digits.length === 0) return "";
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
 
 export default function Contact() {
   const [status, setStatus] = useState<FormStatus>("idle");
@@ -14,14 +24,6 @@ export default function Contact() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const maskPhone = (raw: string): string => {
-    const digits = raw.replace(/\D/g, "").slice(0, 11);
-    if (digits.length === 0) return "";
-    if (digits.length <= 2) return `(${digits}`;
-    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,15 +64,13 @@ export default function Contact() {
   };
 
   return (
-    <section id="contato" className="border-t border-border bg-[#0b0b0b] py-16 md:py-28">
+    <section id="contato" className="border-t border-border bg-background py-16 md:py-28">
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 md:grid-cols-2 md:items-start">
 
         {/* Coluna esquerda — informações de contato */}
         <div className="flex flex-col gap-8">
 
-          <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-            Fale com a advogada
-          </span>
+          <SectionBadge>Fale com a advogada</SectionBadge>
 
           <h2 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
             Entre em contato para orientação jurídica.
@@ -98,7 +98,7 @@ export default function Contact() {
           </div>
 
           <a
-            href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+            href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex w-fit items-center gap-3 border-2 border-accent px-6 py-3 text-sm font-medium text-accent transition-colors duration-200 hover:bg-accent hover:text-background"
@@ -115,7 +115,7 @@ export default function Contact() {
         {/* Coluna direita — formulário */}
         <div>
           {status === "success" ? (
-            <div className="flex flex-col gap-4 border border-accent/30 bg-accent/5 p-8">
+            <div role="alert" className="flex flex-col gap-4 border border-accent/30 bg-accent/5 p-8">
               <div className="h-px w-8 bg-accent/50" />
               <p className="font-heading text-lg font-semibold text-foreground">
                 Mensagem enviada.
@@ -126,7 +126,7 @@ export default function Contact() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
 
               <div className="flex flex-col gap-2">
                 <label
@@ -163,10 +163,11 @@ export default function Contact() {
                   onChange={handlePhoneChange}
                   placeholder="(XX) 99999-9999"
                   maxLength={15}
+                  aria-describedby={phoneError ? "phone-error" : undefined}
                   className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent"
                 />
                 {phoneError && (
-                  <p className="text-xs text-red-400">{phoneError}</p>
+                  <p id="phone-error" role="alert" className="text-xs text-red-400">{phoneError}</p>
                 )}
               </div>
 
@@ -190,7 +191,7 @@ export default function Contact() {
               </div>
 
               {error && (
-                <p className="text-xs text-red-400">{error}</p>
+                <p role="alert" className="text-xs text-red-400">{error}</p>
               )}
 
               <button

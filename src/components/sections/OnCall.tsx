@@ -1,3 +1,6 @@
+import { WHATSAPP_URL } from "@/config/contact";
+import SectionBadge from "@/components/ui/SectionBadge";
+
 const bullets = [
   "Atendimento imediato em casos de prisão em flagrante",
   "Acompanhamento em delegacias da Baixada Fluminense e Grande Rio",
@@ -9,16 +12,14 @@ export default function OnCall() {
   return (
     <section
       id="plantao"
-      className="border-b border-t border-border bg-[#0d0d0d] py-16 md:py-28"
+      className="border-b border-t border-border bg-background-tertiary py-16 md:py-28"
     >
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 md:grid-cols-2 md:items-start">
 
         {/* Coluna esquerda — título e textos */}
         <div className="flex flex-col gap-8">
 
-          <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-            Plantão Criminal
-          </span>
+          <SectionBadge>Plantão Criminal</SectionBadge>
 
           <h2 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-accent md:text-4xl">
             Plantão 24 horas para urgências criminais.
@@ -46,21 +47,21 @@ export default function OnCall() {
         {/* Coluna direita — bullets e CTA */}
         <div className="flex flex-col gap-10">
 
-          <div className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-3">
             {bullets.map((bullet) => (
-              <div
+              <li
                 key={bullet}
                 className="flex items-start gap-4 border-l-2 border-accent/50 py-1 pl-4"
               >
                 <span className="text-sm leading-relaxed text-foreground/80">
                   {bullet}
                 </span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
           <a
-            href="https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro."
+            href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex w-fit items-center gap-3 border-2 border-accent px-6 py-3 text-sm font-medium text-accent transition-colors duration-200 hover:bg-accent hover:text-background"

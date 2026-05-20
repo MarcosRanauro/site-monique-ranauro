@@ -1576,3 +1576,353 @@ Motivo: ano fixo fica desatualizado em janeiro de cada ano sem necessidade de in
 ### Branch
 
 Alterações realizadas na branch `fix/content-review`.
+
+---
+
+## 40. Correções de alta severidade — auditoria de código
+
+### Contexto
+
+Após a auditoria completa realizada na branch `audit/code-review`, quatro problemas de alta severidade foram identificados e corrigidos.
+
+### [A-01] Hero.tsx — `aria-hidden` no card decorativo
+
+Adicionado `aria-hidden="true"` no `<div>` externo da coluna decorativa direita do Hero. O card CSS continha texto duplicado ("Defesa Criminal", "Sigilo. Estratégia. Precisão.", áreas de atuação) que seria anunciado por leitores de tela em paralelo ao conteúdo principal da página.
+
+### [A-02] About.tsx — `aria-hidden` no card decorativo
+
+Adicionado `aria-hidden="true"` no `<div>` externo do card institucional esquerdo da seção Sobre. O card continha monograma "M", nome, título e citação — conteúdo decorativo que duplicava informações presentes no corpo da seção.
+
+### [A-03] next.config.ts — security headers
+
+Adicionado bloco `async headers()` com os seguintes headers aplicados a todas as rotas (`source: "/(.*)"`:
+
+| Header | Valor | Proteção |
+|---|---|---|
+| `X-Frame-Options` | `DENY` | Clickjacking |
+| `X-Content-Type-Options` | `nosniff` | MIME sniffing |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Vazamento de referência |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | APIs sensíveis do browser |
+
+Adicionado também `poweredByHeader: false` para remover o header `X-Powered-By: Next.js` de todas as respostas.
+
+### [A-04] Centralização da URL do WhatsApp
+
+Criado `src/config/contact.ts` com a constante:
+
+```ts
+export const WHATSAPP_URL =
+  "https://wa.me/5521959247775?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Dra.%20Monique%20Ranauro.";
+```
+
+A URL hardcoded foi substituída pela importação da constante em 6 arquivos (total de 6 ocorrências eliminadas):
+
+| Arquivo | Ocorrências substituídas |
+|---|---|
+| `src/components/layout/Header.tsx` | 2 |
+| `src/components/layout/Footer.tsx` | 1 |
+| `src/components/sections/OnCall.tsx` | 1 |
+| `src/components/sections/Contact.tsx` | 1 |
+| `src/components/ui/WhatsAppButton.tsx` | 1 |
+
+Qualquer alteração futura no número ou mensagem do WhatsApp exige mudança em um único arquivo.
+
+### Arquivos criados
+
+- `src/config/contact.ts` — constante WHATSAPP_URL
+
+### Arquivos alterados
+
+- `next.config.ts` — `poweredByHeader: false` + `headers()` com security headers
+- `src/components/sections/Hero.tsx` — `aria-hidden="true"` no card decorativo
+- `src/components/sections/About.tsx` — `aria-hidden="true"` no card decorativo
+- `src/components/layout/Header.tsx` — import WHATSAPP_URL + substituição (2×)
+- `src/components/layout/Footer.tsx` — import WHATSAPP_URL + substituição (1×)
+- `src/components/sections/OnCall.tsx` — import WHATSAPP_URL + substituição (1×)
+- `src/components/sections/Contact.tsx` — import WHATSAPP_URL + substituição (1×)
+- `src/components/ui/WhatsAppButton.tsx` — import WHATSAPP_URL + substituição (1×)
+
+### Branch
+
+Alterações realizadas na branch `audit/code-review`.
+
+---
+
+## 41. Correções de manutenibilidade — auditoria de código
+
+### Contexto
+
+Continuação da auditoria na branch `audit/code-review`. Dois problemas de manutenibilidade foram resolvidos com centralização de valores duplicados.
+
+### [B-13] Centralização de SITE_URL
+
+Criado `src/config/site.ts` com a constante:
+
+```ts
+export const SITE_URL = "https://moniqueranauro.com.br";
+```
+
+A constante local `SITE_URL` em `layout.tsx` foi removida e substituída pelo import. Os outros dois arquivos que continham a URL hardcoded também foram atualizados.
+
+| Arquivo | Mudança |
+|---|---|
+| `src/app/layout.tsx` | Removida `const SITE_URL`; adicionado import de `@/config/site` |
+| `src/app/sitemap.ts` | `"https://moniqueranauro.com.br"` → `SITE_URL` |
+| `src/app/robots.ts` | `"https://moniqueranauro.com.br/sitemap.xml"` → `` `${SITE_URL}/sitemap.xml` `` |
+
+### [B-14] Componente SectionBadge
+
+Criado `src/components/ui/SectionBadge.tsx` encapsulando o padrão de badge de seção:
+
+```tsx
+export default function SectionBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-block w-fit border border-accent/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
+      {children}
+    </span>
+  );
+}
+```
+
+O `<span>` hardcoded foi substituído em 7 arquivos:
+
+| Arquivo | Texto do badge |
+|---|---|
+| `src/components/sections/Hero.tsx` | "Advocacia Criminal" |
+| `src/components/sections/OnCall.tsx` | "Plantão Criminal" |
+| `src/components/sections/About.tsx` | "Sobre a profissional" |
+| `src/components/sections/PracticeAreas.tsx` | "Áreas de atuação" |
+| `src/components/sections/Differentials.tsx` | "Por que contar com atuação técnica" |
+| `src/components/sections/FAQ.tsx` | "Dúvidas frequentes" |
+| `src/components/sections/Contact.tsx` | "Fale com a advogada" |
+
+### Arquivos criados
+
+- `src/config/site.ts` — constante SITE_URL
+- `src/components/ui/SectionBadge.tsx` — componente de badge de seção
+
+### Arquivos alterados
+
+- `src/app/layout.tsx`, `src/app/sitemap.ts`, `src/app/robots.ts` — import SITE_URL
+- `src/components/sections/Hero.tsx`, `OnCall.tsx`, `About.tsx`, `PracticeAreas.tsx`, `Differentials.tsx`, `FAQ.tsx`, `Contact.tsx` — import + uso de SectionBadge
+
+### Branch
+
+Alterações realizadas na branch `audit/code-review`.
+
+---
+
+## 42. Correções de segurança na rota de contato — auditoria de código
+
+### Contexto
+
+Continuação da auditoria na branch `audit/code-review`. Quatro problemas identificados no arquivo `src/app/api/contact/route.ts` foram corrigidos.
+
+### [B-09] JSON parse sem tratamento de erro
+
+**Antes:** `request.json()` era chamado diretamente no fluxo principal. Um corpo malformado lançava uma exceção não capturada.
+
+**Depois:** `request.json()` foi movido para um bloco `try/catch` isolado. Falha no parse retorna imediatamente `400 Formato inválido.`.
+
+### [B-10] `catch {}` silencioso no bloco Resend
+
+**Antes:** O bloco `catch` não capturava o erro — `catch {}` sem parâmetro silenciava qualquer falha da API Resend.
+
+**Depois:** `catch (error) { console.error("[contact] Resend error:", error); }` — erros são registrados no log do servidor para diagnóstico.
+
+### [B-12] Ausência de validação de tipo em runtime
+
+**Antes:** O corpo era convertido diretamente com `as { name?: string; ... }` sem verificar se era de fato um objeto, o que permitia que arrays e primitivos passassem silenciosamente.
+
+**Depois:** Validação explícita:
+```ts
+if (!body || typeof body !== "object" || Array.isArray(body)) {
+  return NextResponse.json({ error: "Formato inválido." }, { status: 400 });
+}
+```
+
+### [B-15] Valores de e-mail hardcoded
+
+**Antes:** `from` e `to` estavam hardcoded no código-fonte.
+
+**Depois:** Substituídos por variáveis de ambiente com fallback:
+```ts
+from: process.env.CONTACT_EMAIL_FROM ?? "Site Monique Ranauro <site@moniqueranauro.com.br>",
+to:   process.env.CONTACT_EMAIL_TO   ?? "moniqueranauro@gmail.com",
+```
+
+### [B-11] Rate limiting — pendente
+
+Rate limiting na rota `/api/contact` não foi implementado nesta iteração. Requer infraestrutura adicional (ex: Upstash Redis via `@upstash/ratelimit` ou Vercel WAF). Registrado como pendente para iteração futura.
+
+### Arquivos alterados
+
+- `src/app/api/contact/route.ts` — B-09, B-10, B-12, B-15
+
+### Branch
+
+Alterações realizadas na branch `audit/code-review`.
+
+---
+
+## 43. Correções de média e baixa severidade — auditoria de código
+
+### Contexto
+
+Conclusão da auditoria na branch `audit/code-review`. Todos os itens de média severidade (B-01–B-07) e baixa severidade (C-01–C-10) foram tratados nesta iteração.
+
+### [B-01] Differentials.tsx — aria-hidden nos símbolos decorativos
+
+Adicionado `aria-hidden="true"` nos `<span>` que exibem os símbolos ◈ e ◇. Leitores de tela anunciavam nomes técnicos Unicode sem significado semântico para o usuário.
+
+### [B-02] OnCall.tsx — lista semântica nos bullets
+
+`<div className="flex flex-col gap-3">` → `<ul>` com mesmas classes. Cada `<div>` filho → `<li>`, mantendo classes e conteúdo. Os 4 bullets do plantão agora são marcação de lista semântica.
+
+### [B-03] About.tsx — lista semântica nos itens de apoio
+
+Mesmo fix do B-02 aplicado nos 3 itens de apoio ("Análise individualizada", "Comunicação clara", "Atuação ética"). `<div>` wrapper → `<ul>`, itens → `<li>`.
+
+### [B-04] Hero.tsx — lista semântica nos trustIndicators
+
+Mesmo fix aplicado nos 3 trustIndicators ("Atendimento sigiloso", "Estratégia individualizada", "Atuação técnica"). `<div>` wrapper → `<ul>`, itens → `<li>`.
+
+### [B-05] Contact.tsx — noValidate no formulário
+
+Adicionado `noValidate` na tag `<form>`. Delega a validação integralmente ao JavaScript customizado, evitando o popup nativo do browser.
+
+### [B-06] Contact.tsx — role="alert" no card de sucesso
+
+Adicionado `role="alert"` no `<div>` do card de confirmação pós-envio. Leitores de tela anunciam automaticamente o conteúdo quando ele é inserido no DOM.
+
+### [B-07] FAQ.tsx — aria-controls e role="region" no acordeão
+
+Adicionado em cada botão: `aria-controls={\`faq-panel-${index}\`}`. Adicionado em cada painel: `id={\`faq-panel-${index}\`}` e `role="region"`. Conecta explicitamente trigger e painel para tecnologias assistivas (padrão WAI-ARIA para acordeão).
+
+### [C-01] Contact.tsx — aria-describedby e id no campo de telefone
+
+Adicionado no input de telefone: `aria-describedby={phoneError ? "phone-error" : undefined}`. Adicionado no `<p>` de erro: `id="phone-error"` e `role="alert"`. Associa programaticamente o campo ao seu erro para leitores de tela.
+
+### [C-02] Header.tsx — useCallback no close
+
+Import: adicionado `useCallback` ao import do React. `const close = () => setIsOpen(false)` → `const close = useCallback(() => setIsOpen(false), [])`. Evita recriação da função a cada render.
+
+### [C-03] Contact.tsx — maskPhone movida para módulo
+
+`maskPhone` era arrow function declarada dentro do componente `Contact`. Movida para fora como função nomeada de nível de módulo. Não recria a função a cada render e não depende de estado do componente.
+
+### [C-04] PracticeAreas.tsx — clsx para classes condicionais
+
+Instalada `clsx`. Adicionado `import cn from "clsx"`. Substituída concatenação de string condicional:
+```tsx
+// antes
+className={`...${isLast ? " lg:col-start-2" : ""}`}
+// depois
+className={cn("...", { "lg:col-start-2": isLast })}
+```
+
+### [C-05] globals.css — tokens para fundos intermediários
+
+Adicionados ao bloco `@theme inline`:
+```css
+--color-background-secondary: #0f0f0f;
+--color-background-tertiary: #0d0d0d;
+--color-background-footer: #080808;
+```
+
+Substituições nos componentes:
+
+| Arquivo | Antes | Depois |
+|---|---|---|
+| `About.tsx` | `bg-[#0f0f0f]` | `bg-background-secondary` |
+| `FAQ.tsx` | `bg-[#0f0f0f]` | `bg-background-secondary` |
+| `OnCall.tsx` | `bg-[#0d0d0d]` | `bg-background-tertiary` |
+| `Footer.tsx` | `bg-[#080808]` | `bg-background-footer` |
+
+### [C-06] next.config.ts — removido compress: true
+
+`compress: true` é o valor padrão do Next.js e não precisa ser declarado explicitamente. Linha removida.
+
+### [C-07] PracticeAreas.tsx — comentário para isLast
+
+Adicionado comentário acima da lógica `isLast`:
+```tsx
+// 7 items in 3-col grid — center the lone last card on lg
+```
+
+### [C-08] Differentials.tsx — xl:grid-cols-4 mantido
+
+Avaliado: com 4 cards de conteúdo variado, `lg:grid-cols-4` (1024px) resultaria em colunas de ~232px, potencialmente estreitas para os textos de descrição. Decisão: manter `xl:grid-cols-4` (1280px) para garantir legibilidade sem risco visual.
+
+### [C-09] Header.tsx — useState inferência de tipo
+
+`useState(false)` já estava sem anotação `<boolean>` explícita — TypeScript inferia corretamente desde a implementação anterior. Nenhuma alteração necessária.
+
+### [C-10] layout.tsx — simplificação do tipo das props
+
+`Readonly<{ children: React.ReactNode }>` → `{ children: React.ReactNode }`. `Readonly` era redundante para props de componente React.
+
+### Arquivos criados
+
+- Nenhum (apenas alterações)
+
+### Arquivos alterados
+
+- `src/components/sections/Differentials.tsx` — B-01
+- `src/components/sections/OnCall.tsx` — B-02, C-05
+- `src/components/sections/About.tsx` — B-03, C-05
+- `src/components/sections/Hero.tsx` — B-04
+- `src/components/sections/Contact.tsx` — B-05, B-06, C-01, C-03
+- `src/components/sections/FAQ.tsx` — B-07, C-05
+- `src/components/sections/PracticeAreas.tsx` — C-04, C-07
+- `src/components/layout/Header.tsx` — C-02
+- `src/components/layout/Footer.tsx` — C-05
+- `src/app/globals.css` — C-05 (tokens adicionados)
+- `next.config.ts` — C-06
+- `src/app/layout.tsx` — C-10
+
+### Branch
+
+Alterações realizadas na branch `audit/code-review`.
+
+---
+
+## 44. Correções da reauditoria — itens residuais
+
+### Contexto
+
+Após a aplicação de todos os itens da auditoria original (seções 40–43), uma segunda passagem completa identificou 5 problemas residuais. Todos corrigidos na branch `audit/code-review`.
+
+### [B-16] Contact.tsx — role="alert" no erro geral do formulário
+
+O `<p>` que exibe erros de submissão (falha na API) não tinha `role="alert"`. O erro do campo de telefone já havia sido corrigido em C-01, mas esse ficou de fora. Adicionado `role="alert"` ao `<p>` do estado `error`.
+
+### [B-17] Header.tsx — aria-expanded no botão hambúrguer
+
+O botão de menu mobile não tinha `aria-expanded`. O padrão WAI-ARIA para disclosure buttons exige esse atributo para comunicar o estado aberto/fechado a tecnologias assistivas. O `aria-label` já alternava entre "Abrir menu" e "Fechar menu", mas `aria-expanded` é o mecanismo semântico correto.
+
+### [C-11] Contact.tsx — bg-[#0b0b0b] → bg-background
+
+A seção Contact usava `bg-[#0b0b0b]` hardcoded — mesmo valor que `--background: #0b0b0b`. Substituído por `bg-background` para consistência com a tokenização feita em C-05.
+
+### [C-12] FAQ.tsx — aria-labelledby nos painéis do acordeão
+
+Os painéis com `role="region"` não tinham nome acessível. `role="region"` só é promovido a landmark quando nomeado. Adicionado `id="faq-trigger-${index}"` em cada botão e `aria-labelledby={faq-trigger-${index}}` em cada painel.
+
+### [C-13] Header.tsx + Footer.tsx — aria-label nos elementos nav
+
+Dois `<nav>` sem `aria-label` são anunciados como landmarks idênticos por leitores de tela. Adicionados:
+- `aria-label="Navegação principal"` — nav desktop do Header
+- `aria-label="Menu mobile"` — nav mobile do Header
+- `aria-label="Navegação do rodapé"` — nav do Footer
+
+### Arquivos alterados
+
+- `src/components/sections/Contact.tsx` — B-16, C-11
+- `src/components/layout/Header.tsx` — B-17, C-13
+- `src/components/sections/FAQ.tsx` — C-12
+- `src/components/layout/Footer.tsx` — C-13
+
+### Branch
+
+Alterações realizadas na branch `audit/code-review`.

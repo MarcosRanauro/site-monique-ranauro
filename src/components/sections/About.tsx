@@ -19,7 +19,7 @@ export default function About() {
             {/* Foto */}
             <div className="relative aspect-[3/4] w-full overflow-hidden border border-accent/30 shadow-lg">
               <Image
-                src="/images/monique-ranauro2.png"
+                src="/images/monique-ranauro3.png"
                 alt="Monique Ranauro, advogada criminalista"
                 fill
                 sizes="380px"

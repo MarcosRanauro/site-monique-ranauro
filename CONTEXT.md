@@ -2473,3 +2473,60 @@ const cspHeader = [
 ### Branch
 
 Alterações realizadas na branch `fix/audit-round-2`.
+
+---
+
+## 56. Criação de documentação — DECISOES.md, CHANGELOG.md e .env.example
+
+### Contexto
+
+Consolidação da documentação técnica do projeto em três arquivos independentes, complementando o CONTEXT.md com registros de decisões, histórico de versões e referência de variáveis de ambiente.
+
+### Arquivos criados
+
+#### DECISOES.md
+
+Registro de 15 decisões técnicas e arquiteturais extraídas do CONTEXT.md.
+
+| ID | Decisão |
+|---|---|
+| D-01 | Next.js como framework |
+| D-02 | Tailwind CSS v4 |
+| D-03 | Migração para src/ |
+| D-04 | Identidade visual — paleta e tipografia |
+| D-05 | next/font em vez de Google Fonts externo |
+| D-06 | Server Components como padrão |
+| D-07 | Centralização da WHATSAPP_URL |
+| D-08 | Centralização da SITE_URL |
+| D-09 | Centralização de navLinks |
+| D-10 | SectionBadge como componente reutilizável |
+| D-11 | Resend para envio de e-mail |
+| D-12 | Deploy na Vercel |
+| D-13 | DNS via Cloudflare |
+| D-14 | Security headers via next.config.ts |
+| D-15 | CSP separado por ambiente (dev vs produção) |
+
+Cada decisão registra: data, status, contexto, decisão, motivo e consequências.
+
+#### CHANGELOG.md
+
+Histórico de versões no padrão Keep a Changelog (https://keepachangelog.com), com 4 versões:
+
+| Versão | Data | Escopo |
+|---|---|---|
+| 1.0.0 | 2026-05-18 | Lançamento inicial em produção |
+| 1.1.0 | 2026-05-20 | Auditorias de responsividade, acessibilidade, performance, conteúdo e código |
+| 1.2.0 | 2026-05-24 | Fotos profissionais e humanização da comunicação |
+| 1.3.0 | 2026-05-24 | Auditoria técnica round 2 |
+
+#### .env.example
+
+Documentação das 3 variáveis de ambiente do projeto com comentários explicativos:
+
+- `RESEND_API_KEY` — obrigatória para o formulário de contato
+- `CONTACT_EMAIL_FROM` — e-mail de origem (deve usar domínio verificado no Resend)
+- `CONTACT_EMAIL_TO` — e-mail de destino das mensagens
+
+### Branch
+
+Alterações realizadas na branch `docs/project-files`.

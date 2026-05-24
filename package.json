@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "audit:project": "bash scripts/audit-project.sh"
   },
   "dependencies": {
     "clsx": "^2.1.1",

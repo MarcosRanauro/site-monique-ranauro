@@ -1,3 +1,4 @@
+import Image from "next/image";
 import SectionBadge from "@/components/ui/SectionBadge";
 
 const trustIndicators = [
@@ -16,9 +17,28 @@ export default function Hero() {
   return (
     <section
       id="inicio"
-      className="flex min-h-[calc(100vh-4rem)] items-center bg-background"
+      className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden"
     >
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 px-6 py-16 md:gap-16 md:grid-cols-2 md:items-center md:py-24">
+      {/* Camada 0 — imagem de fundo */}
+      <div aria-hidden="true" className="absolute inset-0 z-0">
+        <Image
+          src="/images/Fundo hero.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
+
+      {/* Camada 1 — overlay em gradiente */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-10 bg-gradient-to-r from-background/95 via-background/80 to-background/40"
+      />
+
+      {/* Camada 2 — conteúdo */}
+      <div className="relative z-20 mr-auto grid w-full max-w-5xl grid-cols-1 gap-12 px-6 py-16 md:gap-16 md:grid-cols-2 md:items-center md:pl-12 md:py-24 lg:pl-20">
 
         {/* Coluna esquerda — conteúdo textual */}
         <div className="flex flex-col gap-8">
@@ -26,12 +46,12 @@ export default function Hero() {
           <SectionBadge>Advocacia Criminal</SectionBadge>
 
           <h1 className="font-heading text-4xl font-semibold leading-tight tracking-tight text-foreground md:text-5xl">
-            Defesa criminal estratégica, técnica e sigilosa.
+            Advocacia criminal para quem precisa ser ouvido e defendido de verdade.
           </h1>
 
           <p className="max-w-lg text-base leading-relaxed text-muted">
-            Atuação profissional para proteger direitos, orientar decisões e
-            construir estratégias jurídicas com seriedade em momentos decisivos.
+            Dra. Monique Ranauro atua ao seu lado em momentos difíceis, com escuta
+            atenta, orientação clara e defesa técnica desde o primeiro contato.
           </p>
 
           <div className="flex flex-wrap gap-4">
@@ -39,7 +59,7 @@ export default function Hero() {
               href="#contato"
               className="inline-flex items-center rounded-sm bg-accent px-6 py-3 text-sm font-medium text-background transition-colors duration-200 hover:bg-accent-light"
             >
-              Falar com a advogada
+              Falar com a Monique
             </a>
             <a
               href="#atuacao"
@@ -60,12 +80,12 @@ export default function Hero() {
 
         </div>
 
-        {/* Coluna direita — visual decorativo em CSS */}
+        {/* Coluna direita — card semi-transparente sobre a imagem */}
         <div aria-hidden="true" className="relative hidden md:flex md:items-center md:justify-center">
           <div className="relative h-[440px] w-full max-w-[400px]">
 
             {/* Cartão principal */}
-            <div className="absolute inset-0 border border-border bg-gradient-to-br from-foreground/5 to-transparent">
+            <div className="absolute inset-0 border border-accent/30 bg-background/60 backdrop-blur-sm">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
 
               <div className="flex h-full flex-col justify-between p-8">

@@ -1961,3 +1961,202 @@ O `CLAUDE.md` anterior continha apenas `@AGENTS.md` (referência ao arquivo de i
 ### Branch
 
 Alterações realizadas na branch `main`.
+
+---
+
+## 46. Hero com imagem profissional como background
+
+### Contexto
+
+A imagem profissional da cliente estava disponível em `public/images/`. Esta iteração substituiu o fundo sólido do Hero (`bg-background`) pela imagem real com overlay em gradiente, card semi-transparente e estrutura de camadas com z-index.
+
+### Imagens disponíveis em public/images/
+
+| Arquivo | Uso |
+|---|---|
+| `Fundo hero.png` | Background do Hero — imagem profissional usada como camada base |
+| `Monique Final.png` | Foto profissional da advogada — disponível para uso futuro na seção About |
+
+### Estrutura de camadas implementada
+
+| z-index | Elemento | Descrição |
+|---|---|---|
+| z-0 | `<div aria-hidden="true">` + `<Image>` | Imagem de fundo com `fill` e `object-cover` |
+| z-10 | `<div aria-hidden="true">` overlay | Gradiente `from-background/95 via-background/80 to-background/40` |
+| z-20 | `<div>` conteúdo | Grid com coluna de texto e card decorativo |
+
+### Alterações no `<section>`
+
+- Removido: `bg-background` (fundo sólido)
+- Adicionado: `relative overflow-hidden` (necessários para o `fill` e o overlay funcionarem)
+
+### Coluna esquerda (texto)
+
+Nenhuma alteração de conteúdo ou lógica. O texto respira sobre o overlay sem caixa de fundo.
+
+### Coluna direita (card decorativo)
+
+| Propriedade | Antes | Depois |
+|---|---|---|
+| background | `bg-gradient-to-br from-foreground/5 to-transparent` | `bg-background/60` |
+| border | `border-border` | `border-accent/30` |
+| blur | ausente | `backdrop-blur-sm` |
+
+### Acessibilidade
+
+- Wrapper da imagem com `aria-hidden="true"` — imagem decorativa, não anunciada por leitores de tela
+- `alt=""` no `<Image>` — confirma caráter decorativo para tecnologias assistivas
+- `priority` no `<Image>` — imagem above the fold, carregada com prioridade (impacta LCP positivamente)
+- `sizes="100vw"` — informa ao browser que a imagem ocupa 100% da largura do viewport
+
+### Decisão — `Fundo hero.png` como background
+
+O arquivo `Fundo hero.png` foi escolhido por ter o nome que indica uso explícito como fundo do Hero. O arquivo `Monique Final.png` permanece disponível para uso na seção About em iteração futura.
+
+### Decisão — gradiente assimétrico
+
+O gradiente `from-background/95 via-background/80 to-background/40` mantém o lado esquerdo (texto) com alta cobertura (~95% de opacidade), garantindo legibilidade, enquanto o lado direito (~40%) deixa a imagem mais visível atrás do card semi-transparente.
+
+### Arquivos alterados
+
+- `src/components/sections/Hero.tsx` — background com imagem, overlay, card semi-transparente, z-index
+
+### Branch
+
+Alterações realizadas na branch `feature/professional-photos`.
+
+---
+
+## 47. Hero — deslocamento do conteúdo para a esquerda
+
+### Contexto
+
+Com a imagem de fundo adicionada na seção 46, o conteúdo (texto + card) ainda ocupava uma área centralizada que encobraia grande parte da imagem. O objetivo desta iteração foi puxar o bloco de conteúdo para a esquerda, abrindo espaço visual para a imagem de fundo aparecer no lado direito da tela.
+
+### Abordagem escolhida
+
+A `<section>` do Hero usa `display: flex`. Nesse contexto, o container filho responde a `margin: auto` de forma diferente de um layout de bloco comum. A solução mais simples e direta foi:
+
+1. **`mx-auto` → `mr-auto`** — em flex row, `mr-auto` consome o espaço restante à direita, empurrando o item para a esquerda sem precisar de posicionamento absoluto.
+2. **`max-w-6xl` → `max-w-5xl`** — reduz a largura máxima do container de 1152px para 960px. O deslocamento passa a ser visível em telas acima de 960px de largura.
+3. **`md:pl-12 lg:pl-20`** — adiciona respiro da borda esquerda no desktop (48px em md, 80px em lg) sem criar caixa de fundo pesada, apenas espaçando o conteúdo internamente.
+
+### Trecho alterado
+
+| Classe | Antes | Depois |
+|---|---|---|
+| Alinhamento | `mx-auto` | `mr-auto` |
+| Largura máxima | `max-w-6xl` (1152px) | `max-w-5xl` (960px) |
+| Padding esquerdo desktop | `px-6` apenas | `px-6` + `md:pl-12 lg:pl-20` |
+
+### Comportamento por breakpoint
+
+| Largura de tela | Container | Margem direita (imagem visível) |
+|---|---|---|
+| < 960px | 100% da tela | 0px (imagem cobre tudo) |
+| 1024px | 960px | 64px |
+| 1280px | 960px | 320px |
+| 1440px | 960px | 480px |
+
+### Decisão — `mr-auto` + `max-w-5xl` vs padding assimétrico
+
+A opção por `mr-auto` + `max-w-5xl` foi preferida ao uso de `pl-*` grande com `pr-0` no container porque:
+- Não interfere na largura interna do grid — as colunas continuam com o espaço proporcional correto
+- O deslocamento é estrutural (o container é menor), não cosmético (padding que encolheria o conteúdo por dentro)
+- Manter `px-6` para mobile garante padding simétrico na coluna única
+
+### Arquivos alterados
+
+- `src/components/sections/Hero.tsx` — linha do container `z-20` (uma classe alterada, duas adicionadas)
+
+### Branch
+
+Alterações realizadas na branch `feature/professional-photos`.
+
+---
+
+## 48. About — foto profissional da cliente
+
+### Contexto
+
+O card decorativo esquerdo da seção About (com monograma "M", nome, título e citação) foi substituído pela foto profissional da advogada Monique Ranauro. A pendência registrada desde a seção 24 do CONTEXT.md foi resolvida.
+
+### Imagem utilizada
+
+```
+public/images/Monique Final.png
+```
+
+O arquivo `Fundo hero.png` já foi utilizado como background do Hero (seção 46). O `Monique Final.png` é a foto profissional da cliente, utilizada aqui.
+
+### Estrutura da coluna esquerda
+
+**Antes:** `div` com `aria-hidden="true"` contendo card decorativo (monograma, nome, título, linha, citação).
+
+**Depois:** `div` sem `aria-hidden` contendo:
+
+```
+div.flex.flex-col.gap-5.max-w-[380px]
+├── div.relative.aspect-[3/4].overflow-hidden.border.border-accent/30.shadow-lg
+│   └── Image (fill, object-cover object-top)
+└── p.text-xs.italic.text-muted/80  ← citação como legenda da foto
+```
+
+### Decisões de implementação
+
+| Decisão | Escolha | Motivo |
+|---|---|---|
+| Proporção | `aspect-[3/4]` | Proporção retrato padrão para fotos profissionais; mantém a coluna com altura semelhante ao card anterior |
+| Object position | `object-top` | Prioriza o rosto/busto em fotos de perfil, onde o sujeito está no topo do enquadramento |
+| Borda | `border border-accent/30` | Consistente com o card decorativo do Hero (`border-accent/30`) |
+| Sombra | `shadow-lg` | Profundidade sutil, sem exagero — identidade sóbria do projeto |
+| Border radius | nenhum (sharp) | O projeto não usa arredondamento nos demais cards e componentes estruturais |
+| Cantos decorativos | removidos | Com a foto real, os cantos dourados são desnecessários — a borda `border-accent/30` já ancora visualmente |
+| `aria-hidden` | removido | A foto da cliente é conteúdo institucional, não decorativo |
+| `alt` | `"Monique Ranauro, advogada criminalista"` | Descritivo e institucional |
+| `priority` | ausente | Seção abaixo do fold — lazy loading correto |
+| `sizes` | `"380px"` | Corresponde ao `max-w-[380px]` do container da foto |
+| Citação | mantida como legenda | Abaixo da foto com `text-xs italic text-muted/80`, sem card separado |
+
+### Pendências resolvidas
+
+- ~~Foto profissional da cliente — About ainda sem imagem real.~~ ✅ Resolvida.
+
+### Arquivos alterados
+
+- `src/components/sections/About.tsx` — coluna esquerda substituída (card decorativo → foto profissional + citação)
+
+### Branch
+
+Alterações realizadas na branch `feature/professional-photos`.
+
+---
+
+## 49. Hero — atualização de copy para comunicação mais humana
+
+### Contexto
+
+Os textos anteriores do Hero tinham tom técnico e institucional. Esta iteração aproxima a comunicação do cliente, com linguagem mais humana e direta, sem perder a seriedade e sem violar o Provimento 205/2021 da OAB.
+
+### Alterações de texto
+
+| Elemento | Antes | Depois |
+|---|---|---|
+| `h1` | "Defesa criminal firme, humanizada, estratégica e técnica." | "Advocacia criminal para quem precisa ser ouvido e defendido de verdade." |
+| Subtítulo | "Atuação profissional para proteger direitos, orientar decisões e construir estratégias jurídicas com seriedade em momentos decisivos." | "Monique Ranauro atua ao seu lado em momentos difíceis — com escuta atenta, orientação clara e defesa técnica desde o primeiro contato." |
+| CTA principal | "Falar com a advogada" | "Falar com a Monique" |
+
+### Conformidade OAB
+
+Os novos textos mantêm conformidade com o Provimento 205/2021:
+- Nenhuma promessa de resultado
+- Nenhum superlativo ou comparação
+- Linguagem informativa e humanizada, não apelativa
+
+### Arquivos alterados
+
+- `src/components/sections/Hero.tsx` — três textos alterados, nenhum layout ou estilo tocado
+
+### Branch
+
+Alterações realizadas na branch `feature/professional-photos`.

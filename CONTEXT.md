@@ -2160,3 +2160,316 @@ Os novos textos mantêm conformidade com o Provimento 205/2021:
 ### Branch
 
 Alterações realizadas na branch `feature/professional-photos`.
+
+---
+
+## 50. Correção C-01 — Open Graph image: SVG → PNG
+
+### Contexto
+
+A auditoria técnica (reports/project-audit-2026-05-24_14-25-30.md) identificou como item CRÍTICO que a imagem Open Graph e Twitter Card estava em formato `.svg`. Facebook/Meta, Twitter/X, LinkedIn e WhatsApp não suportam SVG para pré-visualização de links — os compartilhamentos do site ficavam sem imagem.
+
+### Solução implementada
+
+O arquivo `public/og-image.svg` foi convertido para PNG via `sharp` (Node.js), preservando o design original:
+
+- Fundo: `#0b0b0b`
+- Nome "Monique Ranauro" em destaque (Georgia, 68px, `#f5f1ea`)
+- Subtítulo "ADVOGADA CRIMINALISTA" em dourado (`#b08d57`)
+- Localização: "Nova Iguaçu · Baixada Fluminense · Grande Rio"
+- Rodapé: "ADVOCACIA CRIMINAL ESTRATÉGICA · PLANTÃO 24H"
+- Dimensões: 1200×630px (padrão OG)
+- Tamanho: ~40 KB
+
+O PNG foi gerado com o comando:
+```bash
+sharp(svgBuffer).resize(1200, 630).png().toFile('public/og-image.png')
+```
+
+### Arquivos criados
+
+- `public/og-image.png` — imagem Open Graph em formato PNG (1200×630px)
+
+### Arquivos alterados
+
+- `src/app/layout.tsx` — `/og-image.svg` → `/og-image.png` (2 ocorrências: `openGraph.images` e `twitter.images`)
+
+### Arquivos removidos
+
+- `public/og-image.svg` — substituído pelo PNG; nenhuma referência ao arquivo `.svg` permanece no projeto
+
+### Branch
+
+Alterações realizadas na branch `fix/audit-round-2`.
+
+---
+
+## 51. Correções de segurança A-02, A-03 e B-02 — auditoria técnica
+
+### Contexto
+
+Continuação das correções da auditoria técnica. Esta seção documenta os itens A-02 (CSP), A-03 (validação server-side) e B-02 (limites nos campos do formulário).
+
+---
+
+### [A-02] next.config.ts — Content-Security-Policy
+
+Adicionado header `Content-Security-Policy` ao bloco `headers()` existente.
+
+#### Diretivas e justificativas
+
+| Diretiva | Valor | Motivo |
+|---|---|---|
+| `default-src` | `'self'` | Bloqueia por padrão qualquer recurso de origem externa não listada explicitamente |
+| `script-src` | `'self' 'unsafe-inline'` | `'unsafe-inline'` necessário para hidratação do Next.js (scripts inline de bootstrap) |
+| `style-src` | `'self' 'unsafe-inline'` | `'unsafe-inline'` necessário para `next/image` (inline styles de layout) e Tailwind |
+| `img-src` | `'self' data: blob:` | `data:` para blur placeholders do `next/image`; `blob:` para eventuais object URLs |
+| `font-src` | `'self'` | Fontes carregadas localmente via `next/font` em `/_next/static/` |
+| `connect-src` | `'self'` | Fetch e XHR apenas para rotas próprias (ex: `/api/contact`) |
+| `frame-ancestors` | `'none'` | Reforça `X-Frame-Options: DENY` — nenhum site pode embeddar este em iframe |
+
+#### O que não quebra
+
+- `next/image` — serve de `/_next/image` (self) com blur placeholders em `data:` ✓
+- `backdrop-blur`, `animate-ping` — CSS estático gerado em build, servido de `'self'` ✓
+- WhatsApp links — `target="_blank"` é navegação, não fetch; não afetado por `connect-src` ✓
+- `Resend` SDK — executa server-side (Node.js), não restringido por CSP ✓
+
+---
+
+### [A-03] src/app/api/contact/route.ts — Validação server-side
+
+Adicionadas constantes de limite e validação após a verificação de campos vazios existente.
+
+#### Constantes adicionadas
+
+```ts
+const NAME_MAX = 100;
+const MESSAGE_MAX = 2000;
+const PHONE_REGEX = /^\d{10,11}$/;
+```
+
+#### Validação adicionada
+
+Após o bloco `if (!name?.trim() || !phone?.trim() || !message?.trim())`:
+
+```ts
+const phoneDigits = phone.replace(/\D/g, "");
+if (
+  name.trim().length > NAME_MAX ||
+  message.trim().length > MESSAGE_MAX ||
+  !PHONE_REGEX.test(phoneDigits)
+) {
+  return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
+}
+```
+
+Cobertura: nome acima de 100 chars, mensagem acima de 2000 chars, telefone com formato inválido (não 10 ou 11 dígitos numéricos). Todos os retornos anteriores permanecem intactos.
+
+---
+
+### [B-02] src/components/sections/Contact.tsx — Limites nos campos
+
+Adicionados atributos `minLength`/`maxLength` nos três campos do formulário para alinhar com as validações server-side de [A-03]:
+
+| Campo | Atributo adicionado | Valor | Observação |
+|---|---|---|---|
+| `name` | `minLength` | `2` | Novo |
+| `name` | `maxLength` | `100` | Novo — espelha `NAME_MAX` |
+| `phone` | `minLength` | `14` | Novo — formato mascarado `(XX) 9XXXX-XXXX` tem 15 chars; `14` cobre `(XX) XXXX-XXXX` |
+| `phone` | `maxLength` | `15` | Já existia |
+| `message` | `minLength` | `10` | Novo |
+| `message` | `maxLength` | `2000` | Novo — espelha `MESSAGE_MAX` |
+
+O `noValidate` no `<form>` permanece — a validação nativa do browser está desabilitada intencionalmente para manter o feedback visual customizado em JavaScript.
+
+---
+
+### Arquivos alterados
+
+- `next.config.ts` — header `Content-Security-Policy` adicionado ao bloco `headers()`
+- `src/app/api/contact/route.ts` — constantes `NAME_MAX`, `MESSAGE_MAX`, `PHONE_REGEX` + validação de comprimento e formato
+- `src/components/sections/Contact.tsx` — `minLength`/`maxLength` nos campos `name`, `phone` e `message`
+
+### Branch
+
+Alterações realizadas na branch `fix/audit-round-2`.
+
+---
+
+## 52. Correções de organização M-01, M-02 e M-03 — auditoria técnica
+
+### [M-01] Centralização de navLinks em src/config/nav.ts
+
+O array `navLinks` estava duplicado e idêntico em `Header.tsx` e `Footer.tsx`. Qualquer alteração futura (novo item de menu, label ou âncora) exigia edição em dois arquivos — risco de dessincronia.
+
+**Solução:** criado `src/config/nav.ts` com a definição canônica do array. Definições locais removidas dos dois componentes. Import adicionado via `@/config/nav`.
+
+### [M-02] Renomeação de imagens para kebab-case
+
+O arquivo `Fundo hero.png` (espaço no nome) foi renomeado para `fundo-hero.png`. Referência atualizada em `Hero.tsx`.
+
+O arquivo `monique-ranauro2.png` já estava em kebab-case — sem alteração.
+
+| Arquivo antigo | Arquivo novo | Componente atualizado |
+|---|---|---|
+| `public/images/Fundo hero.png` | `public/images/fundo-hero.png` | `Hero.tsx` linha 25 |
+
+### [M-03] Remoção de imagens não referenciadas
+
+Confirmado via `grep` que nenhum dos 5 arquivos abaixo era referenciado em qualquer componente, antes de remover:
+
+| Arquivo removido | Motivo |
+|---|---|
+| `Firefly (1).png` | Não referenciado; parênteses no nome são problemáticos em URLs |
+| `Monique Final.png` | Não referenciado; foto pessoal sem uso |
+| `Monique-escritorio.png` | Não referenciado; substituído por `monique-ranauro2.png` |
+| `Monique-escritorio2.png` | Não referenciado |
+| `Monique-ranauro.png` | Não referenciado |
+
+**Estado final de `public/images/`:**
+```
+fundo-hero.png        ← Hero background (renomeado)
+monique-ranauro2.png  ← Foto da About (já estava em kebab-case)
+```
+
+### Arquivos criados
+
+- `src/config/nav.ts` — array `navLinks` centralizado
+
+### Arquivos alterados
+
+- `src/components/layout/Header.tsx` — definição local removida; import de `@/config/nav` adicionado
+- `src/components/layout/Footer.tsx` — definição local removida; import de `@/config/nav` adicionado
+- `src/components/sections/Hero.tsx` — referência de `/images/Fundo hero.png` → `/images/fundo-hero.png`
+
+### Arquivos removidos
+
+- `public/images/Firefly (1).png`
+- `public/images/Monique Final.png`
+- `public/images/Monique-escritorio.png`
+- `public/images/Monique-escritorio2.png`
+- `public/images/Monique-ranauro.png`
+
+### Branch
+
+Alterações realizadas na branch `fix/audit-round-2`.
+
+---
+
+## 53. Correções de refinamento M-04, M-05, M-06, M-07, B-01, B-03 e B-05 — auditoria técnica round 2
+
+### [M-04] FAQ.tsx — substituição de template literals por cn()
+
+Criado `src/lib/utils.ts` com a função `cn()` baseada em `clsx`, seguindo o padrão de projetos Next.js com Tailwind. Importado em `FAQ.tsx` para substituir dois template literals condicionais:
+
+- `className={index > 0 ? "border-t border-border" : ""}` → `className={cn(index > 0 && "border-t border-border")}`
+- `` className={`grid ... ${isOpen ? ... : ...}`} `` → `className={cn("grid ...", isOpen ? ... : ...)}`
+
+### [M-05] sitemap.ts — remoção de lastModified dinâmico
+
+`lastModified: new Date()` removido. O valor era regenerado a cada deploy/request com a data de execução, o que não reflete modificação real de conteúdo e pode confundir crawlers de SEO.
+
+### [M-06] globals.css — scroll-behavior respeitando prefers-reduced-motion
+
+`scroll-behavior: smooth` movido para dentro de `@media (prefers-reduced-motion: no-preference)`. Usuários com configuração de redução de movimento do sistema operacional não são mais forçados a animação de scroll.
+
+### [M-07] Contact.tsx — ul/li para lista de localização
+
+Os dois itens de localização que usavam `div/div` foram corretamente marcados como lista com `ul/li`, melhorando semântica e leitura por leitores de tela.
+
+### [B-01] Header.tsx — type="button" e aria-controls no hambúrguer
+
+Adicionados `type="button"` (evita submit acidental em contexto de form) e `aria-controls="mobile-menu"` ao botão hambúrguer. Painel mobile recebeu `id="mobile-menu"`, completando o vínculo ARIA entre controle e região controlada.
+
+### [B-03] Contact.tsx — campos desabilitados durante loading e autocomplete
+
+`disabled={status === "loading"}` adicionado aos três campos do formulário (`name`, `phone`, `message`) com classe `disabled:opacity-60`. Atributos `autoComplete` adicionados: `"name"` no nome, `"tel"` no telefone, `"off"` na mensagem (conteúdo sensível).
+
+### [B-05] SectionBadge.tsx — tipo nomeado extraído
+
+Tipo inline `{ children: React.ReactNode }` extraído para `type SectionBadgeProps`. Padrão mais legível e extensível para futuras props.
+
+### Arquivos criados
+
+- `src/lib/utils.ts` — função `cn()` usando `clsx`
+
+### Arquivos alterados
+
+- `src/components/sections/FAQ.tsx` — import de `cn`, substituição dos template literals
+- `src/app/sitemap.ts` — remoção de `lastModified`
+- `src/app/globals.css` — `scroll-behavior` dentro de `prefers-reduced-motion`
+- `src/components/sections/Contact.tsx` — ul/li, autocomplete, disabled durante loading
+- `src/components/layout/Header.tsx` — `type="button"`, `aria-controls`, `id="mobile-menu"`
+- `src/components/ui/SectionBadge.tsx` — tipo `SectionBadgeProps` extraído
+
+### Branch
+
+Alterações realizadas na branch `fix/audit-round-2`.
+
+---
+
+## 54. Status da auditoria técnica — round 2 concluída
+
+Todos os itens da auditoria técnica foram corrigidos ou documentados como pendências conhecidas.
+
+### Itens corrigidos
+
+| ID | Categoria | Descrição | Branch |
+|---|---|---|---|
+| C-01 | Crítico | og-image.svg convertido para PNG (sharp) | fix/audit-round-2 |
+| A-02 | Alta | Security headers adicionados ao next.config.ts | fix/audit-round-2 |
+| A-03 | Alta | Validação e sanitização no /api/contact route | fix/audit-round-2 |
+| B-02 | Média | minLength/maxLength nos campos do formulário | fix/audit-round-2 |
+| M-01 | Organização | navLinks centralizado em src/config/nav.ts | fix/audit-round-2 |
+| M-02 | Organização | Imagem renomeada para kebab-case | fix/audit-round-2 |
+| M-03 | Organização | 5 imagens não referenciadas removidas | fix/audit-round-2 |
+| M-04 | Refinamento | FAQ.tsx: template literals → cn() | fix/audit-round-2 |
+| M-05 | Refinamento | sitemap.ts: lastModified dinâmico removido | fix/audit-round-2 |
+| M-06 | Refinamento | globals.css: scroll-behavior em prefers-reduced-motion | fix/audit-round-2 |
+| M-07 | Refinamento | Contact.tsx: div/div → ul/li para lista de localização | fix/audit-round-2 |
+| B-01 | Média | Header.tsx: type="button", aria-controls, id no painel | fix/audit-round-2 |
+| B-03 | Média | Contact.tsx: campos disabled durante loading + autocomplete | fix/audit-round-2 |
+| B-05 | Média | SectionBadge.tsx: tipo nomeado extraído | fix/audit-round-2 |
+
+### Pendências conhecidas (não bloqueantes)
+
+| ID | Categoria | Descrição | Motivo da pendência |
+|---|---|---|---|
+| A-01 | Alta | Rate limiting no /api/contact | Requer Upstash Redis (dependência externa não provisionada) |
+| A-04 | Alta | Vulnerabilidade no PostCSS | Não corrigível sem downgrade do Next.js; aguarda atualização upstream |
+
+---
+
+## 55. CSP: unsafe-eval liberado apenas em desenvolvimento
+
+### Problema
+
+O CSP adicionado em `next.config.ts` bloqueava `eval()`, que o React/Turbopack usa em desenvolvimento para reconstruir call stacks e habilitar features de debug. Em produção o React não usa `eval()`, portanto o bloqueio era correto — mas quebrava o ambiente de desenvolvimento.
+
+### Solução
+
+Variável `isDev` derivada de `process.env.NODE_ENV` avaliada em tempo de build do Next.js. O array do CSP usa operador ternário para incluir `'unsafe-eval'` no `script-src` apenas quando `isDev === true`.
+
+```ts
+const isDev = process.env.NODE_ENV === "development";
+
+const cspHeader = [
+  "default-src 'self'",
+  isDev
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'",
+  // ...
+].join("; ");
+```
+
+**Produção:** `script-src 'self' 'unsafe-inline'` — sem `unsafe-eval`.
+**Desenvolvimento:** `script-src 'self' 'unsafe-inline' 'unsafe-eval'` — Turbopack/React DevTools funcionam normalmente.
+
+### Arquivo alterado
+
+- `next.config.ts` — CSP separado por ambiente via `isDev`
+
+### Branch
+
+Alterações realizadas na branch `fix/audit-round-2`.

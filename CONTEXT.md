@@ -1926,3 +1926,38 @@ Dois `<nav>` sem `aria-label` são anunciados como landmarks idênticos por leit
 ### Branch
 
 Alterações realizadas na branch `audit/code-review`.
+
+---
+
+## 45. Criação do CLAUDE.md — instruções persistentes para o Claude Code
+
+### Arquivo criado
+
+`CLAUDE.md` na raiz do projeto — instruções persistentes lidas pelo Claude Code ao iniciar qualquer sessão neste projeto.
+
+### Conteúdo
+
+O arquivo documenta 10 seções:
+
+1. **Identidade do projeto** — nome, cliente, site, stack, deploy e repositório.
+2. **Comportamento esperado** — regras de conduta para o agente: ler README e CONTEXT antes de agir, confirmar branch, não inventar conteúdo, perguntar em caso de ambiguidade.
+3. **Padrões de código** — TypeScript estrito, Server Components por padrão, alias @/, exportações, funções puras, cn() para classes condicionais.
+4. **Padrões de acessibilidade** — hierarquia de headings, elementos semânticos, aria-hidden, listas com ul/li, aria-expanded, role="alert".
+5. **Identidade visual** — tokens de cor e tipografia que nunca devem ser alterados sem instrução explícita.
+6. **Regras de conteúdo (OAB)** — restrições de publicidade jurídica: sem promessas, sem superlativos, sem comparações.
+7. **Arquivos de configuração centralizada** — WHATSAPP_URL em contact.ts, SITE_URL em site.ts.
+8. **Componentes reutilizáveis** — SectionBadge e WhatsAppButton.
+9. **Fluxo de trabalho** — checklist: ler docs, confirmar branch, implementar escopo, lint, listar arquivos, atualizar CONTEXT.md.
+10. **Pendências conhecidas** — foto profissional, endereço, rate limiting, variáveis de e-mail.
+
+### Decisão — substituição do @AGENTS.md
+
+O `CLAUDE.md` anterior continha apenas `@AGENTS.md` (referência ao arquivo de instrução de agentes genéricos). Foi substituído por instruções específicas do projeto, que são mais completas e diretamente acionáveis pelo Claude Code neste contexto.
+
+### Arquivos criados
+
+- `CLAUDE.md` — instruções persistentes para o Claude Code
+
+### Branch
+
+Alterações realizadas na branch `main`.

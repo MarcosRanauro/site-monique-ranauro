@@ -84,18 +84,18 @@ export default function Contact() {
             caso.
           </p>
 
-          <div className="flex flex-col gap-3">
-            <div className="flex items-start border-l-2 border-accent/50 py-1 pl-4">
+          <ul className="flex flex-col gap-3">
+            <li className="flex items-start border-l-2 border-accent/50 py-1 pl-4">
               <span className="text-sm text-foreground/80">
                 Nova Iguaçu — Baixada Fluminense e Grande Rio
               </span>
-            </div>
-            <div className="flex items-start border-l-2 border-accent/50 py-1 pl-4">
+            </li>
+            <li className="flex items-start border-l-2 border-accent/50 py-1 pl-4">
               <span className="text-sm text-foreground/80">
                 Plantão 24h para urgências criminais
               </span>
-            </div>
-          </div>
+            </li>
+          </ul>
 
           <a
             href={WHATSAPP_URL}
@@ -140,10 +140,14 @@ export default function Contact() {
                   name="name"
                   type="text"
                   required
+                  minLength={2}
+                  maxLength={100}
+                  autoComplete="name"
+                  disabled={status === "loading"}
                   value={form.name}
                   onChange={handleChange}
                   placeholder="Seu nome completo"
-                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent"
+                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
                 />
               </div>
 
@@ -159,12 +163,15 @@ export default function Contact() {
                   name="phone"
                   type="tel"
                   required
+                  autoComplete="tel"
+                  disabled={status === "loading"}
                   value={form.phone}
                   onChange={handlePhoneChange}
                   placeholder="(XX) 99999-9999"
+                  minLength={14}
                   maxLength={15}
                   aria-describedby={phoneError ? "phone-error" : undefined}
-                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent"
+                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
                 />
                 {phoneError && (
                   <p id="phone-error" role="alert" className="text-xs text-red-400">{phoneError}</p>
@@ -183,10 +190,14 @@ export default function Contact() {
                   name="message"
                   required
                   rows={5}
+                  minLength={10}
+                  maxLength={2000}
+                  autoComplete="off"
+                  disabled={status === "loading"}
                   value={form.message}
                   onChange={handleChange}
                   placeholder="Descreva brevemente sua situação"
-                  className="resize-none border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent"
+                  className="resize-none border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
                 />
               </div>
 

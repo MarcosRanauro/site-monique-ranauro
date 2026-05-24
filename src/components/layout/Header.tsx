@@ -2,15 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { WHATSAPP_URL } from "@/config/contact";
-
-const navLinks = [
-  { label: "Início", href: "#inicio" },
-  { label: "Sobre", href: "#sobre" },
-  { label: "Atuação", href: "#atuacao" },
-  { label: "Diferenciais", href: "#diferenciais" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Contato", href: "#contato" },
-];
+import { navLinks } from "@/config/nav";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,9 +55,11 @@ export default function Header() {
 
         {/* Botão hambúrguer — apenas mobile */}
         <button
+          type="button"
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
           aria-expanded={isOpen}
+          aria-controls="mobile-menu"
           className="flex h-11 w-11 items-center justify-center text-lg text-foreground transition-colors duration-200 hover:text-accent md:hidden"
         >
           {isOpen ? "✕" : "☰"}
@@ -75,7 +69,7 @@ export default function Header() {
 
       {/* Painel do menu mobile */}
       {isOpen && (
-        <div className="border-b border-border bg-background md:hidden">
+        <div id="mobile-menu" className="border-b border-border bg-background md:hidden">
           <nav aria-label="Menu mobile" className="mx-auto flex max-w-6xl flex-col px-6">
             {navLinks.map(({ label, href }) => (
               <a

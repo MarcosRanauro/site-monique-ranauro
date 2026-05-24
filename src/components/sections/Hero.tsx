@@ -22,7 +22,7 @@ export default function Hero() {
       {/* Camada 0 — imagem de fundo */}
       <div aria-hidden="true" className="absolute inset-0 z-0">
         <Image
-          src="/images/Fundo hero.png"
+          src="/images/fundo-hero.png"
           alt=""
           fill
           priority

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import SectionBadge from "@/components/ui/SectionBadge";
+import { cn } from "@/lib/utils";
 
 const faqs = [
   {
@@ -65,7 +66,7 @@ export default function FAQ() {
             return (
               <div
                 key={question}
-                className={index > 0 ? "border-t border-border" : ""}
+                className={cn(index > 0 && "border-t border-border")}
               >
                 <button
                   type="button"
@@ -86,9 +87,10 @@ export default function FAQ() {
                   id={`faq-panel-${index}`}
                   role="region"
                   aria-labelledby={`faq-trigger-${index}`}
-                  className={`grid transition-all duration-300 ease-in-out ${
+                  className={cn(
+                    "grid transition-all duration-300 ease-in-out",
                     isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                  }`}
+                  )}
                 >
                   <div className="overflow-hidden">
                     <p className="pb-6 text-sm leading-relaxed text-muted">

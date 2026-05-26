@@ -34,7 +34,7 @@ export default function Footer() {
               <a
                 key={href}
                 href={href}
-                className="w-fit text-sm text-muted transition-colors duration-200 hover:text-accent"
+                className="relative w-fit text-sm text-muted after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-accent/70 after:transition-all after:duration-300 hover:after:w-full"
               >
                 {label}
               </a>

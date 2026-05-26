@@ -42,3 +42,14 @@ body {
   background-color: var(--accent);
   color: var(--background);
 }
+
+@keyframes subtle-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(176, 141, 87, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(176, 141, 87, 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-subtle-pulse {
+    animation: subtle-pulse 2.5s ease-in-out infinite;
+  }
+}

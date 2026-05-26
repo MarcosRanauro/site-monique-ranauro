@@ -7,7 +7,7 @@ export default function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 border border-accent bg-background px-4 py-3 text-sm font-medium text-accent shadow-lg transition-colors duration-200 hover:bg-accent hover:text-background"
+      className="animate-subtle-pulse fixed bottom-6 right-6 z-50 flex items-center gap-2 border border-accent bg-background px-4 py-3 text-sm font-medium text-accent shadow-lg transition-all duration-300 hover:scale-110 hover:bg-accent hover:text-background hover:shadow-xl"
     >
       <span className="font-heading text-base font-semibold leading-none">
         W

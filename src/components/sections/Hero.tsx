@@ -57,13 +57,13 @@ export default function Hero() {
           <div className="flex flex-wrap gap-4">
             <a
               href="#contato"
-              className="inline-flex items-center rounded-sm bg-accent px-6 py-3 text-sm font-medium text-background transition-colors duration-200 hover:bg-accent-light"
+              className="inline-flex items-center rounded-sm border border-accent bg-accent px-6 py-3 text-sm font-medium text-background transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-light hover:bg-accent-light"
             >
               Falar com a Monique
             </a>
             <a
               href="#atuacao"
-              className="inline-flex items-center rounded-sm border border-foreground/20 px-6 py-3 text-sm font-medium text-foreground transition-colors duration-200 hover:border-foreground/50"
+              className="inline-flex items-center rounded-sm border border-foreground/20 px-6 py-3 text-sm font-medium text-accent transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/50 hover:text-accent-light"
             >
               Conhecer áreas de atuação
             </a>
@@ -71,8 +71,8 @@ export default function Hero() {
 
           <ul className="flex flex-wrap gap-x-6 gap-y-3">
             {trustIndicators.map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <span className="h-1 w-1 rounded-full bg-accent" />
+              <li key={item} className="group flex items-center gap-2">
+                <span className="h-1 w-1 rounded-full bg-muted transition-colors duration-300 group-hover:bg-accent" />
                 <span className="text-xs text-muted">{item}</span>
               </li>
             ))}

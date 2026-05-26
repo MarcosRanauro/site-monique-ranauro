@@ -50,9 +50,9 @@ export default function Differentials() {
           {differentials.map(({ symbol, title, description }) => (
             <div
               key={title}
-              className="group flex flex-col gap-6 border border-border p-7 transition-colors duration-200 hover:border-accent/40 hover:bg-foreground/[0.03]"
+              className="group flex flex-col gap-6 border border-border p-7 transition-colors duration-300 hover:border-accent/40 hover:bg-white/[0.02]"
             >
-              <span aria-hidden="true" className="text-xl text-accent transition-colors duration-200">
+              <span aria-hidden="true" className="inline-block text-xl text-accent transition-transform duration-300 group-hover:rotate-[15deg]">
                 {symbol}
               </span>
               <h3 className="font-heading text-lg font-semibold leading-snug text-foreground">

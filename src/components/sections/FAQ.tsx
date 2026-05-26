@@ -66,7 +66,7 @@ export default function FAQ() {
             return (
               <div
                 key={question}
-                className={cn(index > 0 && "border-t border-border")}
+                className={cn("group", index > 0 && "border-t border-border transition-colors duration-300 group-hover:border-accent/40")}
               >
                 <button
                   type="button"
@@ -74,9 +74,9 @@ export default function FAQ() {
                   onClick={() => toggle(index)}
                   aria-expanded={isOpen}
                   aria-controls={`faq-panel-${index}`}
-                  className="flex w-full items-center justify-between gap-6 py-6 text-left"
+                  className="flex w-full items-center justify-between gap-6 py-6 text-left text-foreground transition-colors duration-300 hover:text-accent"
                 >
-                  <span className="text-base font-medium text-foreground">
+                  <span className="text-base font-medium">
                     {question}
                   </span>
                   <span className="shrink-0 text-xl font-light text-accent">

@@ -2530,3 +2530,304 @@ Documentação das 3 variáveis de ambiente do projeto com comentários explicat
 ### Branch
 
 Alterações realizadas na branch `docs/project-files`.
+
+---
+
+## 57. Hover com underline dourado deslizante — Header e Footer
+
+### Contexto
+
+Branch `feature/hover-interactions`. Adicionado efeito de hover com underline dourado deslizante nos links de navegação desktop do Header e do Footer, seguindo a identidade visual premium do projeto.
+
+### [HV-01a] Header.tsx — links de navegação desktop
+
+Links dentro do `<nav aria-label="Navegação principal">` (visível apenas em `md:flex`).
+
+| Propriedade | Antes | Depois |
+|---|---|---|
+| Hover de cor | `hover:text-foreground` | removido |
+| Transição | `transition-colors duration-200` | removida |
+| Posição | — | `relative` adicionado |
+| Pseudo-elemento after | — | `after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-full` |
+
+O underline cresce de `w-0` para `w-full` em `duration-300` no hover. Cor: `--accent` (#b08d57).
+
+### [HV-01b] Footer.tsx — links de navegação
+
+Links dentro do `<nav aria-label="Navegação do rodapé">`.
+
+| Propriedade | Antes | Depois |
+|---|---|---|
+| Hover de cor | `hover:text-accent` | removido |
+| Transição | `transition-colors duration-200` | removida |
+| Posição | — | `relative` adicionado |
+| Pseudo-elemento after | — | `after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-accent/70 after:transition-all after:duration-300 hover:after:w-full` |
+
+Versão mais discreta: `after:bg-accent/70` (70% de opacidade) em vez do `after:bg-accent` do Header. O `w-fit` já existente no link garante que o underline não se estenda além do texto.
+
+### Regras seguidas
+
+- Velocidade: `duration-300` em ambos
+- Easing: padrão Tailwind (`ease-in-out`)
+- Sem alteração de tamanho de fonte
+- Cores dentro da paleta do projeto (`--accent`)
+- Layout mobile não afetado — os links desktop ficam em `hidden md:flex`
+- Textos, estrutura e lógica inalterados
+
+### Arquivos alterados
+
+- `src/components/layout/Header.tsx` — links desktop: hover de cor removido, underline after adicionado
+- `src/components/layout/Footer.tsx` — links de navegação: hover de cor removido, underline after adicionado (accent/70)
+
+---
+
+## 58. Hovers no Hero, About e WhatsAppButton
+
+### Contexto
+
+Branch `feature/hover-interactions`. Adicionados hovers nos botões CTA do Hero, na foto da seção About e no botão flutuante WhatsApp.
+
+---
+
+### [HV-02a] Hero.tsx — botões CTA e trust indicators
+
+**Botão primário ("Falar com a Monique"):**
+
+| Propriedade | Antes | Depois |
+|---|---|---|
+| Transição | `transition-colors duration-200` | `transition-all duration-300` |
+| Border base | ausente | `border border-accent` |
+| Hover border | — | `hover:border-accent-light` |
+| Hover bg | `hover:bg-accent-light` | mantido |
+| Hover deslocamento | — | `hover:-translate-y-0.5` |
+
+**Botão secundário ("Conhecer áreas de atuação"):**
+
+| Propriedade | Antes | Depois |
+|---|---|---|
+| Cor do texto | `text-foreground` | `text-accent` |
+| Transição | `transition-colors duration-200` | `transition-all duration-300` |
+| Hover texto | — | `hover:text-accent-light` |
+| Hover deslocamento | — | `hover:-translate-y-0.5` |
+| Hover border | `hover:border-foreground/50` | mantido |
+
+**Trust indicators ("Atendimento sigiloso", etc.):**
+
+- `<li>` recebeu `group`
+- Ponto separador: base `bg-muted` (era `bg-accent`) + `transition-colors duration-300 group-hover:bg-accent`
+- Efeito: ponto acende em dourado no hover do item
+
+---
+
+### [HV-02b] About.tsx — foto profissional
+
+Container da foto recebeu `group`. A imagem e o overlay respondem ao hover do grupo.
+
+| Elemento | Classe adicionada |
+|---|---|
+| `div` container (já tinha `overflow-hidden`) | `group` |
+| `<Image>` | `transition-transform duration-500 ease-out group-hover:scale-105` |
+| `<div>` overlay (novo, `aria-hidden`) | `pointer-events-none absolute inset-0 bg-background opacity-0 transition-opacity duration-500 group-hover:opacity-20` |
+
+O zoom `scale-105` é contido pelo `overflow-hidden` existente — sem vazamento.
+
+---
+
+### [HV-02c] WhatsAppButton.tsx — botão flutuante + globals.css
+
+**globals.css — animação adicionada:**
+
+```css
+@keyframes subtle-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(176, 141, 87, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(176, 141, 87, 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-subtle-pulse {
+    animation: subtle-pulse 2.5s ease-in-out infinite;
+  }
+}
+```
+
+Pulso restrito a `prefers-reduced-motion: no-preference` — usuários com configuração de redução de movimento não veem a animação.
+
+**WhatsAppButton.tsx:**
+
+| Propriedade | Antes | Depois |
+|---|---|---|
+| Transição | `transition-colors duration-200` | `transition-all duration-300` |
+| Pulso periódico | — | `animate-subtle-pulse` |
+| Hover escala | — | `hover:scale-110` |
+| Hover sombra | — | `hover:shadow-xl` |
+| Hover bg/text | `hover:bg-accent hover:text-background` | mantidos |
+
+---
+
+### Arquivos alterados
+
+- `src/components/sections/Hero.tsx` — botões CTA + trust indicators
+- `src/components/sections/About.tsx` — zoom + overlay na foto
+- `src/components/ui/WhatsAppButton.tsx` — pulso + escala no hover
+- `src/app/globals.css` — keyframe `subtle-pulse` + `.animate-subtle-pulse`
+
+---
+
+## 59. Hovers nas seções PracticeAreas, Differentials e FAQ
+
+### Contexto
+
+Branch `feature/hover-interactions`. Última iteração da feature de hover interactions — aplicados hovers nos cards de áreas de atuação, diferenciais e acordeão de FAQ.
+
+---
+
+### [HV-03a] PracticeAreas.tsx — cards de área de atuação
+
+`group` já estava presente no card desde a implementação anterior.
+
+| Elemento | Antes | Depois |
+|---|---|---|
+| Card `transition` | `duration-200` | `duration-300` |
+| Card hover fundo | `hover:bg-foreground/[0.03]` | `hover:bg-white/[0.02]` |
+| Número (01–07) | `text-accent` | `text-accent/50` + `transition-colors duration-300 group-hover:text-accent` |
+| Linha crescente | `h-px w-0 bg-accent/50 group-hover:w-8` | mantida — já estava correta |
+
+Efeito: número acende do dourado apagado para dourado pleno no hover; fundo clarea ligeiramente; borda realça em dourado.
+
+---
+
+### [HV-03b] Differentials.tsx — cards de diferenciais
+
+`group` já estava presente no card desde a implementação anterior.
+
+| Elemento | Antes | Depois |
+|---|---|---|
+| Card `transition` | `duration-200` | `duration-300` |
+| Card hover fundo | `hover:bg-foreground/[0.03]` | `hover:bg-white/[0.02]` |
+| Símbolo Unicode | `transition-colors duration-200` | `inline-block transition-transform duration-300 group-hover:rotate-[15deg]` |
+| `aria-hidden` no símbolo | presente | mantido |
+| Linha crescente | `h-px w-0 bg-accent/50 group-hover:w-8` | mantida — já estava correta |
+
+`inline-block` adicionado ao span do símbolo — necessário para `rotate` funcionar em elementos `inline` no Tailwind.
+
+---
+
+### [HV-03c] FAQ.tsx — acordeão
+
+`group` adicionado ao wrapper de cada item do acordeão.
+
+| Elemento | Antes | Depois |
+|---|---|---|
+| Wrapper `div` | sem `group`; `cn(index > 0 && "border-t border-border")` | `group` sempre + `transition-colors duration-300 group-hover:border-accent/40` no `index > 0` |
+| `<button>` | sem hover de cor; sem `text-foreground` | `text-foreground transition-colors duration-300 hover:text-accent` |
+| `<span>` da pergunta | `text-base font-medium text-foreground` | `text-base font-medium` (cor herdada do button) |
+| Lógica do acordeão | inalterada | inalterada |
+
+Ao mover `text-foreground` do `<span>` para o `<button>`, o texto herda a cor do estado hover do botão (`hover:text-accent`), sem necessidade de classes adicionais no span. O `<span>` do indicador `+`/`−` mantém `text-accent` explícito e não é afetado.
+
+---
+
+### Feature hover-interactions — concluída
+
+Todos os itens da branch `feature/hover-interactions` foram implementados:
+
+| ID | Componente | Escopo |
+|---|---|---|
+| HV-01a | Header.tsx | Underline deslizante nos links desktop |
+| HV-01b | Footer.tsx | Underline deslizante discreto nos links do rodapé |
+| HV-02a | Hero.tsx | Botões CTA com translate + borda; trust indicators com ponto |
+| HV-02b | About.tsx | Zoom + overlay na foto profissional |
+| HV-02c | WhatsAppButton.tsx | Pulso periódico + escala no hover |
+| HV-03a | PracticeAreas.tsx | Número acende; fundo clarea; linha crescente mantida |
+| HV-03b | Differentials.tsx | Símbolo rotaciona 15°; fundo clarea; linha crescente mantida |
+| HV-03c | FAQ.tsx | Texto da pergunta muda para accent; borda do separador realça |
+
+Todos os hovers seguem: `duration-300`, paleta do projeto, sem alteração de tamanho de fonte, sem impacto no layout mobile.
+
+### Arquivos alterados
+
+- `src/components/sections/PracticeAreas.tsx` — número + fundo + duração
+- `src/components/sections/Differentials.tsx` — símbolo + fundo + duração
+- `src/components/sections/FAQ.tsx` — group no wrapper, hover no botão, cor herdada no span
+
+---
+
+## 60. About — foto da cliente visível em mobile
+
+### Contexto
+
+Branch `feature/hover-interactions`. A foto profissional da advogada estava oculta em mobile (`hidden md:flex`). Com a imagem real disponível, faz sentido exibi-la também em telas pequenas, centralizada e em proporção reduzida.
+
+### Alterações em `src/components/sections/About.tsx`
+
+| Elemento | Antes | Depois |
+|---|---|---|
+| Wrapper externo da coluna | `hidden md:flex md:items-center md:justify-center` | `flex items-center justify-center` |
+| Wrapper interno (tamanho) | `w-full max-w-[380px]` | `w-56 md:w-full md:max-w-[380px]` |
+| `sizes` da imagem | `"380px"` | `"(max-width: 768px) 224px, 380px"` |
+
+### Comportamento por breakpoint
+
+| Breakpoint | Layout |
+|---|---|
+| Mobile | Foto centralizada, `w-56` (224px), proporção retrato `aspect-[3/4]`, acima do texto (ordem natural do grid) |
+| Desktop (`md:`) | Comportamento anterior intacto — coluna à esquerda, largura até 380px |
+
+### Decisões
+
+- **Sem ajuste de `order`** — na grade `grid-cols-1` do mobile, a coluna da foto já é o primeiro elemento e aparece naturalmente acima do texto.
+- **`w-56` (224px) no mobile** — proporcional e elegante sem tomar toda a largura da tela.
+- **`sizes` atualizado** — comunica ao browser o tamanho real de renderização em cada breakpoint, evitando download excessivo de imagem.
+- **Todos os hovers preservados** — `group`, `group-hover:scale-105`, overlay e `transition-transform` inalterados.
+- **`alt` e acessibilidade intactos.**
+
+### Arquivos alterados
+
+- `src/components/sections/About.tsx` — exibição da foto em mobile
+
+---
+
+## 61. About — diagnóstico e correção definitiva da foto em mobile
+
+### Contexto
+
+Branch `feature/hover-interactions`. A foto da seção About continuava não aparecendo em mobile após a correção anterior (seção 60). Esta iteração diagnosticou a causa raiz e aplicou correção definitiva.
+
+### Diagnóstico completo
+
+Hierarquia de elementos ao redor da imagem após a correção da seção 60:
+
+| Nível | Elemento | Classes | Problema? |
+|---|---|---|---|
+| 1 | `<section>` | `bg-background-secondary py-16 md:py-28` | Nenhum |
+| 2 | `<div>` grid | `grid-cols-1 gap-16 md:grid-cols-2 md:items-center` | Nenhum |
+| 3 | `<div>` coluna | `flex items-center justify-center` | Nenhum — `hidden` corrigido na seção 60 |
+| 4 | `<div>` wrapper | `flex w-56 flex-col gap-5 md:w-full md:max-w-[380px]` | Nenhum |
+| 5 | `<div>` container foto | `group relative aspect-[3/4] w-full overflow-hidden` | **Causa raiz** |
+| 6 | `<Image fill>` | — | Dependente do container |
+
+**Causa raiz identificada:** o `next/image` com `fill` posiciona o `<img>` com `position: absolute; inset: 0; height: 100%`. Para que tenha altura, o container pai precisa de uma altura computada. A classe `aspect-[3/4]` (Tailwind) gera `aspect-ratio: 3/4` como regra de folha de estilos. Em alguns browsers mobile, quando o elemento está dentro de um contexto `flex-col`, a resolução do `aspect-ratio` via classe CSS pode falhar — o browser calcula altura 0 antes de computar o `aspect-ratio`. Com altura 0, a imagem com `fill` não aparece.
+
+**page.tsx** foi verificado e não tem nenhum wrapper ocultando a seção About.
+
+### Correção aplicada
+
+| Campo | Antes | Depois |
+|---|---|---|
+| Wrapper interno largura | `w-56` (fixo) | `w-48 sm:w-56 md:w-full` |
+| Container foto `aspect-ratio` | `aspect-[3/4]` (classe Tailwind) | `style={{ aspectRatio: "3/4" }}` (inline style) |
+| `sizes` da imagem | `(max-width: 768px) 224px, 380px` | `(max-width: 640px) 192px, (max-width: 768px) 224px, 380px` |
+
+**Por que inline style resolve:** inline styles têm a maior especificidade CSS e são avaliados diretamente pelo browser como propriedade, sem passar pela pipeline de compilation do Tailwind. Eliminam o risco de a classe não ser gerada, purged ou sobrescrita em algum passo do build.
+
+### Comportamento por breakpoint (atualizado)
+
+| Breakpoint | Largura container | Largura foto | Altura foto (aspect 3:4) |
+|---|---|---|---|
+| Mobile (< 640px) | `w-48` = 192px | 192px | ~256px |
+| Small (640–767px) | `sm:w-56` = 224px | 224px | ~299px |
+| Desktop (≥ 768px) | `md:w-full md:max-w-[380px]` | até 380px | até ~507px |
+
+### Arquivos alterados
+
+- `src/components/sections/About.tsx` — inline style para `aspectRatio`, `w-48 sm:w-56`, `sizes` atualizado

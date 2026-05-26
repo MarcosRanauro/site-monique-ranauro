@@ -13,17 +13,21 @@ export default function About() {
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 md:grid-cols-2 md:items-center">
 
         {/* Coluna esquerda — foto profissional */}
-        <div className="hidden md:flex md:items-center md:justify-center">
-          <div className="flex w-full max-w-[380px] flex-col gap-5">
+        <div className="flex items-center justify-center">
+          <div className="flex w-48 flex-col gap-5 sm:w-56 md:w-full md:max-w-[380px]">
 
             {/* Foto */}
-            <div className="relative aspect-[3/4] w-full overflow-hidden border border-accent/30 shadow-lg">
+            <div className="group relative w-full overflow-hidden border border-accent/30 shadow-lg" style={{ aspectRatio: "3/4" }}>
               <Image
                 src="/images/monique-ranauro3.png"
                 alt="Monique Ranauro, advogada criminalista"
                 fill
-                sizes="380px"
-                className="object-cover object-top"
+                sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, 380px"
+                className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-background opacity-0 transition-opacity duration-500 group-hover:opacity-20"
               />
             </div>
 

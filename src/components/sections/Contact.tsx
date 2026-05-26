@@ -7,6 +7,8 @@ import SectionBadge from "@/components/ui/SectionBadge";
 
 type FormStatus = "idle" | "loading" | "success";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function maskPhone(raw: string): string {
   const digits = raw.replace(/\D/g, "").slice(0, 11);
   if (digits.length === 0) return "";
@@ -19,6 +21,8 @@ export default function Contact() {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [form, setForm] = useState({ name: "", phone: "", message: "" });
 
   const handleChange = (
@@ -41,6 +45,11 @@ export default function Contact() {
       return;
     }
 
+    if (!email.trim() || !EMAIL_REGEX.test(email.trim())) {
+      setEmailError("E-mail inválido.");
+      return;
+    }
+
     setStatus("loading");
     setError(null);
 
@@ -48,7 +57,7 @@ export default function Contact() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, email }),
       });
 
       if (res.ok) {
@@ -173,6 +182,38 @@ export default function Contact() {
                 />
                 {phoneError && (
                   <p id="phone-error" role="alert" className="text-xs text-red-400">{phoneError}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="email"
+                  className="text-xs font-medium uppercase tracking-[0.15em] text-muted"
+                >
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  disabled={status === "loading"}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError("");
+                  }}
+                  onBlur={() => {
+                    if (email && !EMAIL_REGEX.test(email)) {
+                      setEmailError("E-mail inválido.");
+                    }
+                  }}
+                  placeholder="seu@email.com"
+                  aria-describedby={emailError ? "email-error" : undefined}
+                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-300 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
+                />
+                {emailError && (
+                  <p id="email-error" role="alert" className="text-xs text-red-400">{emailError}</p>
                 )}
               </div>
 

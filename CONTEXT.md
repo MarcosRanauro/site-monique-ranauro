@@ -3106,8 +3106,187 @@ Todos os itens da auditoria round 3 foram corrigidos.
 | M-04 | Média | LiveIndicator extraído como componente reutilizável | fix/audit-round-3 | 64 |
 | M-05 | Média | Validação de telefone: 10–11 dígitos no client | fix/audit-round-3 | 64 |
 
-### Pendência conhecida (não bloqueante)
+### Pendência resolvida
 
-| ID | Categoria | Descrição | Motivo |
+| ID | Categoria | Descrição | Resolvido em |
 |---|---|---|---|
-| C-01 | Rate limiting | `/api/contact` sem rate limiting | Requer Upstash Redis — dependência externa não provisionada |
+| C-01 | Rate limiting | `/api/contact` sem rate limiting | feature/contact-upgrade (seção 66) |
+
+---
+
+## 66. Melhorias no formulário de contato — e-mail, Supabase e rate limiting
+
+### Contexto
+
+Branch `feature/contact-upgrade`. Quatro melhorias implementadas no formulário de contato: campo e-mail com validação, persistência no Supabase, rate limiting com Upstash e atualização das variáveis de ambiente.
+
+---
+
+### [1] Campo e-mail — `src/components/sections/Contact.tsx`
+
+Novo campo adicionado ao formulário entre Telefone e Mensagem.
+
+**Estado adicionado:**
+
+```ts
+const [email, setEmail] = useState("");
+const [emailError, setEmailError] = useState("");
+```
+
+**Constante de validação (nível de módulo):**
+
+```ts
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+```
+
+**Comportamento:**
+
+| Evento | Ação |
+|---|---|
+| `onChange` | Limpa `emailError` se o campo estiver sendo editado |
+| `onBlur` | Valida e exibe erro se o campo não estiver vazio e o formato for inválido |
+| `handleSubmit` | Valida campo obrigatório + formato antes de chamar a API |
+
+O e-mail é enviado no body do fetch como parte do objeto `{ ...form, email }`.
+
+**Acessibilidade:**
+- `aria-describedby="email-error"` quando há erro
+- `role="alert"` no `<p>` de erro — padrão idêntico ao campo telefone
+
+---
+
+### [2] Persistência no Supabase — `src/app/api/contact/route.ts`
+
+Após o envio bem-sucedido via Resend, o contato é salvo na tabela `contacts` do Supabase.
+
+**Comportamento:**
+- Supabase é **opcional** — se `SUPABASE_URL` ou `SUPABASE_ANON_KEY` não estiverem definidas, o bloco é ignorado
+- O save no Supabase **não bloqueia** o retorno de sucesso: qualquer erro é capturado em try/catch separado com `console.error("[contact] Supabase error:", error)`
+- O cliente Supabase é criado dentro do handler com as variáveis verificadas no momento da chamada
+
+**Campos salvos na tabela `contacts`:**
+
+| Campo | Tipo | Origem |
+|---|---|---|
+| `name` | `text NOT NULL` | `name.trim()` do body |
+| `email` | `text NOT NULL` | `email.trim()` do body |
+| `phone` | `text NOT NULL` | `phone.trim()` do body |
+| `message` | `text NOT NULL` | `message.trim()` do body |
+| `created_at` | `timestamptz` | `new Date().toISOString()` |
+
+---
+
+### [3] Rate limiting — `src/app/api/contact/route.ts`
+
+Rate limiting por IP implementado **no início do handler**, antes de qualquer outra lógica.
+
+**Configuração:**
+
+```ts
+limiter: Ratelimit.slidingWindow(3, "10 m")
+```
+
+3 tentativas por IP a cada 10 minutos (sliding window). `analytics: true` para métricas no painel Upstash.
+
+**Comportamento:**
+- Upstash é **opcional** — se `UPSTASH_REDIS_REST_URL` ou `UPSTASH_REDIS_REST_TOKEN` não estiverem definidas, o bloco é ignorado
+- IP extraído de `x-forwarded-for` (header da Vercel/Cloudflare); fallback para `"anonymous"`
+- Retorno `429` com mensagem `"Muitas tentativas. Aguarde alguns minutos."` quando o limite é atingido
+
+---
+
+### [4] Validação de e-mail server-side
+
+`EMAIL_REGEX` adicionado ao route.ts com validação após os demais campos:
+
+```ts
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+if (!EMAIL_REGEX.test(email.trim())) {
+  return NextResponse.json({ error: "E-mail inválido." }, { status: 400 });
+}
+```
+
+E-mail também incluído no texto do e-mail enviado via Resend:
+
+```
+Nome: ...
+E-mail: ...
+Telefone: ...
+Mensagem: ...
+```
+
+---
+
+### Tabela Supabase — `contacts`
+
+Projeto: **advocai** (`joejrgoanvjpouexmrig`) — região `sa-east-1`
+
+Migration aplicada via MCP: `create_contacts_table`
+
+```sql
+CREATE TABLE public.contacts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  email text NOT NULL,
+  phone text NOT NULL,
+  message text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
+-- RLS: habilita controle de acesso por linha
+ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
+
+-- Permite INSERT via anon key (chamada da API route com validação server-side)
+CREATE POLICY "allow_insert_contacts"
+  ON public.contacts
+  FOR INSERT
+  TO anon
+  WITH CHECK (true);
+
+-- Leitura apenas para usuários autenticados (painel interno)
+CREATE POLICY "allow_select_authenticated"
+  ON public.contacts
+  FOR SELECT
+  TO authenticated
+  USING (true);
+```
+
+**Decisão RLS:** INSERT liberado para `anon` (a API route já valida, sanitiza e aplica rate limiting antes de chegar ao Supabase); SELECT restrito a `authenticated` para que nenhum visitante possa ler os contatos.
+
+---
+
+### Variáveis de ambiente atualizadas — `.env.example`
+
+| Variável | Obrigatória | Padrão |
+|---|---|---|
+| `RESEND_API_KEY` | Sim | — |
+| `CONTACT_EMAIL_FROM` | Não | `site@moniqueranauro.com.br` |
+| `CONTACT_EMAIL_TO` | Não | `moniqueranauro@gmail.com` |
+| `SUPABASE_URL` | Não | — |
+| `SUPABASE_ANON_KEY` | Não | — |
+| `UPSTASH_REDIS_REST_URL` | Não | — |
+| `UPSTASH_REDIS_REST_TOKEN` | Não | — |
+
+---
+
+### Dependências instaladas
+
+| Pacote | Versão | Uso |
+|---|---|---|
+| `@supabase/supabase-js` | latest | Cliente Supabase |
+| `@upstash/ratelimit` | latest | Rate limiting com sliding window |
+| `@upstash/redis` | latest | Redis client para Upstash |
+
+---
+
+### Arquivos criados
+
+- Nenhum (apenas alterações e migration via MCP)
+
+### Arquivos alterados
+
+- `src/components/sections/Contact.tsx` — campo e-mail + validação + estado
+- `src/app/api/contact/route.ts` — email, rate limiting, Supabase, validação server-side
+- `.env.example` — Supabase e Upstash adicionados; comentários corrigidos
+- `package.json` / `package-lock.json` — 3 novas dependências

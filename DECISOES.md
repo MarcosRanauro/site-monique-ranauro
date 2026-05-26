@@ -253,3 +253,100 @@ const isDev = process.env.NODE_ENV === "development";
 **Motivo:** Mínimo de permissão necessário em produção (sem `unsafe-eval`); ambiente de desenvolvimento funcional sem bloquear ferramentas de debug.
 
 **Consequências:** O `next.config.ts` lê `NODE_ENV` em tempo de inicialização do servidor; a política de produção é mais restritiva e não inclui `unsafe-eval` em nenhuma circunstância.
+
+---
+
+## [D-16] Imagem profissional como background do Hero
+
+**Data:** 2026-05-24
+**Status:** ativo
+
+**Contexto:** O Hero original usava fundo sólido (`bg-background`). Com a foto profissional da cliente disponível, o objetivo era humanizar o site sem sacrificar a legibilidade do texto sobre a imagem.
+
+**Decisão:** Imagem de fundo com overlay em gradiente assimétrico (`from-background/95 via-background/80 to-background/40`) e card semi-transparente (`bg-background/60 backdrop-blur-sm`) na coluna direita. Estrutura de três camadas com z-index (z-0 imagem, z-10 overlay, z-20 conteúdo).
+
+**Motivo:** O gradiente assimétrico mantém alta cobertura no lado esquerdo (texto legível em qualquer dispositivo) enquanto expõe a imagem no lado direito — elegância sem comprometer a comunicação. O card semi-transparente ancora o conteúdo da coluna direita sem bloquear visualmente a foto.
+
+**Consequências:** A `<section>` do Hero requer `relative overflow-hidden` para o `fill` da imagem funcionar; o conteúdo foi deslocado para a esquerda via `mr-auto` + `max-w-5xl` para expor a imagem em telas maiores; `priority` na imagem melhora o LCP.
+
+---
+
+## [D-17] Copy humanizada no Hero
+
+**Data:** 2026-05-24
+**Status:** ativo
+
+**Contexto:** Os textos originais do Hero eram técnicos e institucionais. A cliente solicitou uma comunicação mais próxima e humana, sem perder seriedade nem violar o Provimento 205/2021 da OAB.
+
+**Decisão:** Novo `h1` ("Advocacia criminal para quem precisa ser ouvido e defendido de verdade."), subtítulo com nome da advogada ("Monique Ranauro atua ao seu lado em momentos difíceis…") e CTA principal pessoalizado ("Falar com a Monique").
+
+**Motivo:** Conexão emocional com visitantes em situação de crise (familiar preso, investigação em andamento) é diretamente proporcional à conversão em contato. O nome da advogada no subtítulo reforça a relação pessoal sem violar as regras éticas da OAB.
+
+**Consequências:** Nenhuma promessa de resultado, superlativo ou comparação foi introduzida — conformidade com o Provimento 205/2021 mantida; nenhum elemento de layout foi alterado.
+
+---
+
+## [D-18] Foto real na seção About com visibilidade em mobile
+
+**Data:** 2026-05-24
+**Status:** ativo
+
+**Contexto:** A seção About usava um card decorativo com monograma "M" em vez da foto da cliente. Com a imagem disponível, faz sentido mostrar a advogada em todas as telas — inclusive mobile, onde anteriormente estava oculta (`hidden md:flex`).
+
+**Decisão:** Card decorativo substituído pela foto profissional (`monique-ranauro3.png`) com `next/image fill`, `aspect-[3/4]`, `object-top`. Visibilidade em mobile com `w-48 sm:w-56 md:w-full`, centralizada acima do texto no layout de 1 coluna.
+
+**Motivo:** A foto da advogada humaniza o site e aumenta a confiança do visitante — especialmente importante em advocacia criminal, onde o vínculo pessoal é fator decisivo na contratação. Mostrar o rosto da profissional em mobile (maioria dos acessos) era prioritário.
+
+**Consequências:** `aria-hidden` removido da coluna (antes era decorativa, agora é conteúdo); `alt` descritivo adicionado; `sizes` responsivo comunicado ao browser para evitar download excessivo; hover de zoom e overlay preservados.
+
+---
+
+## [D-19] Sistema de hovers com `duration-300` como padrão universal
+
+**Data:** 2026-05-25
+**Status:** ativo
+
+**Contexto:** A feature de hover interactions usou `duration-300` como padrão para todas as transições. Elementos interativos anteriores usavam `duration-200` de forma inconsistente (11 ocorrências encontradas na auditoria round 3).
+
+**Decisão:** `duration-300` como valor padrão para todas as transições interativas do projeto. Substituição total de `duration-200` em todos os arquivos.
+
+**Motivo:** `300ms` entrega a sensação premium correta para a identidade visual do projeto — rápido o suficiente para não parecer lento, lento o suficiente para perceber a transição. Consistência entre todos os elementos cria coesão visual e elimina a impressão de "partes diferentes do site".
+
+**Consequências:** Nenhum componente deve usar `duration-200` para transições interativas; exceções (`duration-500` na foto do About) são casos documentados com justificativa específica.
+
+---
+
+## [D-20] `tailwind-merge` integrado ao `cn()`
+
+**Data:** 2026-05-25
+**Status:** ativo
+
+**Contexto:** A função `cn()` em `src/lib/utils.ts` usava apenas `clsx`, que une classes mas não resolve conflitos entre utilitários Tailwind. Classes conflitantes (ex: `p-4` + `p-6`) produzem comportamento imprevisível dependente da ordem de declaração no CSS gerado.
+
+**Decisão:** `twMerge(clsx(inputs))` como implementação padrão do `cn()`.
+
+```ts
+import { twMerge } from "tailwind-merge";
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+**Motivo:** `tailwind-merge` resolve silenciosamente conflitos de classes Tailwind, mantendo sempre a última classe como vencedora — comportamento previsível e correto. Padrão amplamente adotado em projetos Next.js + Tailwind (shadcn/ui, etc.).
+
+**Consequências:** Qualquer uso de `cn()` com classes conflitantes agora produz o resultado correto automaticamente; `tailwind-merge` adicionado como dependência de produção.
+
+---
+
+## [D-21] `LiveIndicator` como componente reutilizável
+
+**Data:** 2026-05-25
+**Status:** ativo
+
+**Contexto:** O bloco de indicador de pulsação (`animate-ping` + círculo sólido) estava duplicado de forma idêntica em `OnCall.tsx` e `Contact.tsx` — dois botões de WhatsApp com propósitos distintos (urgência e contato geral) mas mesmo indicador visual.
+
+**Decisão:** Componente `src/components/ui/LiveIndicator.tsx` encapsulando o padrão de dois círculos concêntricos com `animate-ping`.
+
+**Motivo:** DRY; qualquer ajuste no tamanho, cor ou animação do indicador exige mudança em um único arquivo; padrão consistente com `SectionBadge` e `WhatsAppButton` no diretório `ui/`.
+
+**Consequências:** Importado em `OnCall.tsx` e `Contact.tsx`; pode ser reutilizado em futuras seções ou componentes que precisem indicar status "ao vivo" ou disponibilidade imediata.

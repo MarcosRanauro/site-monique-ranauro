@@ -12,6 +12,50 @@ Sem alterações pendentes de lançamento.
 
 ---
 
+## [1.5.0] — 2026-05-25
+
+Auditoria técnica round 3: correções críticas, de alta severidade e refatorações de média prioridade.
+
+### Adicionado
+
+- `src/components/ui/LiveIndicator.tsx` — componente reutilizável de indicador de pulsação (`animate-ping`), extraído de OnCall e Contact
+- `Strict-Transport-Security` (HSTS) com `max-age=63072000; includeSubDomains; preload` adicionado aos security headers do `next.config.ts`
+- `tailwind-merge` instalado e integrado ao `cn()` em `src/lib/utils.ts` — resolve conflitos entre classes Tailwind silenciosamente
+- Item "Plantão 24h" adicionado ao `navLinks` em `src/config/nav.ts`, posicionado entre "Início" e "Sobre"
+
+### Corrigido
+
+- `Resend` movido de nível de módulo para dentro do handler POST com validação de `RESEND_API_KEY` ausente — retorna 503 em vez de crash com 500 não tratado
+- Permissão de `public/images/monique-ranauro3.png` corrigida de 600 (`-rw-------`) para 644 (`-rw-r--r--`)
+- `duration-200` padronizado para `duration-300` em 11 ocorrências (Header, Footer, Contact, OnCall)
+- Import do `cn` em `PracticeAreas.tsx` corrigido de `clsx` direto para `@/lib/utils`
+- `style={{ aspectRatio: "3/4" }}` inline revertido para classe Tailwind `aspect-[3/4]` no About — workaround não mais necessário após correção da visibilidade em mobile
+- `gap-16` → `gap-8 md:gap-16` no grid principal do About — espaçamento proporcional em mobile
+- Validação de telefone no client alinhada ao servidor: aceita 10 ou 11 dígitos (fixo e celular); mensagem de erro atualizada de "celular" para "telefone"
+- `<LiveIndicator />` substituindo bloco `animate-ping` duplicado em OnCall e Contact
+
+---
+
+## [1.4.0] — 2026-05-25
+
+Sistema de hover interactions e exibição da foto da advogada em mobile.
+
+### Adicionado
+
+- Underline dourado deslizante nos links de navegação do Header (via `after:` pseudo-elemento, `duration-300`, `accent`)
+- Underline dourado deslizante discreto nos links do Footer (via `after:`, `accent/70`)
+- Hover nos botões CTA do Hero: elevação `hover:-translate-y-0.5`, borda `hover:border-accent-light` no primário; `hover:text-accent-light` no secundário
+- Indicador de pulsação nos trust indicators do Hero: ponto separador acende de `muted` para `accent` no hover de cada item
+- Zoom suave (`group-hover:scale-105`, `duration-500`) e overlay semitransparente na foto da seção About ao passar o mouse
+- Animação `subtle-pulse` no botão WhatsApp flutuante via `@keyframes` em `globals.css`, restrita a `prefers-reduced-motion: no-preference`
+- Hover de escala (`hover:scale-110`) e sombra elevada (`hover:shadow-xl`) no botão WhatsApp flutuante
+- Micro-interações nos cards de PracticeAreas: número acende de `text-accent/50` para `text-accent` no hover do grupo
+- Símbolo Unicode rotaciona 15° (`group-hover:rotate-[15deg]`) no hover dos cards de Differentials
+- Hover com `text-accent` no texto das perguntas do FAQ; borda do separador realça em `accent/40`
+- Foto da advogada visível em mobile na seção About: `w-48 sm:w-56 md:w-full`, centralizada acima do texto
+
+---
+
 ## [1.3.0] — 2026-05-24
 
 Auditoria técnica round 2: segurança, organização e refinamentos de acessibilidade.

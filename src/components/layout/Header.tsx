@@ -48,7 +48,7 @@ export default function Header() {
           href={WHATSAPP_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden rounded-sm border border-accent px-4 py-2 text-sm text-accent transition-colors duration-200 hover:bg-accent hover:text-background md:inline-flex"
+          className="hidden rounded-sm border border-accent px-4 py-2 text-sm text-accent transition-colors duration-300 hover:bg-accent hover:text-background md:inline-flex"
         >
           Falar no WhatsApp
         </a>
@@ -60,7 +60,7 @@ export default function Header() {
           aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
           aria-expanded={isOpen}
           aria-controls="mobile-menu"
-          className="flex h-11 w-11 items-center justify-center text-lg text-foreground transition-colors duration-200 hover:text-accent md:hidden"
+          className="flex h-11 w-11 items-center justify-center text-lg text-foreground transition-colors duration-300 hover:text-accent md:hidden"
         >
           {isOpen ? "✕" : "☰"}
         </button>
@@ -76,7 +76,7 @@ export default function Header() {
                 key={href}
                 href={href}
                 onClick={close}
-                className="flex min-h-[44px] items-center border-b border-border text-sm text-foreground transition-colors duration-200 hover:text-accent"
+                className="flex min-h-[44px] items-center border-b border-border text-sm text-foreground transition-colors duration-300 hover:text-accent"
               >
                 {label}
               </a>
@@ -87,7 +87,7 @@ export default function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={close}
-                className="inline-flex w-full items-center justify-center border border-accent px-4 py-3 text-sm text-accent transition-colors duration-200 hover:bg-accent hover:text-background"
+                className="inline-flex w-full items-center justify-center border border-accent px-4 py-3 text-sm text-accent transition-colors duration-300 hover:bg-accent hover:text-background"
               >
                 Falar no WhatsApp
               </a>

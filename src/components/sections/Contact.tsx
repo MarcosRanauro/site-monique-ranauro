@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { WHATSAPP_URL } from "@/config/contact";
+import LiveIndicator from "@/components/ui/LiveIndicator";
 import SectionBadge from "@/components/ui/SectionBadge";
 
 type FormStatus = "idle" | "loading" | "success";
@@ -35,8 +36,8 @@ export default function Contact() {
     e.preventDefault();
 
     const phoneDigits = form.phone.replace(/\D/g, "");
-    if (phoneDigits.length < 11) {
-      setPhoneError("Informe um celular válido com DDD. Ex: (21) 99999-9999");
+    if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+      setPhoneError("Informe um telefone válido com DDD. Ex: (21) 99999-9999");
       return;
     }
 
@@ -101,12 +102,9 @@ export default function Contact() {
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-fit items-center gap-3 border-2 border-accent px-6 py-3 text-sm font-medium text-accent transition-colors duration-200 hover:bg-accent hover:text-background"
+            className="inline-flex w-fit items-center gap-3 border-2 border-accent px-6 py-3 text-sm font-medium text-accent transition-colors duration-300 hover:bg-accent hover:text-background"
           >
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
+            <LiveIndicator />
             Falar no WhatsApp agora
           </a>
 
@@ -147,7 +145,7 @@ export default function Contact() {
                   value={form.name}
                   onChange={handleChange}
                   placeholder="Seu nome completo"
-                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
+                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-300 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
                 />
               </div>
 
@@ -171,7 +169,7 @@ export default function Contact() {
                   minLength={14}
                   maxLength={15}
                   aria-describedby={phoneError ? "phone-error" : undefined}
-                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
+                  className="border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-300 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
                 />
                 {phoneError && (
                   <p id="phone-error" role="alert" className="text-xs text-red-400">{phoneError}</p>
@@ -197,7 +195,7 @@ export default function Contact() {
                   value={form.message}
                   onChange={handleChange}
                   placeholder="Descreva brevemente sua situação"
-                  className="resize-none border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
+                  className="resize-none border border-border bg-foreground/[0.03] px-4 py-3 text-sm text-foreground outline-none transition-colors duration-300 placeholder:text-muted/50 focus:border-accent disabled:opacity-60"
                 />
               </div>
 
@@ -208,7 +206,7 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="inline-flex items-center justify-center bg-accent px-6 py-3 text-sm font-medium text-background transition-colors duration-200 hover:bg-accent-light disabled:opacity-60"
+                className="inline-flex items-center justify-center bg-accent px-6 py-3 text-sm font-medium text-background transition-colors duration-300 hover:bg-accent-light disabled:opacity-60"
               >
                 {status === "loading" ? "Enviando..." : "Enviar mensagem"}
               </button>

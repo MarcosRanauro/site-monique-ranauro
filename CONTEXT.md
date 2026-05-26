@@ -2831,3 +2831,283 @@ Hierarquia de elementos ao redor da imagem após a correção da seção 60:
 ### Arquivos alterados
 
 - `src/components/sections/About.tsx` — inline style para `aspectRatio`, `w-48 sm:w-56`, `sizes` atualizado
+
+---
+
+## 62. Correções críticas C-02 e C-03 — auditoria round 3
+
+### Contexto
+
+Branch `fix/audit-round-3`. Correção de dois itens críticos identificados na auditoria técnica (seção da conversa que gerou o diagnóstico completo).
+
+---
+
+### [C-02] `src/app/api/contact/route.ts` — Resend movido para dentro do handler
+
+**Problema:** `const resend = new Resend(process.env.RESEND_API_KEY)` era inicializado em nível de módulo. O construtor do Resend lança `Error: Missing API key` imediatamente se a variável não estiver definida, crashando toda a route com 500 não tratado — sem mensagem amigável para o usuário e impossível de diagnosticar nos logs.
+
+**Correção aplicada:**
+
+| Campo | Antes | Depois |
+|---|---|---|
+| `Resend` instance | nível de módulo (antes do handler) | dentro do handler POST |
+| Validação da chave | ausente | `if (!apiKey)` → retorna `503 Serviço indisponível.` |
+| Restante do handler | inalterado | inalterado |
+
+```ts
+// antes
+const resend = new Resend(process.env.RESEND_API_KEY); // módulo
+export async function POST(...) { ... }
+
+// depois
+export async function POST(request: Request) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: "Serviço indisponível." }, { status: 503 });
+  }
+  const resend = new Resend(apiKey);
+  // restante inalterado
+}
+```
+
+**Por que 503:** semanticamente correto — o serviço de envio de e-mail está indisponível por ausência de configuração, não por erro do cliente (4xx) nem por falha inesperada (500).
+
+---
+
+### [C-03] `public/images/monique-ranauro3.png` — permissão corrigida de 600 para 644
+
+**Problema:** O arquivo tinha permissão `-rw-------` (600 — somente owner lê). Os outros arquivos de imagem tinham `-rw-rw-r--` (664). Em ambientes Docker, CI/CD com usuário diferente do owner, ou ao compartilhar o projeto em equipe, o servidor não conseguia ler o arquivo.
+
+**Correção aplicada:**
+
+```bash
+chmod 644 public/images/monique-ranauro3.png
+```
+
+| Antes | Depois |
+|---|---|
+| `-rw-------` (600) | `-rw-r--r--` (644) |
+
+Owner lê/escreve; grupo e outros leem. Consistente com os demais arquivos do projeto (que têm 664; 644 é mais restritivo porém seguro para arquivo de imagem estática).
+
+---
+
+### Arquivos alterados
+
+- `src/app/api/contact/route.ts` — `Resend` movido para o handler, validação `apiKey` adicionada
+- `public/images/monique-ranauro3.png` — permissão `chmod 644` (não é alteração de conteúdo)
+
+---
+
+## 63. Correções de alta severidade A-01, A-02, A-03, A-04 — auditoria round 3
+
+### Contexto
+
+Branch `fix/audit-round-3`. Quatro itens de alta severidade identificados na auditoria técnica foram corrigidos.
+
+---
+
+### [A-01] Padronização de `duration-300` — 11 ocorrências
+
+`duration-200` substituído por `duration-300` em todos os elementos interativos do projeto. O valor padrão do projeto é `duration-300` (definido na feature `hover-interactions`); os elementos abaixo haviam ficado com o valor anterior.
+
+| Arquivo | Elemento | Ocorrências |
+|---|---|---|
+| `src/components/layout/Header.tsx` | CTA desktop, botão hambúrguer, links mobile, botão WhatsApp mobile | 4 |
+| `src/components/layout/Footer.tsx` | Link "Falar no WhatsApp" (coluna Contato) | 1 |
+| `src/components/sections/Contact.tsx` | Link WhatsApp, input nome, input telefone, textarea mensagem, botão submit | 5 |
+| `src/components/sections/OnCall.tsx` | Botão "Acionar plantão 24h no WhatsApp" | 1 |
+
+Total: **11 ocorrências** substituídas com `replace_all`. Confirmado via `grep` que não há residual de `duration-200` em nenhum arquivo do projeto.
+
+---
+
+### [A-02] `src/components/sections/PracticeAreas.tsx` — import do `cn` corrigido
+
+`import cn from "clsx"` substituído por `import { cn } from "@/lib/utils"`. A função `cn` de `@/lib/utils` é o ponto canônico do projeto (criado em M-04, seção 53). O import direto do `clsx` evitava que a resolução de conflitos do `tailwind-merge` fosse aplicada aos cards de áreas de atuação.
+
+---
+
+### [A-03] `tailwind-merge` integrado ao `cn`
+
+Instalado `tailwind-merge` e atualizado `src/lib/utils.ts`:
+
+```ts
+// antes
+import { clsx, type ClassValue } from "clsx";
+export function cn(...inputs: ClassValue[]) {
+  return clsx(inputs);
+}
+
+// depois
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+`twMerge` resolve conflitos entre classes Tailwind (ex: `p-4` + `p-6` → apenas `p-6`), eliminando a classe menos específica. Sem isso, classes conflitantes em qualquer uso futuro do `cn()` produziriam comportamento imprevisível dependente da ordem de declaração no CSS gerado.
+
+---
+
+### [A-04] `next.config.ts` — HSTS adicionado aos security headers
+
+Header `Strict-Transport-Security` adicionado ao bloco `headers()`:
+
+```ts
+{
+  key: "Strict-Transport-Security",
+  value: "max-age=63072000; includeSubDomains; preload",
+}
+```
+
+| Diretiva | Valor | Significado |
+|---|---|---|
+| `max-age` | `63072000` | 2 anos — período durante o qual o browser força HTTPS |
+| `includeSubDomains` | — | Aplica a todos os subdomínios de `moniqueranauro.com.br` |
+| `preload` | — | Permite submissão ao HSTS preload list dos browsers |
+
+Proteção: força o browser a usar HTTPS em todas as futuras visitas, eliminando o risco de downgrade para HTTP em redes comprometidas.
+
+---
+
+### Arquivos alterados
+
+- `src/components/layout/Header.tsx` — A-01 (4 ocorrências)
+- `src/components/layout/Footer.tsx` — A-01 (1 ocorrência)
+- `src/components/sections/Contact.tsx` — A-01 (5 ocorrências)
+- `src/components/sections/OnCall.tsx` — A-01 (1 ocorrência)
+- `src/components/sections/PracticeAreas.tsx` — A-02
+- `src/lib/utils.ts` — A-03
+- `next.config.ts` — A-04
+- `package.json` / `package-lock.json` — A-03 (`tailwind-merge` instalado)
+
+### Branch
+
+Alterações realizadas na branch `fix/audit-round-3`.
+
+---
+
+## 64. Correções médias M-01, M-02, M-03, M-04 e M-05 — auditoria round 3 (conclusão)
+
+### Contexto
+
+Branch `fix/audit-round-3`. Cinco itens de média prioridade corrigidos, concluindo a auditoria técnica round 3.
+
+---
+
+### [M-01] `src/components/sections/About.tsx` — `aspect-ratio` inline → classe Tailwind
+
+`style={{ aspectRatio: "3/4" }}` removido e substituído por `aspect-[3/4]` incorporado ao `className` do container da foto.
+
+| Campo | Antes | Depois |
+|---|---|---|
+| `className` | `"group relative w-full overflow-hidden border border-accent/30 shadow-lg"` | `"group relative aspect-[3/4] w-full overflow-hidden border border-accent/30 shadow-lg"` |
+| `style` | `{{ aspectRatio: "3/4" }}` | removido |
+
+O inline style havia sido introduzido como workaround na seção 61 (diagnóstico de mobile). A causa raiz era o `hidden md:flex` na coluna wrapper — removido na seção 60. Com o `hidden` corrigido e o contexto de flex-col resolvido, a classe Tailwind `aspect-[3/4]` funciona corretamente em todos os breakpoints. A foto permanece visível em mobile.
+
+---
+
+### [M-02] `src/components/sections/About.tsx` — gap mobile do grid
+
+`gap-16` substituído por `gap-8 md:gap-16` no container grid principal da seção.
+
+| Antes | Depois |
+|---|---|
+| `gap-16` (64px em todos os breakpoints) | `gap-8` (32px mobile) + `md:gap-16` (64px desktop) |
+
+Em mobile, o grid é de 1 coluna — o gap entre foto e texto estava em 64px sem necessidade. 32px é proporcional ao espaçamento vertical das demais seções em mobile.
+
+---
+
+### [M-03] `src/config/nav.ts` — Plantão 24h adicionado ao navLinks
+
+Novo item inserido entre "Início" e "Sobre":
+
+```ts
+{ label: "Plantão 24h", href: "#plantao" }
+```
+
+A seção `#plantao` existe desde a seção 26 do CONTEXT.md mas estava ausente do menu de navegação. O posicionamento como segundo item reflete a prioridade da seção na landing page — conteúdo de alta urgência logo após o hero.
+
+---
+
+### [M-04] Componente `LiveIndicator` criado
+
+Criado `src/components/ui/LiveIndicator.tsx` encapsulando o indicador de pulsação que estava duplicado em dois arquivos:
+
+```tsx
+export default function LiveIndicator() {
+  return (
+    <span className="relative flex h-2 w-2 shrink-0">
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+      <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+    </span>
+  );
+}
+```
+
+Bloco inline substituído por `<LiveIndicator />` em:
+
+| Arquivo | Contexto |
+|---|---|
+| `src/components/sections/OnCall.tsx` | Botão "Acionar plantão 24h no WhatsApp" |
+| `src/components/sections/Contact.tsx` | Botão "Falar no WhatsApp agora" |
+
+Ambos os arquivos receberam `import LiveIndicator from "@/components/ui/LiveIndicator"`.
+
+---
+
+### [M-05] `src/components/sections/Contact.tsx` — validação de telefone alinhada ao servidor
+
+Validação no client atualizada para aceitar 10 ou 11 dígitos (fixo e celular), alinhando com a regex `/^\d{10,11}$/` já existente no servidor (`src/app/api/contact/route.ts`).
+
+| Campo | Antes | Depois |
+|---|---|---|
+| Condição | `phoneDigits.length < 11` | `phoneDigits.length < 10 \|\| phoneDigits.length > 11` |
+| Mensagem de erro | `"Informe um celular válido com DDD..."` | `"Informe um telefone válido com DDD..."` |
+
+A palavra "celular" foi substituída por "telefone" para refletir corretamente a aceitação de telefones fixos (10 dígitos) além de celulares (11 dígitos). A regex do servidor permanece inalterada.
+
+---
+
+### Arquivos criados
+
+- `src/components/ui/LiveIndicator.tsx` — componente de indicador de pulsação (M-04)
+
+### Arquivos alterados
+
+- `src/components/sections/About.tsx` — M-01 (aspect-ratio inline → classe) + M-02 (gap mobile)
+- `src/config/nav.ts` — M-03 (Plantão 24h adicionado)
+- `src/components/sections/OnCall.tsx` — M-04 (LiveIndicator substituindo bloco inline)
+- `src/components/sections/Contact.tsx` — M-04 (LiveIndicator) + M-05 (validação telefone)
+
+---
+
+## 65. Auditoria técnica round 3 — concluída
+
+### Status final
+
+Todos os itens da auditoria round 3 foram corrigidos.
+
+| ID | Severidade | Descrição | Branch | Seção |
+|---|---|---|---|---|
+| C-02 | Crítico | Resend movido para dentro do handler POST | fix/audit-round-3 | 62 |
+| C-03 | Crítico | chmod 644 em monique-ranauro3.png | fix/audit-round-3 | 62 |
+| A-01 | Alta | duration-200 → duration-300 (11 ocorrências) | fix/audit-round-3 | 63 |
+| A-02 | Alta | import cn corrigido em PracticeAreas | fix/audit-round-3 | 63 |
+| A-03 | Alta | tailwind-merge integrado ao cn | fix/audit-round-3 | 63 |
+| A-04 | Alta | HSTS adicionado ao next.config.ts | fix/audit-round-3 | 63 |
+| M-01 | Média | aspect-ratio inline → classe Tailwind (About) | fix/audit-round-3 | 64 |
+| M-02 | Média | gap-16 → gap-8 md:gap-16 em mobile (About) | fix/audit-round-3 | 64 |
+| M-03 | Média | Plantão 24h adicionado ao navLinks | fix/audit-round-3 | 64 |
+| M-04 | Média | LiveIndicator extraído como componente reutilizável | fix/audit-round-3 | 64 |
+| M-05 | Média | Validação de telefone: 10–11 dígitos no client | fix/audit-round-3 | 64 |
+
+### Pendência conhecida (não bloqueante)
+
+| ID | Categoria | Descrição | Motivo |
+|---|---|---|---|
+| C-01 | Rate limiting | `/api/contact` sem rate limiting | Requer Upstash Redis — dependência externa não provisionada |

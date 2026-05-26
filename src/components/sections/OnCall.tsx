@@ -1,4 +1,5 @@
 import { WHATSAPP_URL } from "@/config/contact";
+import LiveIndicator from "@/components/ui/LiveIndicator";
 import SectionBadge from "@/components/ui/SectionBadge";
 
 const bullets = [
@@ -64,12 +65,9 @@ export default function OnCall() {
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-fit items-center gap-3 border-2 border-accent px-6 py-3 text-sm font-medium text-accent transition-colors duration-200 hover:bg-accent hover:text-background"
+            className="inline-flex w-fit items-center gap-3 border-2 border-accent px-6 py-3 text-sm font-medium text-accent transition-colors duration-300 hover:bg-accent hover:text-background"
           >
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
+            <LiveIndicator />
             Acionar plantão 24h no WhatsApp
           </a>
 

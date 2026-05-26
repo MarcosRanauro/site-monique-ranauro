@@ -5,9 +5,15 @@ const NAME_MAX = 100;
 const MESSAGE_MAX = 2000;
 const PHONE_REGEX = /^\d{10,11}$/;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: "Serviço indisponível." },
+      { status: 503 }
+    );
+  }
+  const resend = new Resend(apiKey);
   let body: unknown;
 
   try {

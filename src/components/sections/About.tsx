@@ -10,14 +10,14 @@ const supportItems = [
 export default function About() {
   return (
     <section id="sobre" className="border-t border-border bg-background-secondary py-16 md:py-28">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 md:grid-cols-2 md:items-center">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-6 md:gap-16 md:grid-cols-2 md:items-center">
 
         {/* Coluna esquerda — foto profissional */}
         <div className="flex items-center justify-center">
           <div className="flex w-48 flex-col gap-5 sm:w-56 md:w-full md:max-w-[380px]">
 
             {/* Foto */}
-            <div className="group relative w-full overflow-hidden border border-accent/30 shadow-lg" style={{ aspectRatio: "3/4" }}>
+            <div className="group relative aspect-[3/4] w-full overflow-hidden border border-accent/30 shadow-lg">
               <Image
                 src="/images/monique-ranauro3.png"
                 alt="Monique Ranauro, advogada criminalista"

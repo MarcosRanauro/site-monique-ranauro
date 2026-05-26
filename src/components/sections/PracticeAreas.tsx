@@ -1,5 +1,5 @@
 import SectionBadge from "@/components/ui/SectionBadge";
-import cn from "clsx";
+import { cn } from "@/lib/utils";
 
 const areas = [
   {

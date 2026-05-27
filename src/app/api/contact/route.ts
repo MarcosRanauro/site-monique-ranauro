@@ -95,7 +95,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    await resend.emails.send({
+    console.log("[contact] Tentando enviar email via Resend...");
+    const { data, error } = await resend.emails.send({
       from:
         process.env.CONTACT_EMAIL_FROM ??
         "Site Monique Ranauro <site@moniqueranauro.com.br>",
@@ -104,6 +105,7 @@ export async function POST(request: Request) {
       subject: `Nova mensagem pelo site — ${name.trim()}`,
       text: `Nome: ${name.trim()}\nE-mail: ${email.trim()}\nTelefone: ${phone.trim()}\nMensagem: ${message.trim()}`,
     });
+    console.log("[contact] Resend result:", { data, error });
   } catch (error) {
     console.error("[contact] Resend error:", error);
     return NextResponse.json(

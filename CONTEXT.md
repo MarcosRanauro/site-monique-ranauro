@@ -3290,3 +3290,100 @@ CREATE POLICY "allow_select_authenticated"
 - `src/app/api/contact/route.ts` — email, rate limiting, Supabase, validação server-side
 - `.env.example` — Supabase e Upstash adicionados; comentários corrigidos
 - `package.json` / `package-lock.json` — 3 novas dependências
+
+---
+
+## 67. Painel administrativo protegido — /acesso
+
+### Contexto
+
+Branch `feature/admin-panel`. Criação de área administrativa protegida por senha em `/acesso` para visualizar os contatos salvos no Supabase. Área completamente separada do site público — sem link visível, com `robots: noindex`.
+
+---
+
+### Arquitetura
+
+| Camada | Abordagem | Motivo |
+|---|---|---|
+| Autenticação | Cookie httpOnly `admin_session=authenticated` | Sem dependência de Supabase Auth; simples e seguro para uso individual |
+| Proteção de rotas | `src/middleware.ts` (Next.js Middleware) | Intercepta no Edge antes de renderizar; redireciona para `/acesso` se sem cookie |
+| Leitura de contatos | API route server-side `/api/admin/contacts` com `SUPABASE_SERVICE_ROLE_KEY` | Bypassa RLS; a chave nunca é exposta ao cliente |
+| Proteção da API | Middleware verifica cookie em `/api/admin/*` (exceto `/api/admin/login`) | Retorna `401` sem cookie válido |
+
+---
+
+### Fluxo de autenticação
+
+1. Usuário acessa `/acesso` → página de login
+2. POST `/api/admin/login` com `{ password }` → compara com `ADMIN_PASSWORD`
+3. Sucesso → cookie `admin_session=authenticated` (httpOnly, secure em prod, sameSite=strict, maxAge=8h)
+4. Middleware libera `/acesso/painel` e `/api/admin/*`
+5. POST `/api/admin/logout` → cookie apagado (maxAge=0)
+
+---
+
+### Arquivos criados
+
+| Arquivo | Tipo | Descrição |
+|---|---|---|
+| `src/middleware.ts` | Edge | Protege `/acesso/painel/:path*` e `/api/admin/:path*` via cookie |
+| `src/app/api/admin/login/route.ts` | Route Handler POST | Valida `ADMIN_PASSWORD`, seta cookie |
+| `src/app/api/admin/logout/route.ts` | Route Handler POST | Limpa cookie |
+| `src/app/api/admin/contacts/route.ts` | Route Handler GET | Busca contatos via `SUPABASE_SERVICE_ROLE_KEY` (ordenados por `created_at` DESC) |
+| `src/app/acesso/layout.tsx` | Server Component | Metadata: `title: "Acesso"`, `robots: noindex/nofollow` |
+| `src/app/acesso/page.tsx` | Client Component | Página de login: monograma "M" dourado, campo senha, POST para /api/admin/login |
+| `src/app/acesso/painel/page.tsx` | Client Component | Tabela de contatos, busca, exportação CSV, paginação (20/página), logout |
+
+---
+
+### Visual do painel (independente do site público)
+
+| Token | Valor | Uso |
+|---|---|---|
+| Background | `#faf9f7` | Off-white quente — contraste com o site escuro |
+| Texto | `#1a1a1a` | Quase-preto — máxima legibilidade |
+| Muted | `#6b6560` | Labels, datas, textos secundários |
+| Accent | `#b08d57` | Monograma "M", botões, bordas no focus |
+| Border | `#d1ccc4` | Bordas de input e separadores |
+| Error | `#dc2626` | Mensagens de erro |
+| Hover row | `#f0ede8` | Linha da tabela no hover |
+
+---
+
+### Funcionalidades do painel
+
+- Tabela com colunas: Data, Nome, E-mail, Telefone, Mensagem
+- Busca em tempo real por nome, e-mail ou telefone
+- Exportação CSV com BOM UTF-8 (compatível com Excel/Sheets)
+- Paginação: 20 contatos por página com controles Anterior/Próxima
+- Botão "Sair" no header → POST `/api/admin/logout` + redirect para `/acesso`
+- Mensagem de carregamento e tratamento de erro inline
+
+---
+
+### Variáveis de ambiente adicionadas ao `.env.example`
+
+| Variável | Obrigatória | Descrição |
+|---|---|---|
+| `ADMIN_PASSWORD` | Sim (para o painel) | Senha de acesso ao painel administrativo |
+| `SUPABASE_SERVICE_ROLE_KEY` | Sim (para o painel) | Bypassa RLS para leitura dos contatos; nunca expor no cliente |
+
+---
+
+### Decisão — service role key em vez de anon key
+
+A política RLS `allow_select_authenticated` restringe leitura da tabela `contacts` a usuários autenticados via Supabase Auth. O painel usa autenticação própria (cookie), não Supabase Auth.
+
+**Opções avaliadas:**
+
+| Opção | Resultado |
+|---|---|
+| Usar `SUPABASE_ANON_KEY` client-side | Inviável: RLS bloquearia a leitura |
+| Criar nova RLS policy `FOR SELECT TO anon` | Inseguro: qualquer pessoa com a anon key leria os contatos |
+| Usar `SUPABASE_SERVICE_ROLE_KEY` server-side | Adotada: key nunca exposta no cliente; server-side bypassa RLS de forma controlada |
+
+---
+
+### Branch
+
+Alterações realizadas na branch `feature/admin-panel`.

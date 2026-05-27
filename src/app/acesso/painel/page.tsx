@@ -51,6 +51,18 @@ export default function PainelPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    contactId: string | null;
+    contactName: string | null;
+  }>({ open: false, contactId: null, contactName: null });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!errorMessage) return;
+    const timer = setTimeout(() => setErrorMessage(null), 4000);
+    return () => clearTimeout(timer);
+  }, [errorMessage]);
 
   useEffect(() => {
     fetch("/api/admin/contacts")
@@ -84,6 +96,32 @@ export default function PainelPage() {
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
     router.push("/acesso");
+  };
+
+  const handleDelete = (id: string, name: string) => {
+    setDeleteModal({ open: true, contactId: id, contactName: name });
+  };
+
+  const handleCloseModal = () => {
+    setDeleteModal({ open: false, contactId: null, contactName: null });
+  };
+
+  const handleConfirmDelete = async () => {
+    const id = deleteModal.contactId;
+    handleCloseModal();
+    if (!id) return;
+
+    try {
+      const res = await fetch("/api/admin/contacts", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error();
+      setContacts((prev) => prev.filter((c) => c.id !== id));
+    } catch {
+      setErrorMessage("Erro ao excluir contato. Tente novamente.");
+    }
   };
 
   return (
@@ -137,6 +175,13 @@ export default function PainelPage() {
           </button>
         </div>
 
+        {/* Erro inline (auto-dismiss 4s) */}
+        {errorMessage && (
+          <p role="alert" className="mb-4 text-sm" style={{ color: "#dc2626" }}>
+            {errorMessage}
+          </p>
+        )}
+
         {/* Content */}
         {loadingData ? (
           <p className="text-sm" style={{ color: "#6b6560" }}>
@@ -156,7 +201,7 @@ export default function PainelPage() {
               <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid #d1ccc4" }}>
-                    {["Data", "Nome", "E-mail", "Telefone", "Mensagem"].map((h) => (
+                    {["Data", "Nome", "E-mail", "Telefone", "Mensagem", "Ação"].map((h) => (
                       <th
                         key={h}
                         className="px-3 pb-3 text-left text-xs font-medium uppercase tracking-[0.1em]"
@@ -192,6 +237,33 @@ export default function PainelPage() {
                           {c.message}
                         </span>
                       </td>
+                      <td className="px-3 py-4">
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(c.id, c.name)}
+                          aria-label={`Excluir contato de ${c.name}`}
+                          className="text-red-400 transition-colors duration-300 hover:text-red-600"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14H6L5 6" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M9 6V4h6v2" />
+                          </svg>
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -225,6 +297,49 @@ export default function PainelPage() {
         )}
 
       </div>
+
+      {/* Modal de confirmação de exclusão */}
+      {deleteModal.open && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-6 bg-black/30 backdrop-blur-sm"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="w-full max-w-sm rounded-sm p-8 shadow-xl"
+            style={{ background: "#fff" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              className="mb-3 text-lg font-semibold"
+              style={{ fontFamily: "var(--font-heading)", color: "#1a1a1a" }}
+            >
+              Excluir contato
+            </h2>
+            <p className="mb-6 text-sm leading-relaxed" style={{ color: "#6b6560" }}>
+              Tem certeza que deseja excluir o contato{" "}
+              <strong style={{ color: "#1a1a1a" }}>{deleteModal.contactName}</strong>?{" "}
+              Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                style={{ borderColor: "#d1ccc4", color: "#6b6560" }}
+                className="flex-1 border px-4 py-2 text-sm transition-colors duration-300 hover:border-[#b08d57] hover:text-[#b08d57]"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="flex-1 bg-red-600 px-4 py-2 text-sm text-white transition-colors duration-300 hover:bg-red-700"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

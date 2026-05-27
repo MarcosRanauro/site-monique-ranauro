@@ -3387,3 +3387,135 @@ A política RLS `allow_select_authenticated` restringe leitura da tabela `contac
 ### Branch
 
 Alterações realizadas na branch `feature/admin-panel`.
+
+---
+
+## 68. Painel admin — botão de exclusão de contato
+
+### Contexto
+
+Branch `feature/admin-panel`. Adicionado botão de lixeira em cada linha da tabela de contatos para exclusão individual, com confirmação nativa do browser e atualização de estado local sem recarregar a página.
+
+---
+
+### [1] `src/app/api/admin/contacts/route.ts` — handler DELETE
+
+Adicionado handler `DELETE` ao route handler existente. Importado `NextRequest` além do `NextResponse` já presente.
+
+**Fluxo:**
+
+1. Valida presença de `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` → retorna 503 se ausentes
+2. Parseia o body JSON com try/catch → retorna 400 se inválido
+3. Valida presença do campo `id` → retorna 400 se ausente
+4. Cria cliente Supabase com service role key (bypassa RLS)
+5. Executa `.delete().eq("id", id)` na tabela `contacts`
+6. Retorna 500 em caso de erro do Supabase, 200 em caso de sucesso
+
+O middleware existente (`src/middleware.ts`) já protege `/api/admin/*` via cookie — nenhuma verificação adicional necessária no handler.
+
+---
+
+### [2] `src/app/acesso/painel/page.tsx` — botão de lixeira
+
+**`handleDelete` adicionado ao componente:**
+
+```ts
+const handleDelete = async (id: string) => {
+  if (!window.confirm("Tem certeza que deseja excluir este contato?")) return;
+  try {
+    const res = await fetch("/api/admin/contacts", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) throw new Error();
+    setContacts((prev) => prev.filter((c) => c.id !== id));
+  } catch {
+    alert("Erro ao excluir contato. Tente novamente.");
+  }
+};
+```
+
+**Coluna "Ação" adicionada:**
+
+- Header: `"Ação"` adicionado ao array de cabeçalhos da tabela
+- Botão em cada linha: SVG de lixeira (14×14px, stroke currentColor), `type="button"`, `aria-label="Excluir contato de [nome]"`, `aria-hidden="true"` no SVG
+- Cores: `text-red-400` base → `hover:text-red-600` no hover, `transition-colors duration-300`
+
+**Comportamento:**
+
+1. Clique → `window.confirm` nativo
+2. Confirmado → DELETE para `/api/admin/contacts` com `{ id }`
+3. Sucesso → `setContacts(prev => prev.filter(c => c.id !== id))` (remove da lista sem reload)
+4. Erro → `alert` com mensagem amigável
+
+---
+
+### Arquivos alterados
+
+- `src/app/api/admin/contacts/route.ts` — handler DELETE adicionado; import `NextRequest` adicionado
+- `src/app/acesso/painel/page.tsx` — `handleDelete`, coluna "Ação", botão com SVG
+
+---
+
+## 69. Painel admin — modal de confirmação de exclusão
+
+### Contexto
+
+Branch `feature/admin-panel`. Substituição do `window.confirm` / `window.alert` por um modal elegante de confirmação, consistente com o visual do painel administrativo.
+
+---
+
+### Estados adicionados
+
+```ts
+const [deleteModal, setDeleteModal] = useState<{
+  open: boolean;
+  contactId: string | null;
+  contactName: string | null;
+}>({ open: false, contactId: null, contactName: null });
+
+const [errorMessage, setErrorMessage] = useState<string | null>(null);
+```
+
+**Auto-dismiss do errorMessage:**
+
+```ts
+useEffect(() => {
+  if (!errorMessage) return;
+  const timer = setTimeout(() => setErrorMessage(null), 4000);
+  return () => clearTimeout(timer);
+}, [errorMessage]);
+```
+
+---
+
+### Fluxo de exclusão (atualizado)
+
+| Etapa | Ação |
+|---|---|
+| Clique na lixeira | `handleDelete(id, name)` → abre modal com `contactId` e `contactName` |
+| Cancelar / clique no overlay | `handleCloseModal()` → fecha sem deletar |
+| Confirmar exclusão | `handleConfirmDelete()` → fecha modal + DELETE para `/api/admin/contacts` |
+| Sucesso | `setContacts(prev => prev.filter(c => c.id !== id))` — remove da lista sem reload |
+| Erro | `setErrorMessage("Erro ao excluir contato. Tente novamente.")` — auto-dismiss em 4s |
+
+---
+
+### Visual do modal
+
+| Elemento | Classe / estilo |
+|---|---|
+| Overlay | `fixed inset-0 z-50 flex items-center justify-center px-6 bg-black/30 backdrop-blur-sm` |
+| Card | `w-full max-w-sm rounded-sm p-8 shadow-xl`, `background: #fff` |
+| Título | `font-heading` (Playfair Display), `text-lg font-semibold`, `color: #1a1a1a` |
+| Texto | `text-sm leading-relaxed`, `color: #6b6560`; nome em `<strong color: #1a1a1a>` |
+| Botão Cancelar | `flex-1 border`, `borderColor: #d1ccc4`, hover: borda e texto `#b08d57` |
+| Botão Excluir | `flex-1 bg-red-600 text-white`, hover: `bg-red-700` |
+| Fechar ao clicar no overlay | `onClick={handleCloseModal}` no overlay + `e.stopPropagation()` no card |
+
+---
+
+### Arquivo alterado
+
+- `src/app/acesso/painel/page.tsx` — estados `deleteModal` e `errorMessage`, `useEffect` de auto-dismiss, funções `handleDelete`/`handleCloseModal`/`handleConfirmDelete`, banner de erro inline, JSX do modal

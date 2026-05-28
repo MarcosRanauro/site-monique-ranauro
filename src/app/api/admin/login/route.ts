@@ -48,6 +48,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Serviço indisponível." }, { status: 503 });
   }
 
+  if (!password || typeof password !== "string") {
+    return NextResponse.json({ error: "Senha incorreta." }, { status: 401 });
+  }
+
   const passwordBuffer = Buffer.from(password);
   const adminBuffer = Buffer.from(adminPassword);
   const passwordMatch =

@@ -3917,6 +3917,7 @@ Referência: `.env.example` na raiz do projeto. Valores reais configurados no pa
 | `SUPABASE_SERVICE_ROLE_KEY` exposta acidentalmente | Baixa | Variável nunca tem prefixo `NEXT_PUBLIC_`; usada somente em route handlers server-side |
 | Rate limiting inativo sem Upstash configurado | Média | O formulário público fica sem proteção contra spam se `UPSTASH_*` não estiver configurado na Vercel |
 | RLS INSERT sem restrições de tamanho (P-01) | Média | A API route já valida com `NAME_MAX`, `MESSAGE_MAX`, `PHONE_REGEX` — o risco existe apenas se alguém acessar o Supabase diretamente com a anon key |
+| Vulnerabilidade PostCSS (GHSA-qx2v-qp2m-jg93) via `next@16.2.6` | Alta | Risco documentado e aceito temporariamente. Não há versão estável do Next.js 16 com o fix; canary resolve, mas não é recomendado para produção. O vetor de exploração não se aplica ao fluxo atual porque o projeto não processa CSS vindo de input de usuário. Monitorar `next@16.3.0` estável ou superior. Ver `SECURITY.md` para detalhes completos |
 
 ---
 

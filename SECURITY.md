@@ -125,6 +125,49 @@ Depois, enviar o relatório mais recente da pasta `reports/` para análise no Cl
 
 ---
 
+## Vulnerabilidade PostCSS — Risco Aceito (2026-05-28)
+
+**Advisory:** GHSA-qx2v-qp2m-jg93
+**Severidade:** Moderate
+**Pacote afetado:** `postcss < 8.5.10`
+**Origem no projeto:** dependência interna do `next@16.2.6`
+**Versão presente:** `postcss@8.4.31` em `node_modules/next/node_modules/postcss`
+**Instância segura:** `@tailwindcss/postcss` usa `postcss@8.5.14` — não afetada
+
+### Motivo para não corrigir agora
+
+- Não existe versão estável do Next.js 16 com PostCSS ≥ 8.5.10; `16.2.6` é o topo da linha estável e ainda carrega `postcss@8.4.31`
+- O fix aparece em `next@16.3.0-canary.32` — versões canary não são recomendadas para produção
+- `npm audit fix --force` faria downgrade para `next@9.3.3`, uma regressão de 7 versões major que quebraria todo o projeto
+- O projeto não processa CSS vindo de input de usuário em nenhuma rota
+- O PostCSS é usado exclusivamente em build-time, com CSS estático gerado localmente
+
+### Risco aceito
+
+O vetor de exploração da CVE (XSS via `</style>` não escapado no CSS Stringify) exige que CSS gerado a partir de input não confiável seja processado pelo PostCSS e renderizado em HTML. Esse fluxo não existe neste projeto. O risco de exploração real é considerado nulo no contexto atual.
+
+Instâncias do PostCSS no projeto:
+
+- `@tailwindcss/postcss` → `postcss@8.5.14` ✅ segura
+- `next@16.2.6` → `postcss@8.4.31` ⚠️ vulnerável — risco aceito conforme justificativa acima
+
+### Ação planejada
+
+Quando `next@16.3.0` (ou superior) for lançado como versão estável com `postcss ≥ 8.5.10`, executar:
+
+```bash
+npm install next@16.3.0   # ou a versão estável disponível
+npm ci
+npm run lint
+npm run typecheck
+npm run build
+npm audit
+```
+
+Verificar se o build passa sem erros antes de fazer push para produção.
+
+---
+
 ## Status
 
 Este documento deve ser atualizado sempre que houver mudança relevante em:

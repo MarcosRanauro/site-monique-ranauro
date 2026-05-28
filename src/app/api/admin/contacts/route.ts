@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -43,8 +45,8 @@ export async function DELETE(request: NextRequest) {
 
   const { id } = body as { id?: string };
 
-  if (!id) {
-    return NextResponse.json({ error: "ID não informado." }, { status: 400 });
+  if (!id || !UUID_REGEX.test(id)) {
+    return NextResponse.json({ error: "ID inválido." }, { status: 400 });
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey, {

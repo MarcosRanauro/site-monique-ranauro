@@ -1,6 +1,34 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const ratelimitUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const ratelimitToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (ratelimitUrl && ratelimitToken) {
+    const ratelimit = new Ratelimit({
+      redis: new Redis({ url: ratelimitUrl, token: ratelimitToken }),
+      limiter: Ratelimit.slidingWindow(5, "15 m"),
+      analytics: true,
+    });
+
+    const forwarded = request.headers.get("x-forwarded-for");
+    const ip =
+      request.headers.get("x-real-ip") ??
+      (forwarded ? forwarded.split(",").at(-1)?.trim() : undefined) ??
+      "anonymous";
+
+    const { success } = await ratelimit.limit(`admin_login:${ip}`);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Muitas tentativas. Aguarde alguns minutos." },
+        { status: 429 }
+      );
+    }
+  }
+
   let body: unknown;
   try {
     body = await request.json();

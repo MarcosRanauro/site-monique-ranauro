@@ -3519,3 +3519,121 @@ useEffect(() => {
 ### Arquivo alterado
 
 - `src/app/acesso/painel/page.tsx` — estados `deleteModal` e `errorMessage`, `useEffect` de auto-dismiss, funções `handleDelete`/`handleCloseModal`/`handleConfirmDelete`, banner de erro inline, JSX do modal
+
+---
+
+## 70. Correções de segurança — auditoria do painel admin
+
+### Contexto
+
+Branch `fix/security-audit`. Quatro itens identificados na auditoria de segurança do painel administrativo foram corrigidos em três arquivos.
+
+---
+
+### [A-01] `src/app/api/admin/login/route.ts` — Rate limiting na rota de login
+
+Rate limiting adicionado ao handler de login do painel administrativo, idêntico ao padrão já aplicado em `/api/contact`.
+
+**Configuração:**
+
+```ts
+limiter: Ratelimit.slidingWindow(5, "15 m")
+```
+
+5 tentativas por IP a cada 15 minutos (sliding window). Chave prefixada com `admin_login:` para namespace separado do rate limit do formulário de contato.
+
+**IP extraction:**
+
+```ts
+const forwarded = request.headers.get("x-forwarded-for");
+const ip =
+  request.headers.get("x-real-ip") ??
+  (forwarded ? forwarded.split(",").at(-1)?.trim() : undefined) ??
+  "anonymous";
+```
+
+Usa `x-real-ip` (injetado pelo proxy Vercel/Cloudflare, não manipulável pelo cliente) com fallback para o último valor do `x-forwarded-for` (adicionado pelo proxy confiável, não o primeiro que pode ser forjado pelo cliente).
+
+**Comportamento:** opcional — ativo apenas se `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN` estiverem configuradas. Sem as variáveis, o handler funciona normalmente sem rate limiting.
+
+**Imports adicionados:** `NextRequest` de `next/server`, `Ratelimit` de `@upstash/ratelimit`, `Redis` de `@upstash/redis`.
+
+---
+
+### [M-04] `src/app/api/contact/route.ts` — IP extraction corrigida
+
+O código anterior usava o **primeiro** valor do `x-forwarded-for`, que pode ser forjado pelo cliente (ex: `X-Forwarded-For: 1.1.1.1, proxy1, proxy2`).
+
+**Antes:**
+```ts
+request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous"
+```
+
+**Depois:**
+```ts
+const forwarded = request.headers.get("x-forwarded-for");
+const ip =
+  request.headers.get("x-real-ip") ??
+  (forwarded ? forwarded.split(",").at(-1)?.trim() : undefined) ??
+  "anonymous";
+```
+
+Alinhado com o padrão adotado em A-01 acima.
+
+---
+
+### [M-02] `src/app/api/admin/contacts/route.ts` — Validação de UUID no DELETE
+
+O handler DELETE recebia qualquer string como `id` e passava diretamente para o Supabase. Um `id` malformado causaria erro do Supabase, mas também abria espaço para inputs não sanitizados chegarem ao banco.
+
+**Adicionado:**
+
+```ts
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+```
+
+**Antes:**
+```ts
+if (!id) {
+  return NextResponse.json({ error: "ID não informado." }, { status: 400 });
+}
+```
+
+**Depois:**
+```ts
+if (!id || !UUID_REGEX.test(id)) {
+  return NextResponse.json({ error: "ID inválido." }, { status: 400 });
+}
+```
+
+Garante que apenas UUIDs v4 válidos chegam ao `.delete().eq("id", id)`.
+
+---
+
+### [B-01] `src/app/api/contact/route.ts` — Remoção de logs de debug
+
+Dois `console.log` temporários adicionados para diagnóstico de entrega de e-mail foram removidos. A desestruturação `const { data, error } =` também foi revertida para `await` simples, já que as variáveis `data` e `error` não eram mais utilizadas (o lint falharia com variáveis declaradas e não usadas).
+
+**Antes:**
+```ts
+console.log("[contact] Tentando enviar email via Resend...");
+const { data, error } = await resend.emails.send({ ... });
+console.log("[contact] Resend result:", { data, error });
+```
+
+**Depois:**
+```ts
+await resend.emails.send({ ... });
+```
+
+---
+
+### Arquivos alterados
+
+- `src/app/api/admin/login/route.ts` — imports adicionados; parâmetro tipado como `NextRequest`; bloco de rate limiting inserido no início do handler (A-01)
+- `src/app/api/contact/route.ts` — IP extraction corrigida (M-04); logs de debug removidos e desestruturação revertida (B-01)
+- `src/app/api/admin/contacts/route.ts` — `UUID_REGEX` adicionado; validação do `id` atualizada (M-02)
+
+### Branch
+
+Alterações realizadas na branch `fix/security-audit`.

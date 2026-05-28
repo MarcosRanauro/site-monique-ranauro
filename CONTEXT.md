@@ -3220,7 +3220,7 @@ Mensagem: ...
 
 ### Tabela Supabase — `contacts`
 
-Projeto: **advocai** (`joejrgoanvjpouexmrig`) — região `sa-east-1`
+Projeto: **site-monique-ranauro** (`joejrgoanvjpouexmrig`) — região `sa-east-1`
 
 Migration aplicada via MCP: `create_contacts_table`
 
@@ -3637,3 +3637,77 @@ await resend.emails.send({ ... });
 ### Branch
 
 Alterações realizadas na branch `fix/security-audit`.
+
+---
+
+## 71. Correções de segurança opcionais — M-01, B-04 e M-05
+
+### Contexto
+
+Branch `fix/security-optional`. Três itens de segurança opcionais identificados na auditoria do painel admin foram aplicados.
+
+---
+
+### [M-01] `src/app/api/admin/login/route.ts` — Comparação de senha com timingSafeEqual
+
+**Problema:** A comparação `password !== adminPassword` termina mais cedo quando os primeiros caracteres diferem, expondo um timing side-channel que permite inferir partes da senha por medição de tempo de resposta.
+
+**Correção:**
+
+```ts
+import { timingSafeEqual } from "crypto";
+
+const passwordBuffer = Buffer.from(password);
+const adminBuffer = Buffer.from(adminPassword);
+const passwordMatch =
+  passwordBuffer.length === adminBuffer.length &&
+  timingSafeEqual(passwordBuffer, adminBuffer);
+
+if (!passwordMatch) {
+  return NextResponse.json({ error: "Senha incorreta." }, { status: 401 });
+}
+```
+
+`timingSafeEqual` compara os buffers em tempo constante, independente de onde os bytes diferem. A verificação de comprimento antes da chamada é necessária porque `timingSafeEqual` lança erro se os buffers tiverem tamanhos diferentes.
+
+---
+
+### [B-04] `next.config.ts` — Cross-Origin-Opener-Policy adicionado
+
+Adicionado ao array de headers de segurança:
+
+```ts
+{ key: "Cross-Origin-Opener-Policy", value: "same-origin" }
+```
+
+Impede que outras páginas que abram o site via `window.open()` obtenham referência ao objeto `window` do site (cross-origin window access). Complementa o `X-Frame-Options: DENY` já existente.
+
+---
+
+### [M-05] Supabase — restrições de tamanho na política RLS
+
+Nenhum arquivo do projeto foi alterado. O SQL abaixo deve ser executado manualmente no **SQL Editor do Supabase** (projeto `site-monique-ranauro`):
+
+```sql
+ALTER POLICY "allow_insert_contacts"
+ON public.contacts
+WITH CHECK (
+  char_length(name) BETWEEN 2 AND 100 AND
+  char_length(email) BETWEEN 5 AND 254 AND
+  char_length(phone) BETWEEN 8 AND 20 AND
+  char_length(message) BETWEEN 10 AND 2000
+);
+```
+
+Adiciona segunda camada de validação diretamente no banco. Mesmo que alguém bypasse a API route (ex: chamando o Supabase diretamente com a anon key), o banco rejeita inserções com dados fora dos limites. Os limites espelham as constantes de validação já presentes no `route.ts` (`NAME_MAX`, `MESSAGE_MAX`, `PHONE_REGEX`, `EMAIL_REGEX`).
+
+---
+
+### Arquivos alterados
+
+- `src/app/api/admin/login/route.ts` — import `timingSafeEqual` adicionado; comparação de senha substituída por `timingSafeEqual` (M-01)
+- `next.config.ts` — `Cross-Origin-Opener-Policy: same-origin` adicionado ao bloco de headers (B-04)
+
+### Branch
+
+Alterações realizadas na branch `fix/security-optional`.

@@ -3711,3 +3711,262 @@ Adiciona segunda camada de validação diretamente no banco. Mesmo que alguém b
 ### Branch
 
 Alterações realizadas na branch `fix/security-optional`.
+
+---
+
+## Fechamento do Projeto — 28/05/2026
+
+### 1. Estado atual do projeto
+
+O projeto está em fase de **fechamento/pré-auditoria**, na branch `fechamento-projeto`. A documentação-base foi revisada e os arquivos essenciais de controle do projeto estão presentes. O código passou em `npm run lint`, mas a auditoria automática de fechamento ainda será executada. O próximo passo recomendado é rodar `npm run audit:project` e analisar o relatório gerado na pasta `reports/`.
+
+---
+
+### 2. Stack utilizada
+
+| Camada | Tecnologia | Versão |
+|---|---|---|
+| Framework | Next.js (App Router) | 16.2.6 |
+| UI | React | 19.2.4 |
+| Linguagem | TypeScript | ^5 |
+| Estilização | Tailwind CSS | ^4 |
+| Deploy | Vercel | — |
+| Banco de dados | Supabase (PostgreSQL) | @supabase/supabase-js ^2.106.2 |
+| E-mail | Resend | ^6.12.3 |
+| Rate limiting | Upstash Redis + @upstash/ratelimit | ^1.38.0 / ^2.0.8 |
+| Utilitários CSS | clsx + tailwind-merge | ^2.1.1 / ^3.6.0 |
+
+---
+
+### 3. Funcionalidades implementadas
+
+**Site público:**
+- Landing page completa com 8 seções: Hero, Plantão 24h, Sobre, Áreas de Atuação, Diferenciais, FAQ, Contato, Footer
+- Header com navegação desktop e menu hamburguer mobile
+- Botão flutuante WhatsApp (`/components/ui/WhatsAppButton.tsx`)
+- Formulário de contato com validação client-side e server-side (nome, telefone, e-mail, mensagem)
+- Acordeão interativo no FAQ
+- Hover interactions em todos os componentes interativos (`duration-300`, paleta do projeto)
+- Foto profissional como background do Hero e foto da cliente na seção Sobre
+- Responsividade auditada nos breakpoints 375px, 390px, 430px, 768px e 1280px
+
+**Backend:**
+- Route Handler POST `/api/contact` — valida campos, aplica rate limiting opcional, envia e-mail via Resend e salva contato no Supabase
+- Painel admin em `/acesso` — autenticação por senha com cookie httpOnly, tabela de contatos, busca em tempo real, exportação CSV, paginação (20/página), exclusão de contato com modal de confirmação
+- Route Handlers admin: `GET /api/admin/contacts`, `DELETE /api/admin/contacts`, `POST /api/admin/login`, `POST /api/admin/logout`
+- Middleware Next.js protegendo `/acesso/painel/:path*` e `/api/admin/:path*`
+
+**Segurança:**
+- Security headers: HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, CSP (separado por ambiente), Cross-Origin-Opener-Policy
+- Rate limiting: sliding window 3/10min no formulário de contato, 5/15min no login admin (ambos opcionais via Upstash)
+- Comparação de senha com `timingSafeEqual` (timing-safe)
+- UUID validation antes de DELETE no Supabase
+- IP extraction usando `x-real-ip` → último `x-forwarded-for` → `"anonymous"`
+
+**SEO e acessibilidade:**
+- Metadata completa com Open Graph e Twitter Card
+- Imagem OG em PNG 1200×630px (`public/og-image.png`)
+- Sitemap em `/sitemap.xml` e robots em `/robots.txt` (gerados via Next.js)
+- Canonical URL configurada para `https://moniqueranauro.com.br`
+- Acessibilidade WCAG AA: ARIA, headings hierárquicos, listas semânticas, `role="alert"`, `aria-expanded`, `aria-controls`
+
+---
+
+### 4. Páginas e rotas existentes
+
+| Rota | Tipo | Descrição |
+|---|---|---|
+| `/` | Página pública (SSG) | Landing page completa |
+| `/acesso` | Página pública (Client) | Login do painel admin |
+| `/acesso/painel` | Página protegida (Client) | Painel de contatos recebidos |
+| `/api/contact` | Route Handler POST | Formulário de contato público |
+| `/api/admin/login` | Route Handler POST | Autenticação do painel |
+| `/api/admin/logout` | Route Handler POST | Logout do painel |
+| `/api/admin/contacts` | Route Handler GET + DELETE | CRUD de contatos (protegido) |
+| `/sitemap.xml` | Gerado automaticamente | Sitemap para SEO |
+| `/robots.txt` | Gerado automaticamente | Diretivas para crawlers |
+
+---
+
+### 5. Componentes e módulos principais
+
+| Arquivo | Tipo | Função |
+|---|---|---|
+| `src/components/layout/Header.tsx` | Client Component | Navegação desktop + menu mobile |
+| `src/components/layout/Footer.tsx` | Server Component | Rodapé institucional |
+| `src/components/sections/Hero.tsx` | Server Component | Seção hero com foto de fundo |
+| `src/components/sections/OnCall.tsx` | Server Component | Seção plantão 24h |
+| `src/components/sections/About.tsx` | Server Component | Seção sobre + foto da advogada |
+| `src/components/sections/PracticeAreas.tsx` | Server Component | Áreas de atuação (7 cards) |
+| `src/components/sections/Differentials.tsx` | Server Component | Diferenciais (4 cards) |
+| `src/components/sections/FAQ.tsx` | Client Component | Acordeão de perguntas frequentes |
+| `src/components/sections/Contact.tsx` | Client Component | Formulário de contato |
+| `src/components/ui/SectionBadge.tsx` | Server Component | Badge eyebrow reutilizável |
+| `src/components/ui/WhatsAppButton.tsx` | Server Component | Botão flutuante WhatsApp |
+| `src/components/ui/LiveIndicator.tsx` | Server Component | Indicador de pulsação (plantão) |
+| `src/config/contact.ts` | Constante | `WHATSAPP_URL` centralizada |
+| `src/config/site.ts` | Constante | `SITE_URL` centralizada |
+| `src/config/nav.ts` | Constante | `navLinks` centralizado |
+| `src/lib/utils.ts` | Utilitário | `cn()` = clsx + tailwind-merge |
+| `src/middleware.ts` | Edge Middleware | Proteção das rotas admin |
+
+---
+
+### 6. APIs e endpoints
+
+| Endpoint | Método | Auth | Descrição |
+|---|---|---|---|
+| `/api/contact` | POST | Nenhuma (público) | Recebe contato, envia e-mail, salva no Supabase |
+| `/api/admin/login` | POST | Nenhuma (retorna cookie) | Valida `ADMIN_PASSWORD`, seta cookie httpOnly |
+| `/api/admin/logout` | POST | Cookie `admin_session` | Apaga o cookie de sessão |
+| `/api/admin/contacts` | GET | Cookie `admin_session` | Lista contatos (Supabase service role) |
+| `/api/admin/contacts` | DELETE | Cookie `admin_session` | Exclui contato por UUID validado |
+
+---
+
+### 7. Integrações externas
+
+| Serviço | Uso | Obrigatoriedade |
+|---|---|---|
+| **Vercel** | Deploy e hosting | Obrigatório |
+| **Supabase** | Persistência de contatos (`contacts` table) + RLS | Opcional para o formulário; obrigatório para o painel |
+| **Resend** | Envio de e-mail pelo formulário de contato | Obrigatório para o formulário funcionar |
+| **Upstash Redis** | Rate limiting no formulário e no login admin | Opcional — desativado se variáveis ausentes |
+| **Domínio** | `moniqueranauro.com.br` | DNS precisar apontar para Vercel |
+
+**Tabela Supabase:** `public.contacts` (id UUID, name, email, phone, message, created_at). RLS habilitado: INSERT liberado para `anon`; SELECT restrito a `authenticated`.
+
+---
+
+### 8. Variáveis de ambiente
+
+| Variável | Obrigatória | Uso |
+|---|---|---|
+| `RESEND_API_KEY` | Sim | Envio de e-mail via Resend |
+| `ADMIN_PASSWORD` | Sim (painel) | Senha de acesso ao painel admin |
+| `SUPABASE_SERVICE_ROLE_KEY` | Sim (painel) | Leitura dos contatos no painel (bypassa RLS) |
+| `SUPABASE_URL` | Não | Save de contatos + painel |
+| `SUPABASE_ANON_KEY` | Não | Inserção de contatos via API route pública |
+| `CONTACT_EMAIL_FROM` | Não | Remetente do e-mail (fallback: `site@moniqueranauro.com.br`) |
+| `CONTACT_EMAIL_TO` | Não | Destinatário do e-mail (fallback: `moniqueranauro@gmail.com`) |
+| `UPSTASH_REDIS_REST_URL` | Não | Rate limiting (formulário e login) |
+| `UPSTASH_REDIS_REST_TOKEN` | Não | Rate limiting (formulário e login) |
+
+Referência: `.env.example` na raiz do projeto. Valores reais configurados no painel da Vercel (nunca versionados).
+
+---
+
+### 9. Arquivos importantes do projeto
+
+| Arquivo | Função |
+|---|---|
+| `CLAUDE.md` | Instruções persistentes para o Claude Code |
+| `CONTEXT.md` | Histórico técnico completo do projeto |
+| `DECISOES.md` | Registro de decisões arquiteturais |
+| `CHANGELOG.md` | Histórico de versões |
+| `SECURITY.md` | Regras e cuidados de segurança |
+| `ROADMAP.md` | Planejamento de funcionalidades |
+| `.env.example` | Referência de variáveis de ambiente |
+| `next.config.ts` | Configuração do Next.js (headers, imagens) |
+| `src/middleware.ts` | Proteção das rotas admin (Edge) |
+| `src/app/globals.css` | Tokens visuais, tipografia e estilos base |
+| `src/app/layout.tsx` | Layout raiz, metadata e fontes |
+| `scripts/audit-project.sh` | Script de auditoria automática do projeto |
+
+**Imagens em `public/images/`:**
+
+| Arquivo | Uso |
+|---|---|
+| `fundo-hero.png` | Background da seção Hero |
+| `monique-ranauro3.png` | Foto da advogada na seção Sobre |
+| `monique-ranauro2.png` | **Não referenciada em nenhum componente — arquivo órfão** |
+
+---
+
+### 10. Scripts disponíveis (`package.json`)
+
+| Comando | Função |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento (Turbopack) |
+| `npm run build` | Build de produção |
+| `npm start` | Inicia o servidor de produção local |
+| `npm run lint` | ESLint em todo o projeto |
+| `npm run audit:project` | Auditoria automática via `scripts/audit-project.sh` |
+
+---
+
+### 11. Pendências conhecidas
+
+| ID | Pendência | Tipo | Impacto |
+|---|---|---|---|
+| P-01 | **SQL M-05 não executado** — a política RLS `allow_insert_contacts` ainda não tem restrições de tamanho de campo. SQL documentado na seção 71. | Manual (Supabase SQL Editor) | Segurança (camada 2) |
+| P-02 | **`monique-ranauro2.png` órfã** — existe em `public/images/` mas não é referenciada em nenhum componente | Limpeza de arquivo | Baixo |
+| P-03 | **CLAUDE.md seção 10 desatualizada** — ainda lista foto profissional e rate limiting como pendências; ambos foram implementados | Documentação | Baixo |
+| P-04 | **Endereço completo do escritório ausente** — Footer e Contact mostram apenas "Nova Iguaçu, RJ" sem rua, número ou complemento | Conteúdo (depende da cliente) | Médio |
+| P-05 | **Variáveis de ambiente na Vercel** — precisam estar configuradas antes do deploy em produção | Infraestrutura | Alto |
+| P-06 | **Domínio `moniqueranauro.com.br`** — DNS deve apontar para a Vercel; status não verificado | Infraestrutura | Alto |
+
+---
+
+### 12. Riscos conhecidos
+
+| Risco | Probabilidade | Mitigação existente |
+|---|---|---|
+| Resend rejeitar e-mails se o domínio não estiver verificado no painel Resend | Alta | Fallback configurado com `onboarding@resend.dev` não está ativo — exige verificação do domínio real |
+| Cookie de sessão admin sem `secure=true` em ambientes não-HTTPS | Baixa | `secure` já está condicionado a `NODE_ENV === "production"` |
+| `SUPABASE_SERVICE_ROLE_KEY` exposta acidentalmente | Baixa | Variável nunca tem prefixo `NEXT_PUBLIC_`; usada somente em route handlers server-side |
+| Rate limiting inativo sem Upstash configurado | Média | O formulário público fica sem proteção contra spam se `UPSTASH_*` não estiver configurado na Vercel |
+| RLS INSERT sem restrições de tamanho (P-01) | Média | A API route já valida com `NAME_MAX`, `MESSAGE_MAX`, `PHONE_REGEX` — o risco existe apenas se alguém acessar o Supabase diretamente com a anon key |
+
+---
+
+### 13. Pontos a auditar antes do deploy
+
+- [ ] `npm run build` passa sem erros em ambiente limpo
+- [ ] Todas as variáveis de ambiente estão configuradas na Vercel
+- [ ] Domínio `moniqueranauro.com.br` aponta para a Vercel (DNS)
+- [ ] Domínio `moniqueranauro.com.br` está verificado no painel do Resend
+- [ ] SQL M-05 foi executado no Supabase (restrições RLS)
+- [ ] Cookie `admin_session` funciona em HTTPS (testar login no preview da Vercel)
+- [ ] Formulário de contato envia e-mail e salva no Supabase em produção
+- [ ] Painel admin carrega os contatos salvos
+- [ ] `og-image.png` aparece corretamente no WhatsApp/LinkedIn (testar com ferramenta de OG preview)
+- [ ] `/sitemap.xml` e `/robots.txt` acessíveis em produção
+- [ ] Nenhuma rota do painel admin acessível sem cookie (testar em aba anônima)
+
+---
+
+### 14. Comandos recomendados para validação
+
+```bash
+# Verificar lint sem erros
+npm run lint
+
+# Rodar auditoria automática do projeto
+npm run audit:project
+
+# Build de produção local
+npm run build
+
+# Iniciar servidor de produção local (após build)
+npm start
+
+# Verificar arquivos órfãos em public/images/
+# (monique-ranauro2.png não é referenciada)
+grep -r "monique-ranauro2" src/
+
+# Verificar se não há valores reais em arquivos versionados
+grep -r "SUPABASE_SERVICE_ROLE_KEY\s*=" .env* 2>/dev/null
+```
+
+---
+
+### 15. Próximo passo recomendado
+
+Rodar a auditoria automática do projeto para obter um relatório completo do estado atual antes do deploy:
+
+```bash
+npm run audit:project
+```
+
+O relatório será gerado em `reports/project-audit-<timestamp>.md` e cobrirá: estrutura de arquivos, variáveis de ambiente, headers de segurança, links e imagens referenciados, e outros pontos críticos para o deploy.

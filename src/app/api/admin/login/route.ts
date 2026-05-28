@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -47,8 +48,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Serviço indisponível." }, { status: 503 });
   }
 
-  if (!password || password !== adminPassword) {
-    return NextResponse.json({ error: "Senha incorreta." }, { status: 401 });
+  const passwordBuffer = Buffer.from(password);
+  const adminBuffer = Buffer.from(adminPassword);
+  const passwordMatch =
+    passwordBuffer.length === adminBuffer.length &&
+    timingSafeEqual(passwordBuffer, adminBuffer);
+
+  if (!passwordMatch) {
+    return NextResponse.json(
+      { error: "Senha incorreta." },
+      { status: 401 }
+    );
   }
 
   const response = NextResponse.json({ ok: true }, { status: 200 });

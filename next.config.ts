@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: cspHeader,
           },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
         ],
       },
     ];

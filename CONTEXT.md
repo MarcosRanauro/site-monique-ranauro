@@ -3718,7 +3718,7 @@ Alterações realizadas na branch `fix/security-optional`.
 
 ### 1. Estado atual do projeto
 
-O projeto está em fase de **fechamento/pré-auditoria**, na branch `fechamento-projeto`. A documentação-base foi revisada e os arquivos essenciais de controle do projeto estão presentes. O código passou em `npm run lint`, mas a auditoria automática de fechamento ainda será executada. O próximo passo recomendado é rodar `npm run audit:project` e analisar o relatório gerado na pasta `reports/`.
+O projeto está em fase de **fechamento/pré-deploy**. A convenção de middleware depreciada foi migrada para `proxy.ts` e o warning de build foi eliminado. Duas auditorias automáticas foram geradas em `reports/`. O código passa em `npm run lint`, `npm run typecheck` e `npm run build` sem erros ou warnings. O próximo passo recomendado é auditoria visual, CSS e responsividade.
 
 ---
 
@@ -3808,7 +3808,7 @@ O projeto está em fase de **fechamento/pré-auditoria**, na branch `fechamento-
 | `src/config/site.ts` | Constante | `SITE_URL` centralizada |
 | `src/config/nav.ts` | Constante | `navLinks` centralizado |
 | `src/lib/utils.ts` | Utilitário | `cn()` = clsx + tailwind-merge |
-| `src/middleware.ts` | Edge Middleware | Proteção das rotas admin |
+| `src/proxy.ts` | Edge Proxy | Proteção das rotas admin (migrado de `middleware.ts`) |
 
 ---
 
@@ -3868,7 +3868,7 @@ Referência: `.env.example` na raiz do projeto. Valores reais configurados no pa
 | `ROADMAP.md` | Planejamento de funcionalidades |
 | `.env.example` | Referência de variáveis de ambiente |
 | `next.config.ts` | Configuração do Next.js (headers, imagens) |
-| `src/middleware.ts` | Proteção das rotas admin (Edge) |
+| `src/proxy.ts` | Proteção das rotas admin (Edge proxy — migrado de `middleware.ts`) |
 | `src/app/globals.css` | Tokens visuais, tipografia e estilos base |
 | `src/app/layout.tsx` | Layout raiz, metadata e fontes |
 | `scripts/audit-project.sh` | Script de auditoria automática do projeto |
@@ -3933,6 +3933,7 @@ Referência: `.env.example` na raiz do projeto. Valores reais configurados no pa
 - [ ] Painel admin carrega os contatos salvos
 - [ ] `og-image.png` aparece corretamente no WhatsApp/LinkedIn (testar com ferramenta de OG preview)
 - [ ] `/sitemap.xml` e `/robots.txt` acessíveis em produção
+- [x] Warning `middleware deprecated` eliminado — migrado para `src/proxy.ts` (função `proxy`, mesmo `config`/`matcher`)
 - [ ] Nenhuma rota do painel admin acessível sem cookie (testar em aba anônima)
 
 ---
@@ -3964,10 +3965,9 @@ grep -r "SUPABASE_SERVICE_ROLE_KEY\s*=" .env* 2>/dev/null
 
 ### 15. Próximo passo recomendado
 
-Rodar a auditoria automática do projeto para obter um relatório completo do estado atual antes do deploy:
+Realizar auditoria visual, CSS e responsividade do projeto antes do deploy:
 
-```bash
-npm run audit:project
-```
-
-O relatório será gerado em `reports/project-audit-<timestamp>.md` e cobrirá: estrutura de arquivos, variáveis de ambiente, headers de segurança, links e imagens referenciados, e outros pontos críticos para o deploy.
+- verificar layout em mobile (375px, 390px, 430px), tablet (768px) e desktop (1280px);
+- confirmar hover interactions em todos os componentes interativos;
+- confirmar que o formulário de contato e o painel admin estão visualmente corretos;
+- após validação visual, configurar variáveis de ambiente na Vercel e realizar o deploy.

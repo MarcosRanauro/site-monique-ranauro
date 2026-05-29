@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 type Contact = {
@@ -57,12 +57,28 @@ export default function PainelPage() {
     contactName: string | null;
   }>({ open: false, contactId: null, contactName: null });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!errorMessage) return;
     const timer = setTimeout(() => setErrorMessage(null), 4000);
     return () => clearTimeout(timer);
   }, [errorMessage]);
+
+  useEffect(() => {
+    if (deleteModal.open) {
+      cancelButtonRef.current?.focus();
+    }
+  }, [deleteModal.open]);
+
+  useEffect(() => {
+    if (!deleteModal.open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDeleteModal({ open: false, contactId: null, contactName: null });
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [deleteModal.open]);
 
   useEffect(() => {
     fetch("/api/admin/contacts")
@@ -232,7 +248,6 @@ export default function PainelPage() {
                         <span
                           className="line-clamp-2"
                           title={c.message}
-                          style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
                         >
                           {c.message}
                         </span>
@@ -322,6 +337,7 @@ export default function PainelPage() {
             </p>
             <div className="flex gap-3">
               <button
+                ref={cancelButtonRef}
                 type="button"
                 onClick={handleCloseModal}
                 style={{ borderColor: "#d1ccc4", color: "#6b6560" }}

@@ -15,8 +15,8 @@ O arquivo `.env.example` deve conter apenas nomes de variáveis e valores fictí
 Exemplo:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
 ```
 
 Nunca incluir chaves reais no `.env.example`.
@@ -31,7 +31,7 @@ Cuidados obrigatórios:
 
 * não expor `SUPABASE_SERVICE_ROLE_KEY` no frontend;
 * não criar variável `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY`;
-* usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` somente quando for seguro para o client;
+* usar `SUPABASE_URL` e `SUPABASE_ANON_KEY` somente em route handlers server-side; nunca expor via prefixo `NEXT_PUBLIC_`;
 * validar usuário autenticado em rotas privadas;
 * garantir que queries sensíveis filtrem dados pelo usuário correto;
 * revisar políticas de RLS quando houver tabelas privadas;

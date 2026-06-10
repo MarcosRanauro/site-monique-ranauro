@@ -5,18 +5,21 @@ const areas = [
   {
     number: "01",
     title: "Prisão em flagrante",
+    featured: true,
     description:
       "Atuação em situações urgentes, com orientação jurídica imediata e análise das medidas cabíveis desde os primeiros momentos.",
   },
   {
     number: "02",
     title: "Audiência de custódia",
+    featured: true,
     description:
       "Acompanhamento técnico em audiência de custódia, com atenção aos direitos da pessoa apresentada e às particularidades do caso.",
   },
   {
     number: "03",
     title: "Inquérito policial",
+    featured: true,
     description:
       "Orientação e acompanhamento durante investigações, depoimentos e demais atos na fase pré-processual.",
   },
@@ -65,25 +68,47 @@ export default function PracticeAreas() {
 
         {/* Grid de cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {areas.map(({ number, title, description }, index) => {
-            // 7 items in 3-col grid — center the lone last card on lg
+          {areas.map(({ number, title, description, featured }, index) => {
             const isLast = index === areas.length - 1;
+
+            const cardContent = (
+              <>
+                <span
+                  className={cn(
+                    "font-heading text-sm font-semibold transition-colors duration-300 group-hover:text-accent",
+                    featured ? "text-accent/70" : "text-accent/50",
+                  )}
+                >
+                  {number}
+                </span>
+                <h3 className="font-heading text-lg font-semibold leading-snug text-foreground">
+                  {title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted">
+                  {description}
+                </p>
+                <div className="mt-auto h-px w-0 bg-accent/50 transition-all duration-300 group-hover:w-12" />
+              </>
+            );
+
             return (
-            <div
-              key={number}
-              className={cn("group flex flex-col gap-5 border border-border p-7 transition-colors duration-300 hover:border-accent/40 hover:bg-white/[0.02]", { "lg:col-start-2": isLast })}
-            >
-              <span className="font-heading text-sm font-semibold text-accent/50 transition-colors duration-300 group-hover:text-accent">
-                {number}
-              </span>
-              <h3 className="font-heading text-lg font-semibold leading-snug text-foreground">
-                {title}
-              </h3>
-              <p className="text-sm leading-relaxed text-muted">
-                {description}
-              </p>
-              <div className="mt-auto h-px w-0 bg-accent/50 transition-all duration-300 group-hover:w-8" />
-            </div>
+              <div
+                key={number}
+                className={cn(
+                  "group flex flex-col gap-5 border p-7 transition-colors duration-300 hover:border-accent/40 hover:bg-white/[0.02]",
+                  featured ? "relative overflow-hidden border-accent/30" : "border-border",
+                  { "lg:col-span-3": isLast },
+                )}
+              >
+                {featured && (
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
+                )}
+                {isLast ? (
+                  <div className="flex max-w-sm flex-col gap-5">{cardContent}</div>
+                ) : (
+                  cardContent
+                )}
+              </div>
             );
           })}
         </div>

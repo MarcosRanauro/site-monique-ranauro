@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import PageViewTracker from "@/components/ui/PageViewTracker";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import Hero from "@/components/sections/Hero";
 import OnCall from "@/components/sections/OnCall";
@@ -24,6 +25,7 @@ export default function Home() {
       </main>
       <Footer />
       <WhatsAppButton />
+      <PageViewTracker />
     </>
   );
 }

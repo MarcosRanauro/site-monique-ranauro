@@ -1,15 +1,31 @@
-import { timingSafeEqual } from "crypto";
+import { randomUUID, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-export async function POST(request: NextRequest) {
-  const ratelimitUrl = process.env.UPSTASH_REDIS_REST_URL;
-  const ratelimitToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+const SESSION_TTL_SECONDS = 60 * 60 * 8;
+const SESSION_KEY_PREFIX = "admin:session:";
 
-  if (ratelimitUrl && ratelimitToken) {
+export async function POST(request: NextRequest) {
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (
+    process.env.NODE_ENV === "production" &&
+    (!redisUrl || !redisToken)
+  ) {
+    console.error(
+      "[admin/login] Rate limiting indisponível em produção: UPSTASH_REDIS_REST_URL ou UPSTASH_REDIS_REST_TOKEN ausente."
+    );
+    return NextResponse.json(
+      { error: "Serviço indisponível." },
+      { status: 503 }
+    );
+  }
+
+  if (redisUrl && redisToken) {
     const ratelimit = new Ratelimit({
-      redis: new Redis({ url: ratelimitUrl, token: ratelimitToken }),
+      redis: new Redis({ url: redisUrl, token: redisToken }),
       limiter: Ratelimit.slidingWindow(5, "15 m"),
       analytics: true,
     });
@@ -65,12 +81,27 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!redisUrl || !redisToken) {
+    return NextResponse.json({ error: "Serviço indisponível." }, { status: 503 });
+  }
+
+  const token = randomUUID();
+  const redis = new Redis({ url: redisUrl, token: redisToken });
+
+  try {
+    await redis.set(`${SESSION_KEY_PREFIX}${token}`, "1", {
+      ex: SESSION_TTL_SECONDS,
+    });
+  } catch {
+    return NextResponse.json({ error: "Serviço indisponível." }, { status: 503 });
+  }
+
   const response = NextResponse.json({ ok: true }, { status: 200 });
-  response.cookies.set("admin_session", "authenticated", {
+  response.cookies.set("admin_session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 8,
+    maxAge: SESSION_TTL_SECONDS,
     path: "/",
   });
 

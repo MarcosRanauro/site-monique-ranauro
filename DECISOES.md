@@ -350,3 +350,48 @@ export function cn(...inputs: ClassValue[]) {
 **Motivo:** DRY; qualquer ajuste no tamanho, cor ou animação do indicador exige mudança em um único arquivo; padrão consistente com `SectionBadge` e `WhatsAppButton` no diretório `ui/`.
 
 **Consequências:** Importado em `OnCall.tsx` e `Contact.tsx`; pode ser reutilizado em futuras seções ou componentes que precisem indicar status "ao vivo" ou disponibilidade imediata.
+
+---
+
+## [D-22] Sessões admin stateful no Upstash Redis
+
+**Data:** 2026-06-09
+**Status:** ativo
+
+**Contexto:** O painel admin autenticava via cookie `admin_session` com valor fixo `"authenticated"`. Qualquer requisição com esse valor era aceita pelo proxy, sem possibilidade de revogação server-side. Se a senha vazasse, o acesso permaneceria válido enquanto o cookie existisse.
+
+**Decisão:** No login bem-sucedido, gerar token aleatório com `crypto.randomUUID()`, armazená-lo no Upstash Redis com chave `admin:session:{token}` e TTL de 8 horas, e salvar o token no cookie httpOnly. O proxy valida a existência da chave no Redis antes de autorizar rotas protegidas. No logout, a chave é removida do Redis.
+
+**Motivo:** Sessões únicas e revogáveis; logout invalida o acesso imediatamente; cookies legados com valor fixo deixam de funcionar; fail closed se o Redis estiver indisponível.
+
+**Consequências:** `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN` passam a ser obrigatórias para o painel admin (login e validação no proxy); `src/proxy.ts` torna-se assíncrono; arquivos alterados: `login/route.ts`, `logout/route.ts`, `proxy.ts`.
+
+---
+
+## [D-23] Migrations Supabase versionadas retroativamente
+
+**Data:** 2026-06-09
+**Status:** ativo
+
+**Contexto:** O schema da tabela `contacts` e as políticas RLS existiam apenas no `CONTEXT.md`, aplicados manualmente via MCP sem rastreabilidade no Git. O SQL M-05 (restrições de tamanho na política `allow_insert_contacts`) estava documentado mas nunca executado no Supabase.
+
+**Decisão:** Criar `supabase/migrations/` com duas migrations retroativas: `0001_create_contacts.sql` (tabela + RLS) e `0002_add_field_constraints.sql` (M-05). O M-05 deve ser executado manualmente no SQL Editor do Supabase Dashboard.
+
+**Motivo:** Versionar o schema no repositório para rastreabilidade, onboarding e auditoria; separar criação inicial das restrições de segurança; permitir reaplicação em novos ambientes.
+
+**Consequências:** Pasta `supabase/migrations/` passa a ser a fonte de verdade do schema; alterações futuras devem ser novas migrations numeradas sequencialmente; execução no banco continua manual (não há Supabase CLI configurado no projeto).
+
+---
+
+## [D-24] Contador de visitantes únicos com hash anônimo diário
+
+**Data:** 2026-06-09
+**Status:** ativo
+
+**Contexto:** Necessidade de exibir discretamente o total de visitantes únicos no footer, sem cookies de rastreamento nem exposição de IP ou user-agent.
+
+**Decisão:** Registrar visitas na tabela `page_views` do Supabase via hash SHA-256 diário (`ip|user-agent|data`). Deduplicação pela constraint `UNIQUE(visitor_hash, visited_at)`. Escrita via `POST /api/page-view` (Client Component na home); leitura via `GET /api/page-view-count` (Server Component no footer, revalidação de 1h). Acesso ao banco exclusivamente com `SUPABASE_SERVICE_ROLE_KEY` server-side; RLS habilitado sem policies públicas.
+
+**Motivo:** Contagem anônima e ética; falha silenciosa não impacta o usuário; contador discreto no rodapé; schema versionado em `0003_create_page_views.sql`.
+
+**Consequências:** Migration `0003` deve ser executada manualmente no Supabase Dashboard; novas rotas públicas `/api/page-view` e `/api/page-view-count` (fora do matcher do proxy); arquivos: `PageViewTracker.tsx`, `Footer.tsx`, `page.tsx`, rotas API e migration.

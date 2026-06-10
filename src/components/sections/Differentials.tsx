@@ -2,25 +2,21 @@ import SectionBadge from "@/components/ui/SectionBadge";
 
 const differentials = [
   {
-    symbol: "◈",
     title: "Sigilo absoluto",
     description:
       "Todas as informações compartilhadas são tratadas com rigoroso sigilo profissional, em todas as etapas do caso.",
   },
   {
-    symbol: "◇",
     title: "Estratégia individualizada",
     description:
       "Cada situação é analisada de forma independente. Não existe defesa padrão — existe a defesa certa para aquele caso.",
   },
   {
-    symbol: "◈",
     title: "Comunicação clara",
     description:
       "O cliente é informado sobre cada passo do processo, com linguagem acessível e sem omissões.",
   },
   {
-    symbol: "◇",
     title: "Plantão 24h",
     description:
       "Disponibilidade para urgências criminais a qualquer hora — prisão em flagrante, delegacia, audiência de custódia.",
@@ -47,13 +43,14 @@ export default function Differentials() {
 
         {/* Grid de diferenciais */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {differentials.map(({ symbol, title, description }) => (
+          {differentials.map(({ title, description }, index) => (
             <div
               key={title}
-              className="group flex flex-col gap-6 border border-border p-7 transition-colors duration-300 hover:border-accent/40 hover:bg-white/[0.02]"
+              className="group relative flex flex-col gap-5 overflow-hidden border border-border p-8 transition-colors duration-300 hover:border-accent/40 hover:bg-white/[0.02]"
             >
-              <span aria-hidden="true" className="inline-block text-xl text-accent transition-transform duration-300 group-hover:rotate-[15deg]">
-                {symbol}
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+              <span className="font-heading text-xs font-semibold tracking-[0.2em] text-accent/50 uppercase">
+                {["I", "II", "III", "IV"][index]}
               </span>
               <h3 className="font-heading text-lg font-semibold leading-snug text-foreground">
                 {title}
@@ -61,7 +58,7 @@ export default function Differentials() {
               <p className="text-sm leading-relaxed text-muted">
                 {description}
               </p>
-              <div className="mt-auto h-px w-0 bg-accent/50 transition-all duration-300 group-hover:w-8" />
+              <div className="mt-auto h-px w-0 bg-accent/50 transition-all duration-300 group-hover:w-12" />
             </div>
           ))}
         </div>

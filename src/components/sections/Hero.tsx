@@ -1,12 +1,6 @@
 import Image from "next/image";
 import SectionBadge from "@/components/ui/SectionBadge";
 
-const trustIndicators = [
-  "Atendimento sigiloso",
-  "Estratégia individualizada",
-  "Atuação técnica",
-];
-
 const practiceHighlights = [
   "Inquérito policial",
   "Tribunal do Júri",
@@ -34,7 +28,7 @@ export default function Hero() {
       {/* Camada 1 — overlay em gradiente */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 z-10 bg-gradient-to-r from-background/95 via-background/80 to-background/40"
+        className="absolute inset-0 z-10 bg-gradient-to-r from-background/90 via-background/70 to-background/20"
       />
 
       {/* Camada 2 — conteúdo */}
@@ -63,55 +57,58 @@ export default function Hero() {
             </a>
             <a
               href="#atuacao"
-              className="inline-flex items-center rounded-sm border border-foreground/20 px-6 py-3 text-sm font-medium text-accent transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/50 hover:text-accent-light"
+              className="inline-flex items-center rounded-sm border border-foreground/40 px-6 py-3 text-sm font-medium text-accent transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/50 hover:text-accent-light"
             >
               Conhecer áreas de atuação
             </a>
           </div>
 
-          <ul className="flex flex-wrap gap-x-6 gap-y-3">
-            {trustIndicators.map((item) => (
-              <li key={item} className="group flex items-center gap-2">
-                <span className="h-1 w-1 rounded-full bg-muted transition-colors duration-300 group-hover:bg-accent" />
-                <span className="text-xs text-muted">{item}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="flex items-center gap-0 divide-x divide-accent/30">
+            <span className="pr-3 text-[11px] tracking-widest text-muted/70 uppercase whitespace-nowrap">Sigilo total</span>
+            <span className="px-3 text-[11px] tracking-widest text-muted/70 uppercase whitespace-nowrap">Estratégia</span>
+            <span className="pl-3 text-[11px] tracking-widest text-muted/70 uppercase whitespace-nowrap">Atuação técnica</span>
+          </div>
 
         </div>
 
         {/* Coluna direita — card semi-transparente sobre a imagem */}
-        <div aria-hidden="true" className="relative hidden md:flex md:items-center md:justify-center">
-          <div className="relative h-[440px] w-full max-w-[400px]">
+        <div aria-hidden="true" className="relative hidden md:flex md:items-center md:justify-end md:pr-0 lg:pr-8">
+          <div className="relative mr-0 h-[440px] w-full max-w-[400px] lg:mr-8">
 
             {/* Cartão principal */}
             <div className="absolute inset-0 border border-accent/30 bg-background/60 backdrop-blur-sm">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
 
               <div className="flex h-full flex-col justify-between p-8">
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-6">
                   <p className="text-[10px] font-medium uppercase tracking-[0.25em] text-accent">
                     Defesa Criminal
                   </p>
-                  <p className="font-heading text-3xl font-semibold leading-snug text-foreground/90">
-                    Sigilo.
-                    <br />
-                    Estratégia.
-                    <br />
-                    Precisão.
-                  </p>
+                  <div className="flex flex-col gap-2">
+                    <p className="font-heading text-4xl font-semibold leading-none text-foreground/90">
+                      Sigilo.
+                    </p>
+                    <p className="font-heading text-4xl font-semibold leading-none text-foreground/70">
+                      Estratégia.
+                    </p>
+                    <p className="font-heading text-4xl font-semibold leading-none text-foreground/50">
+                      Precisão.
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                  <div className="h-px w-10 bg-accent/50" />
-                  {practiceHighlights.map((area) => (
-                    <div key={area} className="flex items-center gap-3">
-                      <span className="h-px w-3 bg-accent/40" />
-                      <span className="text-xs tracking-wide text-muted/80">
-                        {area}
-                      </span>
-                    </div>
-                  ))}
+                <div className="flex flex-col gap-4">
+                  <div className="h-px w-8 bg-accent/40" />
+                  <div className="flex flex-col gap-2">
+                    {practiceHighlights.map((area) => (
+                      <div key={area} className="flex items-center gap-3">
+                        <span className="h-px w-4 bg-accent/50 shrink-0" />
+                        <span className="text-xs tracking-widest uppercase text-muted/70">
+                          {area}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

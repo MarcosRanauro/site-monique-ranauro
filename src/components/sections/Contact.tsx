@@ -95,15 +95,17 @@ export default function Contact() {
           </p>
 
           <ul className="flex flex-col gap-3">
-            <li className="flex items-start border-l-2 border-accent/50 py-1 pl-4">
-              <span className="text-sm text-foreground/80">
-                Nova Iguaçu — Baixada Fluminense e Grande Rio
-              </span>
+            <li className="flex items-center gap-3">
+              <span className="text-accent text-base leading-none shrink-0">✓</span>
+              <span className="text-sm text-foreground/80">Nova Iguaçu — Baixada Fluminense e Grande Rio</span>
             </li>
-            <li className="flex items-start border-l-2 border-accent/50 py-1 pl-4">
-              <span className="text-sm text-foreground/80">
-                Plantão 24h para urgências criminais
-              </span>
+            <li className="flex items-center gap-3">
+              <span className="text-accent text-base leading-none shrink-0">✓</span>
+              <span className="text-sm text-foreground/80">Plantão 24h para urgências criminais</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <span className="text-accent text-base leading-none shrink-0">✓</span>
+              <span className="text-sm text-foreground/80">Atendimento sigiloso desde o primeiro contato</span>
             </li>
           </ul>
 
@@ -121,6 +123,7 @@ export default function Contact() {
 
         {/* Coluna direita — formulário */}
         <div>
+          <div className="mb-8 h-px w-12 bg-accent/50" />
           {status === "success" ? (
             <div role="alert" className="flex flex-col gap-4 border border-accent/30 bg-accent/5 p-8">
               <div className="h-px w-8 bg-accent/50" />

@@ -7,6 +7,13 @@
   --border: #2a2623;
   --accent: #b08d57;
   --accent-light: #d6b77a;
+
+  /* Admin — tema claro do painel (/acesso) */
+  --admin-background: #faf9f7;
+  --admin-foreground: #1a1a1a;
+  --admin-muted: #6b6560;
+  --admin-border: #d1ccc4;
+  --admin-border-subtle: #ece9e4;
 }
 
 @theme inline {
@@ -21,6 +28,12 @@
   --color-background-footer: #080808;
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
+  /* Admin — tema claro (/acesso) */
+  --color-admin-background: var(--admin-background);
+  --color-admin-foreground: var(--admin-foreground);
+  --color-admin-muted: var(--admin-muted);
+  --color-admin-border: var(--admin-border);
+  --color-admin-border-subtle: var(--admin-border-subtle);
 }
 
 @media (prefers-reduced-motion: no-preference) {

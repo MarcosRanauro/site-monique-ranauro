@@ -10,9 +10,21 @@ const PHONE_REGEX = /^\d{10,11}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
-  // Rate limiting — opcional, ativo apenas se as variáveis estiverem configuradas
   const ratelimitUrl = process.env.UPSTASH_REDIS_REST_URL;
   const ratelimitToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (
+    process.env.NODE_ENV === "production" &&
+    (!ratelimitUrl || !ratelimitToken)
+  ) {
+    console.error(
+      "[contact] Rate limiting indisponível em produção: UPSTASH_REDIS_REST_URL ou UPSTASH_REDIS_REST_TOKEN ausente."
+    );
+    return NextResponse.json(
+      { error: "Serviço indisponível." },
+      { status: 503 }
+    );
+  }
 
   if (ratelimitUrl && ratelimitToken) {
     const ratelimit = new Ratelimit({

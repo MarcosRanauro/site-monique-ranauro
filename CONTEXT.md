@@ -3899,7 +3899,7 @@ Referência: `.env.example` na raiz do projeto. Valores reais configurados no pa
 
 | ID | Pendência | Tipo | Impacto |
 |---|---|---|---|
-| P-01 | **SQL M-05 não executado** — a política RLS `allow_insert_contacts` ainda não tem restrições de tamanho de campo. SQL documentado na seção 71. | Manual (Supabase SQL Editor) | Segurança (camada 2) |
+| ~~P-01~~ | ~~SQL M-05 não executado~~ — **concluído em 09/06/2026** (`Success. No rows returned` no SQL Editor). Política `allow_insert_contacts` com restrições `char_length`. | — | — |
 | P-02 | **`monique-ranauro2.png` órfã** — existe em `public/images/` mas não é referenciada em nenhum componente | Limpeza de arquivo | Baixo |
 | P-03 | **CLAUDE.md seção 10 desatualizada** — ainda lista foto profissional e rate limiting como pendências; ambos foram implementados | Documentação | Baixo |
 | P-04 | **Endereço completo do escritório ausente** — Footer e Contact mostram apenas "Nova Iguaçu, RJ" sem rua, número ou complemento | Conteúdo (depende da cliente) | Médio |
@@ -3916,7 +3916,7 @@ Referência: `.env.example` na raiz do projeto. Valores reais configurados no pa
 | Cookie de sessão admin sem `secure=true` em ambientes não-HTTPS | Baixa | `secure` já está condicionado a `NODE_ENV === "production"` |
 | `SUPABASE_SERVICE_ROLE_KEY` exposta acidentalmente | Baixa | Variável nunca tem prefixo `NEXT_PUBLIC_`; usada somente em route handlers server-side |
 | Rate limiting inativo sem Upstash configurado | Média | O formulário público fica sem proteção contra spam se `UPSTASH_*` não estiver configurado na Vercel |
-| RLS INSERT sem restrições de tamanho (P-01) | Média | A API route já valida com `NAME_MAX`, `MESSAGE_MAX`, `PHONE_REGEX` — o risco existe apenas se alguém acessar o Supabase diretamente com a anon key |
+| ~~RLS INSERT sem restrições de tamanho (P-01)~~ | — | **Mitigado** — M-05 executado em 09/06/2026; banco rejeita INSERT fora dos limites via `allow_insert_contacts` |
 | Vulnerabilidade PostCSS (GHSA-qx2v-qp2m-jg93) via `next@16.2.6` | Alta | Risco documentado e aceito temporariamente. Não há versão estável do Next.js 16 com o fix; canary resolve, mas não é recomendado para produção. O vetor de exploração não se aplica ao fluxo atual porque o projeto não processa CSS vindo de input de usuário. Monitorar `next@16.3.0` estável ou superior. Ver `SECURITY.md` para detalhes completos |
 
 ---
@@ -3927,7 +3927,7 @@ Referência: `.env.example` na raiz do projeto. Valores reais configurados no pa
 - [ ] Todas as variáveis de ambiente estão configuradas na Vercel
 - [ ] Domínio `moniqueranauro.com.br` aponta para a Vercel (DNS)
 - [ ] Domínio `moniqueranauro.com.br` está verificado no painel do Resend
-- [ ] SQL M-05 foi executado no Supabase (restrições RLS)
+- [x] SQL M-05 foi executado no Supabase (restrições RLS) — 09/06/2026
 - [ ] Cookie `admin_session` funciona em HTTPS (testar login no preview da Vercel)
 - [ ] Formulário de contato envia e-mail e salva no Supabase em produção
 - [ ] Painel admin carrega os contatos salvos
@@ -3971,3 +3971,282 @@ Realizar auditoria visual, CSS e responsividade do projeto antes do deploy:
 - confirmar hover interactions em todos os componentes interativos;
 - confirmar que o formulário de contato e o painel admin estão visualmente corretos;
 - após validação visual, configurar variáveis de ambiente na Vercel e realizar o deploy.
+
+---
+
+## Sessões admin stateful no Redis — 09/06/2026
+
+### Contexto
+
+O cookie `admin_session` usava valor fixo `"authenticated"`. O proxy aceitava qualquer cookie com esse valor, sem revogação server-side.
+
+### Alteração (D-22)
+
+| Etapa | Comportamento |
+|---|---|
+| Login (`POST /api/admin/login`) | Após senha válida, gera `randomUUID()`, grava `admin:session:{token}` no Upstash Redis com TTL 8h, seta cookie httpOnly com o token |
+| Proxy (`src/proxy.ts`) | Função assíncrona; valida UUID no cookie e consulta Redis; fail closed se Redis indisponível ou chave ausente |
+| Logout (`POST /api/admin/logout`) | Remove chave `admin:session:{token}` do Redis e apaga o cookie |
+
+### Variáveis de ambiente
+
+`UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN` passam a ser **obrigatórias** para o painel admin (antes eram opcionais, usadas apenas para rate limiting).
+
+### Arquivos alterados
+
+- `src/app/api/admin/login/route.ts`
+- `src/app/api/admin/logout/route.ts`
+- `src/proxy.ts`
+- `DECISOES.md` — entrada D-22
+
+---
+
+## Rate limiting obrigatório em produção — 09/06/2026
+
+### Contexto
+
+O rate limiting em `/api/contact` e `/api/admin/login` só ativava se `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN` estivessem configuradas. Em produção sem Upstash, as rotas processavam requisições sem proteção anti-abuso.
+
+### Alteração
+
+| Ambiente | Upstash ausente | Comportamento |
+|---|---|---|
+| Produção (`NODE_ENV=production`) | Sim | **503** imediato com `{ error: "Serviço indisponível." }` — requisição não processada |
+| Desenvolvimento | Sim | Rate limiting opcional (comportamento anterior mantido) |
+| Qualquer | Configurado | Limites inalterados: 3/10min (contact), 5/15min (login) |
+
+Log interno via `console.error` com prefixo `[contact]` ou `[admin/login]` indicando variável ausente.
+
+### Arquivos alterados
+
+- `src/app/api/contact/route.ts`
+- `src/app/api/admin/login/route.ts`
+- `.env.example`
+
+---
+
+## Migrations Supabase versionadas — 09/06/2026
+
+### Contexto
+
+O schema da tabela `contacts` existia apenas neste arquivo, aplicado via MCP. O SQL M-05 (restrições de tamanho na política RLS) estava documentado na seção 71 mas não executado no banco.
+
+### Alteração (D-23)
+
+Pasta `supabase/migrations/` criada com migrations retroativas:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `0001_create_contacts.sql` | `CREATE TABLE public.contacts` + `ENABLE ROW LEVEL SECURITY` + políticas `allow_insert_contacts` e `allow_select_authenticated` |
+| `0002_add_field_constraints.sql` | `ALTER POLICY` M-05 — restrições `char_length` em name, email, phone, message |
+
+### Execução no Supabase
+
+- **M-05 (`0002_add_field_constraints.sql`):** executado em 09/06/2026 no SQL Editor — `Success. No rows returned`.
+- **`0001_create_contacts.sql`:** usar apenas em ambiente novo onde a tabela ainda não foi criada.
+
+### Arquivos alterados
+
+- `supabase/migrations/0001_create_contacts.sql`
+- `supabase/migrations/0002_add_field_constraints.sql`
+- `DECISOES.md` — entrada D-23
+
+---
+
+## Refatoração CSS inline do painel admin — 09/06/2026
+
+### Contexto
+
+As rotas `/acesso` e `/acesso/painel` usavam 32 ocorrências de `style={{}}` com cores hardcoded do tema claro admin, fora do design system do site público.
+
+### Alteração
+
+**Passo 1 — Tokens admin em `globals.css` (`:root`):**
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--admin-background` | `#faf9f7` | Fundo das páginas admin |
+| `--admin-foreground` | `#1a1a1a` | Texto principal |
+| `--admin-muted` | `#6b6560` | Texto secundário, labels |
+| `--admin-border` | `#d1ccc4` | Bordas de inputs e botões |
+| `--admin-border-subtle` | `#ece9e4` | Bordas de linhas da tabela |
+
+**Passo 2 — Substituição de inline styles:**
+
+- `src/app/acesso/page.tsx` — 7 `style={{}}` removidos
+- `src/app/acesso/painel/page.tsx` — 25 `style={{}}` removidos
+- Classes Tailwind com arbitrary values (`bg-[--admin-background]`, `text-[--admin-muted]`, etc.) e tokens existentes (`text-accent`, `bg-accent`, `text-red-600`)
+
+### Arquivos alterados
+
+- `src/app/globals.css`
+- `src/app/acesso/page.tsx`
+- `src/app/acesso/painel/page.tsx`
+
+---
+
+## Correção fundo admin — tokens no @theme + layout — 09/06/2026
+
+### Problema
+
+`bg-[var(--admin-background)]` e demais arbitrary values não aplicavam o fundo bege de forma confiável; o `body` (`background: var(--background)` → `#0b0b0b`) ficava visível.
+
+### Correção
+
+1. **Passo A:** tokens admin mapeados em `@theme inline` (`--color-admin-*`) — mesmo padrão de `bg-background`.
+2. **Passo B:** arbitrary values substituídos por utilitários semânticos (`bg-admin-background`, `text-admin-muted`, `border-admin-border`, etc.).
+3. **Passo C:** `src/app/acesso/layout.tsx` com wrapper `min-h-screen bg-admin-background text-admin-foreground` — fundo centralizado para `/acesso` e `/acesso/painel`.
+
+### Arquivos alterados
+
+- `src/app/globals.css`
+- `src/app/acesso/layout.tsx`
+- `src/app/acesso/page.tsx`
+- `src/app/acesso/painel/page.tsx`
+
+---
+
+## Refinamento visual Hero e About — 09/06/2026
+
+### Contexto
+
+Ajustes pontuais de layout e hierarquia tipográfica nas duas primeiras seções da landing page, após validação visual iterativa.
+
+### Hero (`src/components/sections/Hero.tsx`)
+
+| Melhoria | Detalhe |
+|---|---|
+| Overlay reduzido | Gradiente `from-background/90 via-background/70 to-background/20` — a foto de fundo respira mais, especialmente no lado direito |
+| Trust indicators | Linha horizontal com separadores dourados (`divide-x divide-accent/30`); três spans fixos com padding individual e `whitespace-nowrap` (`Sigilo total` · `Estratégia` · `Atuação técnica`) |
+| Botão secundário | Borda mais visível: `border-foreground/40` (antes `/20`) |
+| Card direito | Fade progressivo nas três palavras: opacidade 90 → 70 → 50 (`text-foreground/90`, `/70`, `/50`); card alinhado à direita da coluna |
+
+### About (`src/components/sections/About.tsx`)
+
+| Melhoria | Detalhe |
+|---|---|
+| Foto expandida | Wrapper `w-full` — foto ocupa a coluna inteira, sem `max-w-[380px]` |
+| Citação removida | Bloco em itálico abaixo da foto excluído |
+| Credencial OAB/RJ | Texto `OAB/RJ · Advocacia Criminal` abaixo da foto (`text-[11px] uppercase tracking-[0.2em]`) |
+| Lista de diferenciais | `border-l-2` substituído por check dourado (`✓`) em cada item |
+
+### Arquivos alterados
+
+- `src/components/sections/Hero.tsx`
+- `src/components/sections/About.tsx`
+
+---
+
+## Refinamento visual PracticeAreas e Differentials — 09/06/2026
+
+### Contexto
+
+Ajustes de hierarquia visual e consistência entre cards nas seções de áreas de atuação e diferenciais.
+
+### PracticeAreas (`src/components/sections/PracticeAreas.tsx`)
+
+| Melhoria | Detalhe |
+|---|---|
+| Campo `featured` | `featured: true` nos três primeiros cards (Prisão em flagrante, Audiência de custódia, Inquérito policial) |
+| Cards featured | Borda `border-accent/30`, número com `text-accent/70`, linha dourada no topo (`via-accent/40`), `relative overflow-hidden` |
+| Último card | `lg:col-span-3` com conteúdo limitado a `max-w-sm` — substitui `lg:col-start-2` |
+| Hover | Linha animada inferior: `group-hover:w-12` (antes `w-8`) |
+
+### Differentials (`src/components/sections/Differentials.tsx`)
+
+| Melhoria | Detalhe |
+|---|---|
+| Símbolos removidos | Campo `symbol` e `<span>` decorativo com rotação no hover excluídos |
+| Numeração romana | Ordem I–IV acima do título via `index` do `.map()` |
+| Padding | `p-7` → `p-8`; `gap-6` → `gap-5` |
+| Linha dourada no topo | Presente em todos os cards (`via-accent/30`), com `relative overflow-hidden` |
+| Hover | Linha animada inferior: `group-hover:w-12` (antes `w-8`) |
+
+### Arquivos alterados
+
+- `src/components/sections/PracticeAreas.tsx`
+- `src/components/sections/Differentials.tsx`
+
+---
+
+## Refinamento visual FAQ, Contact e Footer — 09/06/2026
+
+### Contexto
+
+Ajustes de hierarquia visual e consistência com o padrão dourado nas seções finais da landing page e no rodapé.
+
+### FAQ (`src/components/sections/FAQ.tsx`)
+
+| Melhoria | Detalhe |
+|---|---|
+| Bordas do acordeão | `border-t border-border` em todos os itens; `border-b border-border` no container `max-w-3xl` |
+| Peso das perguntas | `font-medium` → `font-semibold` |
+| Numeração | Ordem `01`–`06` em dourado (`text-accent/40`) antes de cada pergunta |
+
+### Contact (`src/components/sections/Contact.tsx`)
+
+| Melhoria | Detalhe |
+|---|---|
+| Linha dourada | `h-px w-12 bg-accent/50` acima do bloco formulário/success |
+| Lista de informações | `border-l-2` substituído por check dourado (`✓`) |
+| Terceiro item | "Atendimento sigiloso desde o primeiro contato" adicionado à lista |
+
+### Footer (`src/components/layout/Footer.tsx`)
+
+| Melhoria | Detalhe |
+|---|---|
+| Linha dourada no topo | Gradiente `from-transparent via-accent/40 to-transparent` logo após `<footer>` |
+| Marca | Nome "Monique Ranauro" em `text-lg` com `mb-1` antes do subtítulo |
+| Separadores no desktop | Grid com `md:divide-x md:divide-border`; colunas 2 e 3 com `md:pl-12` |
+| Barra final | Copyright em `text-muted/80`; aviso legal em `text-muted/60`; `gap-1` |
+
+### Arquivos alterados
+
+- `src/components/sections/FAQ.tsx`
+- `src/components/sections/Contact.tsx`
+- `src/components/layout/Footer.tsx`
+
+---
+
+## Contador de visitantes únicos — 09/06/2026
+
+### Contexto
+
+Exibir discretamente o total de visitantes únicos no footer, com registro anônimo no Supabase e deduplicação diária por hash (D-24).
+
+### Schema (`supabase/migrations/0003_create_page_views.sql`)
+
+| Elemento | Detalhe |
+|---|---|
+| Tabela | `public.page_views` — `visitor_hash`, `visited_at`, `created_at` |
+| Deduplicação | `UNIQUE(visitor_hash, visited_at)` — uma visita por hash/dia |
+| Índice | `idx_page_views_visited_at` |
+| RLS | Habilitado, sem policies públicas — acesso via `SUPABASE_SERVICE_ROLE_KEY` |
+
+**Execução:** rodar manualmente no SQL Editor do Supabase Dashboard.
+
+### API routes
+
+| Rota | Método | Função |
+|---|---|---|
+| `/api/page-view` | POST | Hash SHA-256 de `ip\|user-agent\|data`; upsert com `ignoreDuplicates` |
+| `/api/page-view-count` | GET | `count(*)` total de registros |
+
+Rotas públicas — fora do matcher do proxy (`/api/admin/*` apenas).
+
+### Frontend
+
+| Componente | Detalhe |
+|---|---|
+| `PageViewTracker.tsx` | Client Component na home; POST silencioso em `useEffect` |
+| `Footer.tsx` | Server Component assíncrono; fetch de `${SITE_URL}/api/page-view-count` com `revalidate: 3600`; contador em `text-muted/30 tabular-nums` entre copyright e aviso legal |
+
+### Arquivos criados/alterados
+
+- `supabase/migrations/0003_create_page_views.sql`
+- `src/app/api/page-view/route.ts`
+- `src/app/api/page-view-count/route.ts`
+- `src/components/ui/PageViewTracker.tsx`
+- `src/app/page.tsx`
+- `src/components/layout/Footer.tsx`
+- `DECISOES.md` — D-24

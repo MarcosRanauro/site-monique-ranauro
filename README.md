@@ -2,174 +2,157 @@
 
 Site profissional desenvolvido para a advogada **Monique Ranauro**, com foco em uma presença digital moderna, elegante, responsiva e alinhada à atuação na área criminal.
 
-O projeto tem como objetivo apresentar a profissional, suas áreas de atuação e facilitar o contato direto com potenciais clientes, mantendo uma comunicação sóbria, técnica e compatível com a seriedade da advocacia.
+O projeto apresenta a profissional, suas áreas de atuação e facilita o contato direto com potenciais clientes, mantendo uma comunicação sóbria, técnica e compatível com a seriedade da advocacia.
+
+**URL em produção:** [moniqueranauro.com.br](https://moniqueranauro.com.br)
 
 ---
 
 ## Visão geral
 
-Este projeto consiste em uma landing page institucional para advocacia criminal, desenvolvida com foco em:
+Landing page institucional para advocacia criminal, com:
 
-- Design moderno e elegante
+- Design moderno e elegante (paleta escura, dourado discreto)
 - Comunicação clara e profissional
-- Alta performance
-- Responsividade para dispositivos móveis
-- Estrutura de código limpa e escalável
-- SEO básico para melhor indexação
-- Facilidade de manutenção e evolução
-
----
-
-## Objetivo do projeto
-
-Criar um site institucional que transmita autoridade, confiança e profissionalismo, sem recorrer a elementos visuais genéricos ou ultrapassados comuns em sites jurídicos.
-
-A proposta visual do projeto segue uma linha mais sofisticada, com identidade sóbria, tipografia elegante, espaçamentos bem definidos e experiência de navegação objetiva.
-
----
-
-## Tecnologias utilizadas
-
-Este projeto foi desenvolvido com as seguintes tecnologias:
-
-- [Next.js](https://nextjs.org/)
-- [React](https://react.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- ESLint
-- Git e GitHub
+- Alta performance e responsividade mobile-first
+- SEO básico (metadata, Open Graph, sitemap, robots.txt)
+- Formulário de contato com envio de e-mail via Resend
+- Painel administrativo para gestão de contatos recebidos
 
 ---
 
 ## Status do projeto
 
-Em desenvolvimento.
+**Em produção** — versão **1.5.0** (ver `CHANGELOG.md`).
 
-Etapas principais:
+Deploy automático na Vercel a cada push na branch `main`.
 
-- [x] Criação do repositório
-- [x] Configuração inicial do projeto
-- [x] Configuração com Next.js, TypeScript e Tailwind CSS
-- [ ] Definição da identidade visual
-- [ ] Criação dos componentes principais
-- [ ] Desenvolvimento da página inicial
-- [ ] Responsividade mobile
-- [ ] Otimização de SEO
-- [ ] Deploy em produção
+Principais marcos concluídos:
+
+- [x] Landing page completa (Hero, Plantão 24h, Sobre, Áreas de Atuação, Diferenciais, FAQ, Contato)
+- [x] Identidade visual definida (tokens, fontes, componentes)
+- [x] Responsividade e acessibilidade auditadas
+- [x] SEO (metadata, Open Graph, sitemap, robots.txt)
+- [x] Fotos profissionais no Hero e na seção Sobre
+- [x] WhatsApp configurado em todos os CTAs
+- [x] Domínio `moniqueranauro.com.br` em produção
+- [x] Formulário de contato integrado ao Resend
+- [x] Persistência de contatos no Supabase (tabela `contacts`)
+- [x] Painel admin em `/acesso` com autenticação por senha
 
 ---
 
-## Estrutura inicial do projeto
+## Funcionalidades
+
+### Site público
+
+- Header com navegação desktop e menu mobile
+- Botão WhatsApp flutuante
+- Formulário de contato (nome, e-mail, telefone, mensagem) com validação client-side e server-side
+- Acordeão interativo no FAQ
+
+### Backend e integrações
+
+| Recurso | Descrição |
+|---|---|
+| **Resend** | Envio de e-mail do formulário via `POST /api/contact` |
+| **Supabase** | Tabela `public.contacts` — contatos salvos após envio bem-sucedido (opcional para o formulário; obrigatório para o painel) |
+| **Upstash Redis** | Rate limiting e sessões do painel admin |
+| **Painel admin** (`/acesso`) | Login por senha (`ADMIN_PASSWORD`); listagem, busca, exportação CSV e exclusão de contatos |
+
+A autenticação do painel usa cookie httpOnly com token de sessão armazenado no Redis (TTL 8 horas). Rotas protegidas: `/acesso/painel` e `/api/admin/*`.
+
+---
+
+## Tecnologias
+
+- [Next.js](https://nextjs.org/) 16 (App Router)
+- [React](https://react.dev/) 19
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/) v4
+- [Resend](https://resend.com/) — e-mail
+- [Supabase](https://supabase.com/) — PostgreSQL
+- [Upstash Redis](https://upstash.com/) — rate limiting e sessões
+- Deploy: [Vercel](https://vercel.com/)
+
+---
+
+## Estrutura do projeto
 
 ```txt
 site-monique-ranauro/
 ├── public/
+│   ├── images/          # Fotos e assets visuais
+│   └── og-image.png
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx
-│   │   ├── layout.tsx
-│   │   └── globals.css
-│   └── components/
-├── .gitignore
+│   │   ├── page.tsx           # Landing page
+│   │   ├── acesso/            # Login e painel admin
+│   │   └── api/
+│   │       ├── contact/       # Formulário público
+│   │       └── admin/         # Login, logout, contatos
+│   ├── components/
+│   ├── config/                # WHATSAPP_URL, SITE_URL, navLinks
+│   ├── lib/
+│   └── proxy.ts               # Proteção das rotas admin
+├── supabase/migrations/       # Schema versionado
 ├── package.json
-├── README.md
-├── tsconfig.json
 └── next.config.ts
+```
 
-Seções previstas para o site
+---
 
-A landing page será composta inicialmente pelas seguintes seções:
+## Como rodar localmente
 
-Header com navegação
-Hero principal
-Sobre a advogada
-Áreas de atuação
-Diferenciais
-Processo de atendimento
-Perguntas frequentes
-Contato
-Rodapé institucional
-Identidade visual
-
-Direção visual proposta:
-
-Base escura, elegante e sofisticada
-Contrastes em tons claros
-Detalhes em dourado, bronze ou tons neutros refinados
-Layout limpo e com boa hierarquia visual
-Animações discretas e profissionais
-Fotografia em destaque, sem excesso de elementos decorativos
-
-O objetivo é transmitir seriedade, segurança e sofisticação, evitando clichês visuais comuns na área jurídica.
-
-Como rodar o projeto localmente
-1. Clone o repositório
+```bash
 git clone git@github.com:MarcosRanauro/site-monique-ranauro.git
-2. Acesse a pasta do projeto
 cd site-monique-ranauro
-3. Instale as dependências
 npm install
-4. Rode o servidor de desenvolvimento
+cp .env.example .env.local   # preencher variáveis
 npm run dev
+```
 
-O projeto ficará disponível em:
+Disponível em `http://localhost:3000`.
 
-http://localhost:3000
-Scripts disponíveis
-npm run dev
+---
 
-Inicia o ambiente de desenvolvimento.
+## Scripts disponíveis
 
-npm run build
+| Comando | Função |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento |
+| `npm run build` | Build de produção |
+| `npm run start` | Servidor de produção (após build) |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Verificação TypeScript |
+| `npm run audit:project` | Auditoria automática do projeto |
 
-Gera a versão otimizada para produção.
+---
 
-npm run start
+## Variáveis de ambiente
 
-Inicia a aplicação em modo produção após o build.
+Referência completa em `.env.example`. Principais variáveis:
 
-npm run lint
+- `RESEND_API_KEY` — envio de e-mail (obrigatório para o formulário)
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY` — inserção de contatos
+- `SUPABASE_SERVICE_ROLE_KEY` — leitura/exclusão no painel admin
+- `ADMIN_PASSWORD` — senha do painel em `/acesso`
+- `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — rate limiting e sessões admin (obrigatório em produção)
 
-Executa a verificação de lint do projeto.
+---
 
-Boas práticas adotadas
+## Considerações éticas
 
-O desenvolvimento seguirá boas práticas como:
+Por se tratar de um site profissional voltado à advocacia, o conteúdo respeita os limites da publicidade jurídica (Provimento 205/2021 da OAB): sem promessas de resultado, linguagem sensacionalista ou captação indevida de clientela.
 
-Componentização clara
-Código limpo e reutilizável
-Separação entre estrutura, estilo e conteúdo
-Responsividade mobile-first
-Uso consistente de TypeScript
-Organização progressiva de pastas
-Otimização de imagens
-Atenção à acessibilidade
-Semântica HTML adequada
-Performance e SEO desde a base
-Deploy
+---
 
-O deploy será realizado preferencialmente na Vercel, por sua integração nativa com projetos Next.js.
-
-Fluxo previsto:
-
-Projeto versionado no GitHub
-Repositório conectado à Vercel
-Deploy automático a cada push na branch principal
-Configuração de domínio personalizado
-Revisão final em produção
-Considerações éticas
-
-Por se tratar de um site profissional voltado à advocacia, o conteúdo será desenvolvido com atenção à comunicação ética, evitando promessas de resultado, linguagem sensacionalista ou captação indevida de clientela.
-
-A comunicação será institucional, informativa e profissional.
-
-Desenvolvedor
+## Desenvolvedor
 
 Projeto desenvolvido por Marcos.
 
-Licença
+---
 
-Este projeto é privado e destinado exclusivamente ao desenvolvimento do site profissional da advogada Monique Ranauro.
+## Licença
 
-Todos os direitos reservados.
-
+Este projeto é privado e destinado exclusivamente ao site profissional da advogada Monique Ranauro. Todos os direitos reservados.

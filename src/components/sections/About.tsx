@@ -14,9 +14,7 @@ export default function About() {
 
         {/* Coluna esquerda — foto profissional */}
         <div className="flex items-center justify-center">
-          <div className="flex w-48 flex-col gap-5 sm:w-56 md:w-full md:max-w-[380px]">
-
-            {/* Foto */}
+          <div className="w-full">
             <div className="group relative aspect-[3/4] w-full overflow-hidden border border-accent/30 shadow-lg">
               <Image
                 src="/images/monique-ranauro3.png"
@@ -31,11 +29,9 @@ export default function About() {
               />
             </div>
 
-            {/* Citação — legenda elegante da foto */}
-            <p className="text-center text-xs italic leading-relaxed text-muted/80">
-              &ldquo;A defesa começa com escuta atenta e se constrói com análise cuidadosa de cada caso.&rdquo;
+            <p className="mt-4 text-center text-[11px] uppercase tracking-[0.2em] text-muted/60">
+              OAB/RJ · Advocacia Criminal
             </p>
-
           </div>
         </div>
 
@@ -64,10 +60,8 @@ export default function About() {
 
           <ul className="flex flex-col gap-3">
             {supportItems.map((item) => (
-              <li
-                key={item}
-                className="flex items-center gap-4 border-l-2 border-accent/50 py-1 pl-4"
-              >
+              <li key={item} className="flex items-center gap-3">
+                <span className="text-accent text-base leading-none shrink-0">✓</span>
                 <span className="text-sm text-foreground/80">{item}</span>
               </li>
             ))}

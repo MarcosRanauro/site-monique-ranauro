@@ -35,21 +35,10 @@ export default function AcessoPage() {
   };
 
   return (
-    <main
-      style={{ background: "#faf9f7", minHeight: "100vh" }}
-      className="flex items-center justify-center px-6"
-    >
-      <div style={{ maxWidth: "360px", width: "100%" }}>
+    <main className="flex min-h-screen items-center justify-center px-6">
+      <div className="w-full max-w-[360px]">
         <div className="mb-10 text-center">
-          <span
-            style={{
-              fontFamily: "var(--font-heading)",
-              fontSize: "3.5rem",
-              color: "#b08d57",
-              lineHeight: 1,
-              display: "block",
-            }}
-          >
+          <span className="font-heading block text-[3.5rem] leading-none text-accent">
             M
           </span>
         </div>
@@ -58,8 +47,7 @@ export default function AcessoPage() {
           <div className="flex flex-col gap-2">
             <label
               htmlFor="password"
-              style={{ color: "#6b6560" }}
-              className="text-xs font-medium uppercase tracking-[0.15em]"
+              className="text-xs font-medium uppercase tracking-[0.15em] text-admin-muted"
             >
               Senha de acesso
             </label>
@@ -71,13 +59,12 @@ export default function AcessoPage() {
               disabled={loading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ borderColor: "#d1ccc4", color: "#1a1a1a", background: "#fff" }}
-              className="border px-4 py-3 text-sm outline-none transition-colors duration-300 focus:border-[#b08d57] disabled:opacity-60"
+              className="border border-admin-border bg-white px-4 py-3 text-sm text-admin-foreground outline-none transition-colors duration-300 focus:border-[#b08d57] disabled:opacity-60"
             />
           </div>
 
           {error && (
-            <p role="alert" style={{ color: "#dc2626" }} className="text-xs">
+            <p role="alert" className="text-xs text-red-600">
               {error}
             </p>
           )}
@@ -85,8 +72,7 @@ export default function AcessoPage() {
           <button
             type="submit"
             disabled={loading || !password}
-            style={{ background: "#b08d57", color: "#fff" }}
-            className="px-6 py-3 text-sm font-medium transition-opacity duration-300 hover:opacity-90 disabled:opacity-60"
+            className="bg-accent px-6 py-3 text-sm font-medium text-white transition-opacity duration-300 hover:opacity-90 disabled:opacity-60"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>

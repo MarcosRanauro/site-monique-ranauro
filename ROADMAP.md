@@ -1,63 +1,89 @@
 # Roadmap — Site Monique Ranauro
 
+**Status atual:** v1.5.0 em produção em [moniqueranauro.com.br](https://moniqueranauro.com.br).
+
+---
+
 ## ✅ Concluído
 
-- [x] Setup do projeto (Next.js + TypeScript + Tailwind)
-- [x] Configuração visual base (tokens, fontes, globals.css)
-- [x] Header (desktop)
-- [x] Hero principal
-- [x] Seção Sobre (About)
-- [x] Seção Áreas de Atuação (PracticeAreas) — 7 cards
+### Setup e infraestrutura
+
+- [x] Setup do projeto (Next.js 16 + TypeScript + Tailwind CSS v4)
+- [x] Estrutura em `src/` com alias `@/`
+- [x] Deploy na Vercel com CI automático (push na `main`)
+- [x] Domínio `moniqueranauro.com.br` configurado em produção
+- [x] Domínio verificado no Resend (`site@moniqueranauro.com.br`)
+- [x] Security headers (HSTS, CSP, X-Frame-Options, COOP)
+- [x] Migrations Supabase versionadas em `supabase/migrations/`
+- [x] Restrições RLS M-05 executadas na política `allow_insert_contacts`
+
+### Site público
+
+- [x] Identidade visual (tokens, fontes Playfair Display + Inter, paleta escura/dourado)
+- [x] Header (desktop + menu hambúrguer mobile)
+- [x] Hero principal com foto profissional de fundo
 - [x] Seção Plantão 24h (OnCall)
-- [x] Seção Diferenciais
-- [x] Seção FAQ — acordeão interativo
+- [x] Seção Sobre (About) com foto da advogada em mobile e desktop
+- [x] Seção Áreas de Atuação (PracticeAreas) — 7 cards
+- [x] Seção Diferenciais — 4 cards
+- [x] Seção FAQ — acordeão interativo (6 perguntas)
 - [x] Seção Contato — formulário com validação
-- [x] Integração Resend — envio real de e-mail
-- [x] Máscara e validação do campo telefone
 - [x] Footer institucional
-- [x] Menu hambúrguer (Header mobile)
 - [x] Botão WhatsApp flutuante
-- [x] Validar scroll suave entre âncoras em todos os breakpoints
-- [x] Auditoria visual mobile (375px, 390px, 430px)
-- [x] Auditoria visual tablet (768px)
-- [x] Validar hover states e micro-animações
-- [x] Acessibilidade básica (contraste, headings, áreas de toque, alt)
-- [x] Metadata completa (title, description)
+- [x] Número de WhatsApp real configurado em todos os CTAs
+- [x] Hover interactions e micro-animações (`duration-300`)
+- [x] Responsividade auditada (375px, 390px, 430px, 768px, 1280px)
+- [x] Acessibilidade básica (WCAG AA, ARIA, headings, listas semânticas)
+
+### Backend e integrações
+
+- [x] Formulário de contato — `POST /api/contact`
+- [x] Integração Resend — envio real de e-mail
+- [x] Integração Supabase — tabela `public.contacts` com RLS
+- [x] Rate limiting via Upstash Redis (3/10min no formulário, 5/15min no login)
+- [x] Rate limiting obrigatório em produção (fail closed sem Upstash)
+- [x] Painel admin em `/acesso` — autenticação por senha
+- [x] Sessões admin stateful no Redis (token UUID, TTL 8h, revogação no logout)
+- [x] Painel: listagem, busca, paginação, exportação CSV, exclusão de contatos
+- [x] Proxy (`src/proxy.ts`) protegendo `/acesso/painel` e `/api/admin/*`
+
+### SEO
+
+- [x] Metadata completa (title, description, keywords)
 - [x] Open Graph e Twitter Card
-- [x] Sitemap e robots.txt
-- [x] Imagem OG placeholder
-- [x] Deploy na Vercel
-- [x] Checklist final em produção
+- [x] Imagem OG em PNG 1200×630px
+- [x] Sitemap (`/sitemap.xml`) e robots (`/robots.txt`)
+- [x] URL canônica `https://moniqueranauro.com.br`
+
+### Qualidade
+
+- [x] Auditorias técnicas (rounds 1–3)
+- [x] `npm run lint`, `typecheck` e `build` sem erros
+- [x] Script de auditoria automática (`npm run audit:project`)
 
 ---
 
-## ⏸ Fase 3 — Conteúdo real (aguardando cliente)
+## 🔲 Futuro / Melhorias
 
-- [ ] Foto profissional da Monique (Hero e About)
-- [ ] Número de WhatsApp real (todos os CTAs)
-- [ ] Copy final revisado
-- [ ] Endereço e dados do escritório (Footer e Contato)
-- [ ] E-mail de destino do formulário (moniqueranauro@gmail.com)
+Itens documentados como pendentes ou opcionais no `CONTEXT.md`:
 
----
+### Conteúdo (depende da cliente)
 
-## 🔲 Fase 3b — Quando o domínio estiver pronto
+- [ ] Endereço completo do escritório no Footer e Contato (hoje: apenas "Nova Iguaçu, RJ")
+- [ ] Copy final revisado pela advogada
 
-- [ ] Configurar domínio próprio na Vercel
-- [ ] HTTPS automático validado
-- [ ] Verificar domínio no Resend
-- [ ] Atualizar from/to no src/app/api/contact/route.ts
-- [ ] Atualizar SITE_URL em src/app/layout.tsx
-- [ ] Atualizar URL no src/app/sitemap.ts
-- [ ] Atualizar URL no src/app/robots.ts
-- [ ] Teste final em produção com domínio real
-- [ ] Atualizar README.md e CONTEXT.md com URL em produção
+### Limpeza e documentação
 
----
+- [ ] Remover `public/images/monique-ranauro2.png` (arquivo órfão, não referenciado)
+- [ ] Atualizar `CLAUDE.md` seção 10 (pendências desatualizadas)
 
-## 📌 Pendências que dependem da cliente
+### Infraestrutura e validação
 
-- [ ] Foto profissional para Hero e About
-- [ ] Número de WhatsApp definitivo
-- [ ] Domínio próprio (ex: moniqueranauro.adv.br)
-- [ ] Confirmação do endereço do escritório
+- [ ] Confirmar variáveis de ambiente configuradas na Vercel em produção
+- [ ] Validar formulário de contato e painel admin em produção após deploy
+- [ ] Verificar pré-visualização OG no WhatsApp/LinkedIn
+- [ ] Confirmar `/sitemap.xml` e `/robots.txt` acessíveis em produção
+
+### Segurança e dependências
+
+- [ ] Atualizar `next@16.3.0` (ou superior estável) quando disponível — corrige vulnerabilidade PostCSS (GHSA-qx2v-qp2m-jg93); ver `SECURITY.md`

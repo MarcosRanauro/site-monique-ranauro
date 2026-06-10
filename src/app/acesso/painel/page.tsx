@@ -141,28 +141,22 @@ export default function PainelPage() {
   };
 
   return (
-    <main
-      style={{ background: "#faf9f7", minHeight: "100vh", color: "#1a1a1a" }}
-      className="px-6 py-10"
-    >
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+    <main className="px-6 py-10">
+      <div className="mx-auto max-w-[1100px]">
 
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-baseline gap-3">
-            <span
-              style={{ fontFamily: "var(--font-heading)", color: "#b08d57", fontSize: "1.75rem", lineHeight: 1 }}
-            >
+            <span className="font-heading text-[1.75rem] leading-none text-accent">
               M
             </span>
-            <span className="text-sm" style={{ color: "#6b6560" }}>
+            <span className="text-sm text-admin-muted">
               Painel de contatos
             </span>
           </div>
           <button
             onClick={handleLogout}
-            style={{ color: "#6b6560", borderColor: "#d1ccc4" }}
-            className="border px-4 py-2 text-xs transition-colors duration-300 hover:border-[#b08d57] hover:text-[#b08d57]"
+            className="border border-admin-border px-4 py-2 text-xs text-admin-muted transition-colors duration-300 hover:border-[#b08d57] hover:text-[#b08d57]"
           >
             Sair
           </button>
@@ -178,14 +172,12 @@ export default function PainelPage() {
               setPage(1);
             }}
             placeholder="Buscar por nome, e-mail ou telefone..."
-            style={{ borderColor: "#d1ccc4", color: "#1a1a1a", background: "#fff" }}
-            className="w-full border px-4 py-2 text-sm outline-none transition-colors duration-300 focus:border-[#b08d57] sm:max-w-xs"
+            className="w-full border border-admin-border bg-white px-4 py-2 text-sm text-admin-foreground outline-none transition-colors duration-300 focus:border-[#b08d57] sm:max-w-xs"
           />
           <button
             onClick={() => exportCSV(filtered)}
             disabled={filtered.length === 0}
-            style={{ color: "#b08d57", borderColor: "#b08d57" }}
-            className="shrink-0 border px-4 py-2 text-xs font-medium transition-colors duration-300 hover:bg-[#b08d57] hover:text-white disabled:opacity-40"
+            className="shrink-0 border border-accent px-4 py-2 text-xs font-medium text-accent transition-colors duration-300 hover:bg-[#b08d57] hover:text-white disabled:opacity-40"
           >
             Exportar CSV ({filtered.length})
           </button>
@@ -193,35 +185,34 @@ export default function PainelPage() {
 
         {/* Erro inline (auto-dismiss 4s) */}
         {errorMessage && (
-          <p role="alert" className="mb-4 text-sm" style={{ color: "#dc2626" }}>
+          <p role="alert" className="mb-4 text-sm text-red-600">
             {errorMessage}
           </p>
         )}
 
         {/* Content */}
         {loadingData ? (
-          <p className="text-sm" style={{ color: "#6b6560" }}>
+          <p className="text-sm text-admin-muted">
             Carregando...
           </p>
         ) : error ? (
-          <p role="alert" className="text-sm" style={{ color: "#dc2626" }}>
+          <p role="alert" className="text-sm text-red-600">
             {error}
           </p>
         ) : filtered.length === 0 ? (
-          <p className="text-sm" style={{ color: "#6b6560" }}>
+          <p className="text-sm text-admin-muted">
             {search ? "Nenhum resultado para a busca." : "Nenhum contato recebido ainda."}
           </p>
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
+              <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid #d1ccc4" }}>
+                  <tr className="border-b border-admin-border">
                     {["Data", "Nome", "E-mail", "Telefone", "Mensagem", "Ação"].map((h) => (
                       <th
                         key={h}
-                        className="px-3 pb-3 text-left text-xs font-medium uppercase tracking-[0.1em]"
-                        style={{ color: "#6b6560" }}
+                        className="px-3 pb-3 text-left text-xs font-medium uppercase tracking-[0.1em] text-admin-muted"
                       >
                         {h}
                       </th>
@@ -232,19 +223,15 @@ export default function PainelPage() {
                   {paginated.map((c) => (
                     <tr
                       key={c.id}
-                      style={{ borderBottom: "1px solid #ece9e4" }}
-                      className="transition-colors duration-300 hover:bg-[#f0ede8]"
+                      className="border-b border-admin-border-subtle transition-colors duration-300 hover:bg-[#f0ede8]"
                     >
-                      <td
-                        className="px-3 py-4 text-xs whitespace-nowrap"
-                        style={{ color: "#6b6560" }}
-                      >
+                      <td className="px-3 py-4 text-xs whitespace-nowrap text-admin-muted">
                         {formatDate(c.created_at)}
                       </td>
                       <td className="px-3 py-4 font-medium">{c.name}</td>
                       <td className="px-3 py-4">{c.email}</td>
                       <td className="px-3 py-4 whitespace-nowrap">{c.phone}</td>
-                      <td className="px-3 py-4" style={{ maxWidth: "280px" }}>
+                      <td className="max-w-[280px] px-3 py-4">
                         <span
                           className="line-clamp-2"
                           title={c.message}
@@ -290,19 +277,17 @@ export default function PainelPage() {
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  style={{ borderColor: "#d1ccc4", color: "#1a1a1a" }}
-                  className="border px-3 py-1 text-xs transition-colors duration-300 disabled:opacity-40 hover:border-[#b08d57]"
+                  className="border border-admin-border px-3 py-1 text-xs text-admin-foreground transition-colors duration-300 hover:border-[#b08d57] disabled:opacity-40"
                 >
                   Anterior
                 </button>
-                <span className="text-xs" style={{ color: "#6b6560" }}>
+                <span className="text-xs text-admin-muted">
                   {page} / {totalPages}
                 </span>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  style={{ borderColor: "#d1ccc4", color: "#1a1a1a" }}
-                  className="border px-3 py-1 text-xs transition-colors duration-300 disabled:opacity-40 hover:border-[#b08d57]"
+                  className="border border-admin-border px-3 py-1 text-xs text-admin-foreground transition-colors duration-300 hover:border-[#b08d57] disabled:opacity-40"
                 >
                   Próxima
                 </button>
@@ -320,19 +305,15 @@ export default function PainelPage() {
           onClick={handleCloseModal}
         >
           <div
-            className="w-full max-w-sm rounded-sm p-8 shadow-xl"
-            style={{ background: "#fff" }}
+            className="w-full max-w-sm rounded-sm bg-white p-8 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2
-              className="mb-3 text-lg font-semibold"
-              style={{ fontFamily: "var(--font-heading)", color: "#1a1a1a" }}
-            >
+            <h2 className="mb-3 font-heading text-lg font-semibold text-admin-foreground">
               Excluir contato
             </h2>
-            <p className="mb-6 text-sm leading-relaxed" style={{ color: "#6b6560" }}>
+            <p className="mb-6 text-sm leading-relaxed text-admin-muted">
               Tem certeza que deseja excluir o contato{" "}
-              <strong style={{ color: "#1a1a1a" }}>{deleteModal.contactName}</strong>?{" "}
+              <strong className="text-admin-foreground">{deleteModal.contactName}</strong>?{" "}
               Esta ação não pode ser desfeita.
             </p>
             <div className="flex gap-3">
@@ -340,8 +321,7 @@ export default function PainelPage() {
                 ref={cancelButtonRef}
                 type="button"
                 onClick={handleCloseModal}
-                style={{ borderColor: "#d1ccc4", color: "#6b6560" }}
-                className="flex-1 border px-4 py-2 text-sm transition-colors duration-300 hover:border-[#b08d57] hover:text-[#b08d57]"
+                className="flex-1 border border-admin-border px-4 py-2 text-sm text-admin-muted transition-colors duration-300 hover:border-[#b08d57] hover:text-[#b08d57]"
               >
                 Cancelar
               </button>

@@ -60,13 +60,13 @@ export default function FAQ() {
         </div>
 
         {/* Acordeão */}
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-3xl border-b border-border">
           {faqs.map(({ question, answer }, index) => {
             const isOpen = openIndex === index;
             return (
               <div
                 key={question}
-                className={cn("group", index > 0 && "border-t border-border transition-colors duration-300 group-hover:border-accent/40")}
+                className="group border-t border-border transition-colors duration-300 group-hover:border-accent/40"
               >
                 <button
                   type="button"
@@ -76,7 +76,10 @@ export default function FAQ() {
                   aria-controls={`faq-panel-${index}`}
                   className="flex w-full items-center justify-between gap-6 py-6 text-left text-foreground transition-colors duration-300 hover:text-accent"
                 >
-                  <span className="text-base font-medium">
+                  <span className="shrink-0 font-heading text-xs text-accent/40 mr-4">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-base font-semibold">
                     {question}
                   </span>
                   <span className="shrink-0 text-xl font-light text-accent">
